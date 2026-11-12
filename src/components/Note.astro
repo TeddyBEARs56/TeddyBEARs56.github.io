@@ -1,0 +1,13 @@
+---
+interface Props {
+	title?: string;
+}
+
+const { title = '주의' } = Astro.props;
+const id = `note-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<aside class="note" aria-labelledby={id}>
+	<h3 id={id}>{title}</h3>
+	<slot />
+</aside>

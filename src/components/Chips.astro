@@ -1,0 +1,18 @@
+---
+import { HAND_LABEL, type Hand } from '../data/series';
+
+interface Props {
+	hands: Hand[];
+	class?: string;
+	label?: string;
+}
+
+const { hands, class: className, label } = Astro.props;
+---
+
+<span class:list={['chips', className]} role={label ? 'group' : undefined} aria-label={label}>
+	{hands.length === 0 && <span class="chip">미정</span>}
+	{hands.map((h) => (
+		<span class:list={['chip', h === 'person' ? 'chip--person' : 'chip--instrument']}>{HAND_LABEL[h]}</span>
+	))}
+</span>

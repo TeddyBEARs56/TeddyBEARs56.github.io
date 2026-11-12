@@ -1,0 +1,109 @@
+---
+import { render } from 'astro:content';
+import Chips from '../../components/Chips.astro';
+import Base from '../../layouts/Base.astro';
+import { SERIES } from '../../data/series';
+import { getPosts, isoDate, postUrl, readingMinutes } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const posts = await getPosts();
+	return posts.map((post) => ({ params: { slug: post.id }, props: { post, posts } }));
+}
+
+const { post, posts } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2);
+const nextStage = post.data.stage + 1;
+const nextPost = posts.find((p) => p.data.stage === nextStage);
+const nextPlan = SERIES.find((s) => s.stage === nextStage);
+---
+
+<Base title={post.data.title} description={post.data.description} current="latest">
+	<div class="container post">
+		<article aria-labelledby="post-title">
+			<header class="post__head">
+				<nav aria-label="현재 위치">
+					<ol class="crumbs">
+						<li><a href="/#series">연재</a></li>
+						<li>{post.data.stage}단계</li>
+					</ol>
+				</nav>
+				<h1 id="post-title">{post.data.title}</h1>
+				<p class="post__lead">{post.data.lead ?? post.data.excerpt}</p>
+				<dl class="post__meta">
+					<div><dt>올린 날</dt><dd><time class="measured" datetime={isoDate(post.data.pubDate)}>{isoDate(post.data.pubDate)}</time></dd></div>
+					<div><dt>읽는 시간</dt><dd>약 {readingMinutes(post.body)}분</dd></div>
+					<div><dt>친 쪽</dt><dd><Chips hands={post.data.hands} /></dd></div>
+				</dl>
+			</header>
+
+			<div class="prose">
+				<Content />
+			</div>
+
+			<nav class="pager" aria-label="다른 글">
+				<a href="/#series"><small>처음으로</small><strong>연재 목차</strong></a>
+				{nextPost ? (
+					<a href={postUrl(nextPost)} class="pager__next"><small>다음 글</small><strong>{nextPost.data.stage}단계 {nextPost.data.title}</strong></a>
+				) : nextPlan ? (
+					<div class="pager__next"><small>다음 글, 준비 중</small><strong>{nextPlan.stage}단계 {nextPlan.title}</strong></div>
+				) : null}
+			</nav>
+		</article>
+
+		{toc.length > 0 && (
+			<aside class="toc" aria-labelledby="toc-title">
+				<h2 id="toc-title">이 글에서</h2>
+				<ol>
+					{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+				</ol>
+				<div class="toc__hands">
+					<span><span class="chip chip--person">사람</span> 정하고 암호를 친 일</span>
+					<span><span class="chip chip--instrument">기계</span> Claude가 실행하고 서버가 남긴 일</span>
+				</div>
+			</aside>
+		)}
+	</div>
+</Base>
+
+<script>
+	// Copy a code block without its "$ " prompts and trailing "# ..." notes
+	document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+		btn.addEventListener('click', async () => {
+			const pre = btn.closest('.code')?.querySelector('pre');
+			if (!pre) return;
+			const text = (pre.textContent ?? '')
+				.split('\n')
+				.filter((line) => !/^\s*#/.test(line))
+				.map((line) => line.replace(/^\$\s/, '').replace(/\s{2,}#.*$/, '').replace(/\s+$/, ''))
+				.join('\n')
+				.trim();
+			try {
+				await navigator.clipboard.writeText(text);
+				btn.textContent = '복사함';
+			} catch {
+				btn.textContent = '복사 안 됨';
+			}
+			setTimeout(() => { btn.textContent = '복사'; }, 1600);
+		});
+	});
+
+	// Mark the section being read: the last heading whose top has passed 30% of the screen
+	const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
+	const heads = links
+		.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
+		.filter((h): h is HTMLElement => h !== null);
+	let ticking = false;
+	const update = () => {
+		ticking = false;
+		const line = window.innerHeight * 0.3;
+		let current = -1;
+		heads.forEach((h, i) => { if (h.getBoundingClientRect().top <= line) current = i; });
+		links.forEach((a, i) => {
+			if (i === current) a.setAttribute('aria-current', 'true');
+			else a.removeAttribute('aria-current');
+		});
+	};
+	window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+	update();
+</script>

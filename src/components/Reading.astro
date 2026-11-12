@@ -1,0 +1,25 @@
+---
+import { HAND_LABEL } from '../data/series';
+import type { Post } from '../lib/posts';
+
+interface Props {
+	reading: NonNullable<Post['data']['reading']>;
+}
+
+const { reading } = Astro.props;
+---
+
+<figure class="reading" aria-label={`이 글의 대표 기록, ${reading.was}에서 ${reading.now}로 바꿈`}>
+	<div class="reading__values">
+		<s class="reading__was measured">{reading.was}</s>
+		<p class="reading__now measured">{reading.now}</p>
+	</div>
+	<figcaption>
+		<dl class="sign">
+			<div><dt>설정</dt><dd class="measured">{reading.setting}</dd></div>
+			<div><dt>결정</dt><dd class={reading.decided === 'person' ? 'person' : 'instrument'}>{HAND_LABEL[reading.decided]}</dd></div>
+			<div><dt>기록</dt><dd class="instrument">{reading.loggedBy} <time class="measured" datetime={reading.datetime}>{reading.time}</time></dd></div>
+			<div><dt>이유</dt><dd>{reading.why}</dd></div>
+		</dl>
+	</figcaption>
+</figure>

@@ -1,0 +1,19 @@
+---
+interface Props {
+	/** What the block is: a file path, or where the command runs */
+	title: string;
+	/** Long one-line commands wrap instead of scrolling */
+	wrap?: boolean;
+	file?: boolean;
+}
+
+const { title, wrap = false, file = false } = Astro.props;
+---
+
+<figure class:list={['code', { 'code--wrap': wrap }]}>
+	<figcaption class="code__bar">
+		<span class:list={{ measured: file }}>{title}</span>
+		<button class="copy" type="button" data-copy>복사</button>
+	</figcaption>
+	<slot />
+</figure>

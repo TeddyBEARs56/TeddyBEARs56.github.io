@@ -1,0 +1,22 @@
+---
+import type { Hand } from '../data/series';
+import Chips from './Chips.astro';
+
+interface Props {
+	date: string;
+	items: { time: string; who: Hand; what: string; got: string }[];
+}
+
+const { date, items } = Astro.props;
+---
+
+<ol class="trail" aria-label={`작업 기록, ${date}`}>
+	{items.map((item) => (
+		<li>
+			<time class="measured" datetime={`${date}T${item.time}+09:00`}>{item.time}</time>
+			<Chips hands={[item.who]} />
+			<span class="trail__what">{item.what}</span>
+			<code class="trail__got">{item.got}</code>
+		</li>
+	))}
+</ol>

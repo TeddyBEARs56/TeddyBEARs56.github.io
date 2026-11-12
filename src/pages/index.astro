@@ -1,0 +1,101 @@
+---
+import Chips from '../components/Chips.astro';
+import Reading from '../components/Reading.astro';
+import Base from '../layouts/Base.astro';
+import { SERIES } from '../data/series';
+import { SITE } from '../data/site';
+import { getPosts, isoDate, postUrl, readingMinutes, shortDate } from '../lib/posts';
+
+const posts = await getPosts();
+const latest = posts[0];
+const byStage = new Map(posts.map((p) => [p.data.stage, p]));
+const published = SERIES.filter((s) => byStage.has(s.stage)).length;
+---
+
+<Base>
+	<section class="masthead" aria-labelledby="masthead-title">
+		<div class="container masthead__grid">
+			<div class="masthead__text">
+				<h1 id="masthead-title">{SITE.tagline}</h1>
+				<p class="lead">{SITE.lead}</p>
+			</div>
+			<dl class="legend" aria-label="이 블로그에서 색이 뜻하는 것">
+				<div><dt><span class="chip chip--person">사람</span></dt><dd>무엇을 할지 정하고 암호를 칩니다</dd></div>
+				<div><dt><span class="chip chip--instrument">기계</span></dt><dd>Claude가 명령을 실행하고, 서버가 시각을 남깁니다</dd></div>
+			</dl>
+		</div>
+	</section>
+
+	{latest && (
+		<section class="section" id="latest" aria-labelledby="latest-title">
+			<div class="container">
+				<div class="section__head">
+					<h2 id="latest-title">최신 글</h2>
+				</div>
+				<article class="feature">
+					<div class="feature__text">
+						<div class="feature__body">
+							<p class="feature__meta">
+								<span class="chip">{latest.data.stage}단계</span>
+								<time class="measured" datetime={isoDate(latest.data.pubDate)}>{isoDate(latest.data.pubDate)}</time>
+								<span>읽는 데 약 {readingMinutes(latest.body)}분</span>
+							</p>
+							<h3 class="feature__title"><a href={postUrl(latest)}>{latest.data.title}</a></h3>
+							<p class="feature__excerpt">{latest.data.excerpt}</p>
+						</div>
+						<div class="feature__foot">
+							<a class="btn btn--primary" href={postUrl(latest)}>글 읽기</a>
+							<Chips hands={latest.data.hands} label="이 글에서 명령을 친 쪽" />
+						</div>
+					</div>
+					{latest.data.reading && <Reading reading={latest.data.reading} />}
+				</article>
+			</div>
+		</section>
+	)}
+
+	<section class="section" id="series" aria-labelledby="series-title">
+		<div class="container">
+			<div class="section__head">
+				<h2 id="series-title">연재 목차</h2>
+				<p class="section__aside">
+					<span class="progress" role="img" aria-label={`아홉 편 중 ${published}편 공개`}>
+						{SERIES.map((s) => <span class:list={{ 'is-done': byStage.has(s.stage) }} />)}
+					</span>
+					<span>9편 중 {published}편</span>
+				</p>
+			</div>
+			<div class="series__heads" aria-hidden="true"><span></span><span>단계</span><span>치는 쪽</span><span>올린 날</span></div>
+			<ol class="series">
+				{SERIES.map((s) => {
+					const post = byStage.get(s.stage);
+					return (
+						<li class:list={['series__row', { 'is-open': post }]}>
+							<div>
+								<h3 class="series__title">{post ? <a href={postUrl(post)}>{post.data.title}</a> : s.title}</h3>
+								<p class="series__desc">{s.desc}</p>
+							</div>
+							<Chips hands={post ? post.data.hands : s.hands} class="series__hands" label="치는 쪽" />
+							{post ? (
+								<time class="series__when measured" datetime={isoDate(post.data.pubDate)}>{shortDate(post.data.pubDate)}</time>
+							) : (
+								<span class="series__when">준비 중</span>
+							)}
+						</li>
+					);
+				})}
+			</ol>
+		</div>
+	</section>
+
+	<section class="section section--last" id="about" aria-labelledby="about-title">
+		<div class="container">
+			<div class="section__head">
+				<h2 id="about-title">이 블로그는</h2>
+			</div>
+			<div class="about__text">
+				{SITE.about.map((line) => <p>{line}</p>)}
+			</div>
+		</div>
+	</section>
+</Base>

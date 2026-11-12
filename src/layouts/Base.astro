@@ -1,0 +1,80 @@
+---
+import '../styles/site.css';
+import { SITE } from '../data/site';
+
+interface Props {
+	title?: string;
+	description?: string;
+	current?: 'latest' | 'series' | 'about';
+}
+
+const { title, description = SITE.description, current } = Astro.props;
+const pageTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} | ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const nav = [
+	{ key: 'latest', href: '/#latest', label: '최신 글' },
+	{ key: 'series', href: '/#series', label: '연재' },
+	{ key: 'about', href: '/#about', label: '소개' },
+] as const;
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="alternate" type="application/rss+xml" title={SITE.title} href={new URL('rss.xml', Astro.site)} />
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+		<script is:inline>document.documentElement.classList.add('js');</script>
+		<style is:global>
+			html, body { overflow-x: clip; }
+		</style>
+	</head>
+	<body>
+		<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+		<header class="site-header">
+			<div class="container site-header__inner">
+				<a class="wordmark" href="/" aria-label={`${SITE.title} 처음으로`}>{SITE.title}</a>
+				<nav class="site-nav" aria-label="주 메뉴">
+					<ul>
+						{nav.map((item) => (
+							<li><a href={item.href} aria-current={current === item.key ? 'page' : undefined}>{item.label}</a></li>
+						))}
+					</ul>
+				</nav>
+			</div>
+		</header>
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="container site-footer__inner">
+				<div class="site-footer__mark">
+					<a class="wordmark" href="/">{SITE.title}</a>
+				</div>
+				<ul class="site-footer__links">
+					<li><a href="/#series">연재 목차</a></li>
+					<li><a href="/rss.xml">RSS</a></li>
+					<li><a href={SITE.github}>GitHub</a></li>
+				</ul>
+				<p class="site-footer__legal">© 2026 {SITE.title}. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p>
+			</div>
+		</footer>
+	</body>
+</html>

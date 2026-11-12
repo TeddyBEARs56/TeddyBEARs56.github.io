@@ -1,0 +1,29 @@
+---
+interface Props {
+	/** [sign, key, value, meaning?], sign is '-' for the old value and '+' for the new one */
+	rows: (['-' | '+', string, string] | ['-' | '+', string, string, string])[];
+	source: string;
+	note: string;
+	why: string;
+	label: string;
+}
+
+const { rows, source, note, why, label } = Astro.props;
+---
+
+<figure class="diff">
+	<ol class="diff__rows" aria-label={label}>
+		{rows.map(([sign, key, value, meaning]) => (
+			<li class={sign === '-' ? 'minus' : 'plus'}>
+				<span class="g"><span aria-hidden="true">{sign === '-' ? '−' : '+'}</span><span class="visually-hidden">{sign === '-' ? '바꾸기 전' : '바꾼 뒤'}</span></span>
+				<span>{key}</span>
+				<span>{value}</span>
+				{meaning && <span class="diff__mean">{meaning}</span>}
+			</li>
+		))}
+	</ol>
+	<figcaption>
+		<span><span class="measured">{source}</span>{note}</span>
+		<span class="why"><span class="person">사람</span>의 이유: {why}</span>
+	</figcaption>
+</figure>
