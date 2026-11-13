@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Rebuild every hour so the visitor counts in the footer stay fresh
+  # Rebuild every hour so the visitor counts in the footer stay fresh (away from the busy top of the hour)
   schedule:
-    - cron: '7 * * * *'
+    - cron: '23 * * * *'
 
 permissions:
   contents: read
