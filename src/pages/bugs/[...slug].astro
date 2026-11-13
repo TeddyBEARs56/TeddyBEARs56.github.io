@@ -1,0 +1,56 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { BUG_STATUS, getBugs, isoDate, readingMinutes } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const bugs = await getBugs();
+	return bugs.map((bug) => ({ params: { slug: bug.id }, props: { bug } }));
+}
+
+const { bug } = Astro.props;
+const { Content, headings } = await render(bug);
+const toc = headings.filter((h) => h.depth === 2);
+---
+
+<Base title={bug.data.title} description={bug.data.description} current="bugs" published={bug.data.pubDate} modified={bug.data.updated}>
+	<div class="container post">
+		<article aria-labelledby="bug-title">
+			<header class="post__head">
+				<nav aria-label="현재 위치">
+					<ol class="crumbs">
+						<li><a href="/bugs/">Cybug</a></li>
+						<li>{bug.data.target}</li>
+					</ol>
+				</nav>
+				<h1 id="bug-title">{bug.data.title}</h1>
+				<p class="post__lead">{bug.data.excerpt}</p>
+				<dl class="bug-facts">
+					<dt>상태</dt><dd><span class={`chip chip--${bug.data.status}`}>{BUG_STATUS[bug.data.status]}</span></dd>
+					<dt>대상</dt><dd>{bug.data.target}</dd>
+					<dt>환경</dt><dd>{bug.data.environment}</dd>
+					<dt>올린 날</dt><dd><time class="measured" datetime={isoDate(bug.data.pubDate)}>{isoDate(bug.data.pubDate)}</time></dd>
+					{bug.data.updated && <><dt>고친 날</dt><dd><time class="measured" datetime={isoDate(bug.data.updated)}>{isoDate(bug.data.updated)}</time></dd></>}
+					<dt>읽는 시간</dt><dd>약 {readingMinutes(bug.body)}분</dd>
+				</dl>
+			</header>
+
+			<div class="prose">
+				<Content />
+			</div>
+
+			<nav class="pager" aria-label="다른 글">
+				<a href="/bugs/"><small>처음으로</small><strong>버그 목록</strong></a>
+			</nav>
+		</article>
+
+		{toc.length > 0 && (
+			<aside class="toc" aria-labelledby="toc-title">
+				<h2 id="toc-title">이 기록에서</h2>
+				<ol>
+					{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+				</ol>
+			</aside>
+		)}
+	</div>
+</Base>

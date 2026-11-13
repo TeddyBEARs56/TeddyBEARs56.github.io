@@ -6,7 +6,7 @@ import { getVisitors, seoulTime } from '../lib/visitors';
 interface Props {
 	title?: string;
 	description?: string;
-	current?: 'latest' | 'series' | 'about';
+	current?: 'latest' | 'series' | 'topics' | 'bugs' | 'about';
 	/** Set on a post: turns the page into an article for search engines */
 	published?: Date;
 	modified?: Date;
@@ -35,6 +35,8 @@ const jsonLd = published
 const nav = [
 	{ key: 'latest', href: '/#latest', label: '최신 글' },
 	{ key: 'series', href: '/#series', label: '연재' },
+	{ key: 'topics', href: '/#topics', label: '주제별' },
+	{ key: 'bugs', href: '/bugs/', label: 'Cybug' },
 	{ key: 'about', href: '/#about', label: '소개' },
 ] as const;
 const visitors = await getVisitors();
@@ -95,7 +97,7 @@ const visitors = await getVisitors();
 				<nav class="site-nav" aria-label="주 메뉴">
 					<ul>
 						{nav.map((item) => (
-							<li><a href={item.href} aria-current={current === item.key ? 'page' : undefined}>{item.label}</a></li>
+							<li class:list={{ 'site-nav__wide': item.key === 'latest' }}><a href={item.href} aria-current={current === item.key ? 'page' : undefined}>{item.label}</a></li>
 						))}
 					</ul>
 				</nav>
@@ -122,6 +124,7 @@ const visitors = await getVisitors();
 				</div>
 				<ul class="site-footer__links">
 					<li><a href="/#series">연재 목차</a></li>
+					<li><a href="/bugs/">Cybug</a></li>
 					<li><a href="/rss.xml">RSS</a></li>
 					<li><a href={SITE.github}>GitHub</a></li>
 				</ul>

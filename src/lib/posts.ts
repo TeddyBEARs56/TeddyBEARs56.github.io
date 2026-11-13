@@ -1,15 +1,24 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
 
 export type Post = CollectionEntry<'posts'>;
+export type Bug = CollectionEntry<'bugs'>;
 
 /** Published posts, newest first; posts from the same day go by stage, later stage first. */
 export async function getPosts(): Promise<Post[]> {
 	return (await getCollection('posts')).sort(
-		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf() || b.data.stage - a.data.stage,
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf() || (b.data.stage ?? -1) - (a.data.stage ?? -1),
 	);
 }
 
+/** Bug reports, newest first */
+export async function getBugs(): Promise<Bug[]> {
+	return (await getCollection('bugs')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+}
+
 export const postUrl = (post: Post) => `/posts/${post.id}/`;
+export const bugUrl = (bug: Bug) => `/bugs/${bug.id}/`;
+
+export const BUG_STATUS: Record<Bug['data']['status'], string> = { open: '미해결', workaround: '우회', fixed: '해결됨' };
 
 const MINUTES_PER_HANGUL = 1 / 500;
 const MINUTES_PER_LATIN_WORD = 1 / 220;

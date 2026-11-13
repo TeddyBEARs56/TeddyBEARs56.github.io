@@ -1,14 +1,22 @@
 ---
 import Reading from '../components/Reading.astro';
 import Base from '../layouts/Base.astro';
-import { SERIES } from '../data/series';
+import { SERIES, SERIES_INFO } from '../data/series';
 import { SITE } from '../data/site';
 import { getPosts, isoDate, postUrl, readingMinutes, shortDate } from '../lib/posts';
 
 const posts = await getPosts();
 const latest = posts[0];
-const byStage = new Map(posts.map((p) => [p.data.stage, p]));
+const localLlm = SERIES_INFO[0];
+const byStage = new Map(posts.filter((p) => p.data.series === localLlm.id).map((p) => [p.data.stage, p]));
 const published = SERIES.filter((s) => byStage.has(s.stage)).length;
+
+// Topics in the order their newest post appeared (posts are already newest first)
+const topics = [...new Set(posts.map((p) => p.data.topic))].map((topic) => ({
+	topic,
+	posts: posts.filter((p) => p.data.topic === topic),
+}));
+const label = (p: (typeof posts)[number]) => (p.data.series ? `${p.data.stage}단계` : p.data.topic);
 ---
 
 <Base>
@@ -35,7 +43,7 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 					<div class="feature__text">
 						<div class="feature__body">
 							<p class="feature__meta">
-								<span class="chip">{latest.data.stage}단계</span>
+								<span class="chip">{label(latest)}</span>
 								<time class="measured" datetime={isoDate(latest.data.pubDate)}>{isoDate(latest.data.pubDate)}</time>
 								<span>읽는 데 약 {readingMinutes(latest.body)}분</span>
 							</p>
@@ -55,7 +63,13 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 	<section class="section" id="series" aria-labelledby="series-title">
 		<div class="container">
 			<div class="section__head">
-				<h2 id="series-title">연재 목차</h2>
+				<h2 id="series-title">연재</h2>
+			</div>
+			<div class="series__name">
+				<div>
+					<h3>{localLlm.title}</h3>
+					<p>{localLlm.desc}</p>
+				</div>
 				<p class="section__aside">
 					<span class="progress" role="img" aria-label={`아홉 편 중 ${published}편 공개`}>
 						{SERIES.map((s) => <span class:list={{ 'is-done': byStage.has(s.stage) }} />)}
@@ -70,7 +84,7 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 					return (
 						<li class:list={['series__row', { 'is-open': post }]}>
 							<div>
-								<h3 class="series__title">{post ? <a href={postUrl(post)}>{post.data.title}</a> : s.title}</h3>
+								<h4 class="series__title">{post ? <a href={postUrl(post)}>{post.data.title}</a> : s.title}</h4>
 								<p class="series__desc">{s.desc}</p>
 							</div>
 							{post ? (
@@ -82,6 +96,30 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 					);
 				})}
 			</ol>
+		</div>
+	</section>
+
+	<section class="section" id="topics" aria-labelledby="topics-title">
+		<div class="container">
+			<div class="section__head">
+				<h2 id="topics-title">주제별</h2>
+				<p class="section__aside"><span>글 {posts.length}편</span></p>
+			</div>
+			<div class="topics">
+				{topics.map(({ topic, posts: list }) => (
+					<section class="topic" aria-label={topic}>
+						<h3 class="topic__name">{topic} <span class="measured">{list.length}</span></h3>
+						<ul class="topic__list">
+							{list.map((p) => (
+								<li class="topic__row">
+									<a href={postUrl(p)}>{p.data.series && <span class="topic__stage">{p.data.stage}단계</span>}{p.data.title}</a>
+									<time class="measured" datetime={isoDate(p.data.pubDate)}>{shortDate(p.data.pubDate)}</time>
+								</li>
+							))}
+						</ul>
+					</section>
+				))}
+			</div>
 		</div>
 	</section>
 

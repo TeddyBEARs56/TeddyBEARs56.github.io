@@ -12,9 +12,14 @@ export async function getStaticPaths() {
 const { post, posts } = Astro.props;
 const { Content, headings } = await render(post);
 const toc = headings.filter((h) => h.depth === 2);
-const nextStage = post.data.stage + 1;
-const nextPost = posts.find((p) => p.data.stage === nextStage);
-const nextPlan = SERIES.find((s) => s.stage === nextStage);
+// A series post leads to the next stage of its series; a standalone post to the next newer post
+const inSeries = post.data.series !== undefined && post.data.stage !== undefined;
+const nextStage = (post.data.stage ?? -1) + 1;
+const nextPost = inSeries
+	? posts.find((p) => p.data.series === post.data.series && p.data.stage === nextStage)
+	: posts[posts.indexOf(post) - 1];
+const nextPlan = inSeries ? SERIES.find((s) => s.stage === nextStage) : undefined;
+const nextLabel = (p: typeof post) => (p.data.series ? `${p.data.stage}단계 ${p.data.title}` : p.data.title);
 ---
 
 <Base title={post.data.title} description={post.data.description} current="latest" published={post.data.pubDate} modified={post.data.updated}>
@@ -23,8 +28,17 @@ const nextPlan = SERIES.find((s) => s.stage === nextStage);
 			<header class="post__head">
 				<nav aria-label="현재 위치">
 					<ol class="crumbs">
-						<li><a href="/#series">연재</a></li>
-						<li>{post.data.stage}단계</li>
+						{inSeries ? (
+							<>
+								<li><a href="/#series">연재</a></li>
+								<li>{post.data.stage}단계</li>
+							</>
+						) : (
+							<>
+								<li><a href="/#topics">주제별</a></li>
+								<li>{post.data.topic}</li>
+							</>
+						)}
 					</ol>
 				</nav>
 				<h1 id="post-title">{post.data.title}</h1>
@@ -41,9 +55,9 @@ const nextPlan = SERIES.find((s) => s.stage === nextStage);
 			</div>
 
 			<nav class="pager" aria-label="다른 글">
-				<a href="/#series"><small>처음으로</small><strong>연재 목차</strong></a>
+				<a href={inSeries ? '/#series' : '/#topics'}><small>처음으로</small><strong>{inSeries ? '연재 목차' : '글 목록'}</strong></a>
 				{nextPost ? (
-					<a href={postUrl(nextPost)} class="pager__next"><small>다음 글</small><strong>{nextPost.data.stage}단계 {nextPost.data.title}</strong></a>
+					<a href={postUrl(nextPost)} class="pager__next"><small>다음 글</small><strong>{nextLabel(nextPost)}</strong></a>
 				) : nextPlan ? (
 					<div class="pager__next"><small>다음 글, 준비 중</small><strong>{nextPlan.stage}단계 {nextPlan.title}</strong></div>
 				) : null}

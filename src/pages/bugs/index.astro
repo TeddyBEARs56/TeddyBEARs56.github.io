@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BUG_STATUS, bugUrl, getBugs, isoDate } from '../../lib/posts';
+
+const bugs = await getBugs();
+const count = (status: keyof typeof BUG_STATUS) => bugs.filter((b) => b.data.status === status).length;
+---
+
+<Base title="Cybug" description="쓰다가 만난 버그를 증상, 재현 순서, 원인, 해결의 같은 틀로 모아 둡니다." current="bugs">
+	<section class="masthead" aria-labelledby="cybug-title">
+		<div class="container masthead__grid">
+			<div class="masthead__text">
+				<h1 id="cybug-title" class="cybug-mark" aria-label="Cybug">
+					<span aria-hidden="true">Cy<span class="wm__org">borg</span>bug</span>
+				</h1>
+				<p class="lead">AI 도구와 코딩을 하다가 만난 버그를 모읍니다. 증상, 재현 순서, 원인, 해결을 같은 틀로 적습니다.</p>
+			</div>
+			<dl class="legend" aria-label="상태 표시">
+				<div><dt><span class="chip chip--open">미해결</span></dt><dd>아직 원인이나 해결을 못 찾았습니다 · {count('open')}건</dd></div>
+				<div><dt><span class="chip chip--workaround">우회</span></dt><dd>돌아가는 길로 피했습니다 · {count('workaround')}건</dd></div>
+				<div><dt><span class="chip chip--fixed">해결됨</span></dt><dd>원인을 찾아 고쳤습니다 · {count('fixed')}건</dd></div>
+			</dl>
+		</div>
+	</section>
+
+	<section class="section section--last" aria-labelledby="bugs-title">
+		<div class="container">
+			<div class="section__head">
+				<h2 id="bugs-title">버그 기록</h2>
+				<p class="section__aside"><span>{bugs.length}건</span></p>
+			</div>
+			{bugs.length === 0 ? (
+				<p class="bugs-empty">아직 올린 버그가 없습니다. 첫 기록을 준비하고 있습니다.</p>
+			) : (
+				<ul class="bugs">
+					{bugs.map((bug) => (
+						<li class="bug-card">
+							<p class="bug-card__meta">
+								<span class={`chip chip--${bug.data.status}`}>{BUG_STATUS[bug.data.status]}</span>
+								<span>{bug.data.target}</span>
+								<time class="measured" datetime={isoDate(bug.data.pubDate)}>{isoDate(bug.data.pubDate)}</time>
+							</p>
+							<h3><a href={bugUrl(bug)}>{bug.data.title}</a></h3>
+							<p>{bug.data.excerpt}</p>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	</section>
+</Base>

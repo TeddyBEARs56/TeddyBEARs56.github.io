@@ -2,7 +2,12 @@ export type Hand = 'person' | 'claude';
 
 export const HAND_LABEL: Record<Hand, string> = { person: '사람', claude: 'Claude' };
 
-/** The nine planned stages. A published post with the same stage replaces the planned title. */
+/** A series: a set of posts read in order. Posts join one with `series: <id>` and `stage: <n>`. */
+export const SERIES_INFO = [
+	{ id: 'local-llm', title: '로컬 LLM 처음부터', desc: '모델 파일 하나에서 여러 사람이 쓰는 서버까지, 아홉 편' },
+] as const;
+
+/** The nine planned stages of the local LLM series. A published post with the same stage replaces the planned title. */
 export const SERIES: { stage: number; title: string; desc: string; hands: Hand[] }[] = [
 	{ stage: 0, title: 'LLM을 올릴 서버 준비하기', desc: '원격 접속, 잠자기, 설치 도구', hands: ['claude', 'person'] },
 	{ stage: 1, title: '모델은 파일 하나', desc: '모델 파일의 크기와 압축(양자화)', hands: ['claude'] },

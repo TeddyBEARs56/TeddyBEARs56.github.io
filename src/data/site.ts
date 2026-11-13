@@ -1,8 +1,8 @@
 export const SITE = {
 	title: 'Cyborg',
-	tagline: '로컬 LLM을 처음부터 설치하는 기록',
-	lead: '모델 파일 하나에서 여러 사람이 쓰는 서버까지, 아홉 편으로 나눠 적습니다.',
-	description: '로컬 LLM을 처음부터 설치하고 서버로 띄우는 과정을 아홉 편으로 나눠 기록하는 블로그입니다.',
+	tagline: 'AI와 코딩을 직접 해 보는 기록',
+	lead: '로컬 LLM 설치부터 AI 도구와 코딩까지, 직접 해 본 것을 순서대로 적습니다. 쓰다가 만난 버그는 Cybug에 따로 모읍니다.',
+	description: '로컬 LLM, AI 도구, 코딩을 직접 해 보고 그 과정을 기록하는 블로그입니다. 쓰다가 만난 버그는 Cybug에 모읍니다.',
 	github: 'https://github.com/TeddyBEARs56',
 	// Google Search Console, HTML tag method: the content="..." value only
 	googleSiteVerification: 'tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg',
@@ -11,7 +11,7 @@ export const SITE = {
 	// GA4 property ID (digits, from 관리 → 속성 세부정보), used at build time to show visitor counts
 	gaPropertyId: '564238661',
 	about: [
-		'로컬 LLM을 직접 설치하고, 서버로 띄우고, 실제로 붙여 쓰기까지의 과정을 단계별로 적습니다.',
+		'AI와 코딩을 직접 해 보고, 한 과정을 단계별로 적습니다. 첫 연재는 로컬 LLM을 처음부터 설치하는 아홉 편입니다.',
 		'명령어는 대부분 AI 조수 Claude가 치고, 무엇을 할지는 제가 정합니다.',
 	],
 };
