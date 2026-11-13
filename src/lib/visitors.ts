@@ -47,35 +47,62 @@ async function accessToken(key: ServiceAccountKey): Promise<string> {
 	return ((await res.json()) as { access_token: string }).access_token;
 }
 
+async function fromAnalytics(raw: string): Promise<Visitors> {
+	const token = await accessToken(JSON.parse(raw) as ServiceAccountKey);
+	const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${SITE.gaPropertyId}:runReport`, {
+		method: 'POST',
+		headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+		body: JSON.stringify({
+			// "today" follows the property's time zone (Korea)
+			dateRanges: [
+				{ startDate: 'today', endDate: 'today', name: 'today' },
+				{ startDate: SINCE, endDate: 'today', name: 'total' },
+			],
+			metrics: [{ name: 'activeUsers' }],
+		}),
+		signal: AbortSignal.timeout(20_000),
+	});
+	if (!res.ok) throw new Error(`report request failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
+	const report = (await res.json()) as {
+		rows?: { dimensionValues?: { value: string }[]; metricValues?: { value: string }[] }[];
+	};
+	// With two date ranges GA adds a "dateRange" column; a range with no visits has no row
+	const count = (name: string) =>
+		Number(report.rows?.find((r) => r.dimensionValues?.[0]?.value === name)?.metricValues?.[0]?.value ?? 0);
+	return { today: count('today'), total: count('total'), at: new Date() };
+}
+
+/** The numbers the live site shows now, read back from its own home page */
+async function fromLiveSite(): Promise<Visitors | null> {
+	const res = await fetch(new URL('/', SITE_URL), { signal: AbortSignal.timeout(10_000) });
+	if (!res.ok) return null;
+	const html = await res.text();
+	const block = html.match(/<div class="visits">([\s\S]*?)<\/div>\s*<\/div>/)?.[1] ?? '';
+	const numbers = [...block.matchAll(/<dd[^>]*>([\d,]+)<\/dd>/g)].map((m) => Number(m[1].replace(/,/g, '')));
+	const at = block.match(/datetime="([^"]+)"/)?.[1];
+	if (numbers.length < 2 || !at) return null;
+	return { today: numbers[0], total: numbers[1], at: new Date(at) };
+}
+
+const SITE_URL = 'https://teddybears56.github.io';
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function load(): Promise<Visitors | null> {
 	const raw = process.env.GA_SERVICE_ACCOUNT_KEY;
 	if (!raw || !SITE.gaPropertyId) return null;
-	try {
-		const token = await accessToken(JSON.parse(raw) as ServiceAccountKey);
-		const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${SITE.gaPropertyId}:runReport`, {
-			method: 'POST',
-			headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-			body: JSON.stringify({
-				// "today" follows the property's time zone (Korea)
-				dateRanges: [
-					{ startDate: 'today', endDate: 'today', name: 'today' },
-					{ startDate: SINCE, endDate: 'today', name: 'total' },
-				],
-				metrics: [{ name: 'activeUsers' }],
-			}),
-		});
-		if (!res.ok) throw new Error(`report request failed: ${res.status} ${await res.text()}`);
-		const report = (await res.json()) as {
-			rows?: { dimensionValues?: { value: string }[]; metricValues?: { value: string }[] }[];
-		};
-		// With two date ranges GA adds a "dateRange" column; a range with no visits has no row
-		const count = (name: string) =>
-			Number(report.rows?.find((r) => r.dimensionValues?.[0]?.value === name)?.metricValues?.[0]?.value ?? 0);
-		return { today: count('today'), total: count('total'), at: new Date() };
-	} catch (error) {
-		console.warn(`[visitors] left out: ${(error as Error).message}`);
-		return null;
+	// Google sometimes answers 5xx for a moment: try three times before giving up
+	for (const wait of [0, 3_000, 10_000]) {
+		if (wait) await sleep(wait);
+		try {
+			return await fromAnalytics(raw);
+		} catch (error) {
+			console.warn(`[visitors] try failed: ${(error as Error).message}`);
+		}
 	}
+	// Keep the last published numbers (their time stays old) rather than dropping the line
+	const last = await fromLiveSite().catch(() => null);
+	console.warn(last ? '[visitors] kept the last published numbers' : '[visitors] left out');
+	return last;
 }
 
 let cached: Promise<Visitors | null> | undefined;
