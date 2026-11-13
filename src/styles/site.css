@@ -249,14 +249,21 @@ html:not(.js) .copy { display: none; }
 .note p { color: var(--color-ink); max-width: none; }
 
 .pager { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap-columns); margin-top: var(--space-3xl); padding-top: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); }
-.pager a, .pager__next { display: grid; gap: var(--space-2xs); padding: var(--space-md); border-radius: var(--radius-card); text-decoration: none; }
-.pager a { transition: background-color var(--dur-short) var(--ease-out); }
-.pager a:hover { background: var(--color-paper-2); }
+.pager a, .pager__next { display: grid; align-content: center; gap: var(--space-2xs); min-height: 88px; padding: var(--space-md) var(--space-lg); border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-card); text-decoration: none; }
+.pager a { transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out); }
+.pager a:hover { background: var(--color-paper-2); border-color: var(--color-muted); }
 .pager a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .pager small { font-size: var(--text-sm); color: var(--color-muted); }
-.pager strong { font-weight: 500; color: var(--color-ink); }
+.pager strong { font-size: var(--text-lg); font-weight: 500; color: var(--color-ink); }
+.pager a:first-child strong::before { content: "← "; color: var(--color-muted); }
 .pager__next { text-align: right; }
-.pager__next strong { color: var(--color-muted); }
+/* The way on: an accent card, so the next post is the obvious thing to press */
+a.pager__next { border-color: var(--color-accent); background: var(--color-accent-soft); }
+a.pager__next:hover { background: var(--color-accent-soft); border-color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); }
+a.pager__next small { color: var(--color-accent); }
+a.pager__next strong::after { content: " →"; color: var(--color-accent); }
+div.pager__next { border-style: dashed; }
+div.pager__next strong { color: var(--color-muted); }
 
 .toc { position: sticky; top: calc(var(--nav-h) + var(--space-xl)); align-self: start; display: grid; gap: var(--space-md); padding-top: var(--space-2xl); }
 .toc h2 { font-size: var(--text-sm); font-weight: 500; letter-spacing: 0; color: var(--color-muted); }
@@ -295,7 +302,7 @@ html:not(.js) .copy { display: none; }
   .site-nav ul { gap: var(--space-md); }
   .feature__text, .reading { padding: var(--space-lg); }
   .pager { grid-template-columns: minmax(0, 1fr); }
-  .pager__next { text-align: left; }
+  .pager__next { order: -1; text-align: left; }
   /* a wide table scrolls inside its own box instead of running off the phone */
   .prose table { display: block; overflow-x: auto; }
 }
