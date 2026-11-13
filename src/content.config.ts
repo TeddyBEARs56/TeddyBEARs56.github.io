@@ -8,6 +8,8 @@ const posts = defineCollection({
 	loader: glob({ base: './src/content/posts', pattern: '**/*.{md,mdx}' }),
 	schema: z.object({
 		stage: z.number().int().min(0),
+		// The day a post was last changed, shown beside the publish date
+		updated: z.coerce.date().optional(),
 		title: z.string(),
 		description: z.string(),
 		// Two short sentences for the home card

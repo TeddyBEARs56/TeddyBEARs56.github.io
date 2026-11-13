@@ -8,9 +8,10 @@ interface Props {
 	current?: 'latest' | 'series' | 'about';
 	/** Set on a post: turns the page into an article for search engines */
 	published?: Date;
+	modified?: Date;
 }
 
-const { title, description = SITE.description, current, published } = Astro.props;
+const { title, description = SITE.description, current, published, modified } = Astro.props;
 const pageTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} | ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const author = { '@type': 'Person', name: 'TeddyBEARs56', url: SITE.github };
@@ -22,6 +23,7 @@ const jsonLd = published
 			headline: title,
 			description,
 			datePublished: published.toISOString(),
+			dateModified: (modified ?? published).toISOString(),
 			inLanguage: 'ko',
 			url: canonical.href,
 			mainEntityOfPage: canonical.href,

@@ -9,6 +9,7 @@
 /* Hallmark · waive 78 · section heads render at 31px over the lists of posts · blog wayfinding labels stay smaller so each post title, up to 52px, is the loudest type */
 /* Hallmark · waive 49b · the wrapping link is a series row's real post title at 320px · a post title may wrap to two lines on a narrow phone rather than be cut short */
 /* Hallmark · waive 77 · the about section is two plain sentences at 47% width, and the post page is one article with its contents list · the owner asked the blog's about text to stay short and plain, without a panel or a picture beside it */
+/* Hallmark · answered F25 · wide post tables scroll sideways inside their own box on a phone, and the first column that names each row is what opens in view */
 /* Hallmark · answered F15 · the 24px gap sits inside each series row between its title, hands and date; every section-level column gap is 144px */
 @import url("./tokens.css");
 @import url("./base.css");
