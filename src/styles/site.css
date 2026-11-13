@@ -68,6 +68,15 @@ a:hover { text-decoration-color: var(--color-accent); }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); min-height: var(--nav-h); }
 .wordmark { font-size: var(--text-wordmark); font-weight: 500; letter-spacing: -0.02em; color: var(--color-ink); text-decoration: none; white-space: nowrap; }
 .wordmark:focus-visible, .site-nav a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: 2px; }
+/* The name is a diff: Cyb + org struck + log, shown on hover, keyboard focus and press. log sits outside the flow, so nothing moves */
+/* Without script the diff simply shows; with script it waits for hover, focus or press */
+.wordmark--diff { position: relative; }
+.wm__org { color: var(--color-muted); text-decoration-line: line-through; text-decoration-color: var(--color-bad); text-decoration-thickness: 2px; transition: color var(--dur-short) var(--ease-out), text-decoration-color var(--dur-short) var(--ease-out); }
+.wm__log { position: absolute; left: calc(100% + var(--space-2xs)); top: 0; color: var(--color-ok); transition: opacity var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out); pointer-events: none; }
+.js .wordmark--diff .wm__org { color: inherit; text-decoration-color: transparent; }
+.js .wordmark--diff .wm__log { opacity: 0; transform: translateX(-0.25em); }
+.js .wordmark--diff:hover .wm__org, .js .wordmark--diff:focus-visible .wm__org, .js .wordmark--diff:active .wm__org { color: var(--color-muted); text-decoration-color: var(--color-bad); }
+.js .wordmark--diff:hover .wm__log, .js .wordmark--diff:focus-visible .wm__log, .js .wordmark--diff:active .wm__log { opacity: 1; transform: none; }
 .site-nav ul { display: flex; gap: var(--space-lg); margin: 0; padding: 0; list-style: none; }
 .site-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-ink-2); text-decoration: none; white-space: nowrap; transition: color var(--dur-short) var(--ease-out); }
 .site-nav a:hover { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); }
@@ -282,4 +291,6 @@ html:not(.js) .copy { display: none; }
   .feature__text, .reading { padding: var(--space-lg); }
   .pager { grid-template-columns: minmax(0, 1fr); }
   .pager__next { text-align: left; }
+  /* a wide table scrolls inside its own box instead of running off the phone */
+  .prose table { display: block; overflow-x: auto; }
 }

@@ -2,9 +2,11 @@ import { type CollectionEntry, getCollection } from 'astro:content';
 
 export type Post = CollectionEntry<'posts'>;
 
-/** Published posts, newest first. */
+/** Published posts, newest first; posts from the same day go by stage, later stage first. */
 export async function getPosts(): Promise<Post[]> {
-	return (await getCollection('posts')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+	return (await getCollection('posts')).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf() || b.data.stage - a.data.stage,
+	);
 }
 
 export const postUrl = (post: Post) => `/posts/${post.id}/`;

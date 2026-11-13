@@ -38,7 +38,11 @@ const nav = [
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" />
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-		<script is:inline>document.documentElement.classList.add('js');</script>
+		<script is:inline>
+			document.documentElement.classList.add('js');
+			// iOS Safari applies :active only when a touch listener exists (the name shows Cyblog while pressed)
+			document.addEventListener('touchstart', function () {}, { passive: true });
+		</script>
 		<style is:global>
 			html, body { overflow-x: clip; }
 		</style>
@@ -48,7 +52,7 @@ const nav = [
 
 		<header class="site-header">
 			<div class="container site-header__inner">
-				<a class="wordmark" href="/" aria-label={`${SITE.title} 처음으로`}>{SITE.title}</a>
+				<a class="wordmark wordmark--diff" href="/" aria-label={`${SITE.title} 처음으로`}><span aria-hidden="true">Cyb<span class="wm__org">org</span><span class="wm__log">log</span></span></a>
 				<nav class="site-nav" aria-label="주 메뉴">
 					<ul>
 						{nav.map((item) => (
