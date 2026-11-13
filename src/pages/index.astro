@@ -1,5 +1,4 @@
 ---
-import Chips from '../components/Chips.astro';
 import Reading from '../components/Reading.astro';
 import Base from '../layouts/Base.astro';
 import { SERIES } from '../data/series';
@@ -45,7 +44,6 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 						</div>
 						<div class="feature__foot">
 							<a class="btn btn--primary" href={postUrl(latest)}>글 읽기</a>
-							<Chips hands={latest.data.hands} label="이 글에서 명령을 친 쪽" />
 						</div>
 					</div>
 					{latest.data.reading && <Reading reading={latest.data.reading} />}
@@ -65,7 +63,7 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 					<span>9편 중 {published}편</span>
 				</p>
 			</div>
-			<div class="series__heads" aria-hidden="true"><span></span><span>단계</span><span>치는 쪽</span><span>올린 날</span></div>
+			<div class="series__heads" aria-hidden="true"><span></span><span>단계</span><span>올린 날</span></div>
 			<ol class="series">
 				{SERIES.map((s) => {
 					const post = byStage.get(s.stage);
@@ -75,7 +73,6 @@ const published = SERIES.filter((s) => byStage.has(s.stage)).length;
 								<h3 class="series__title">{post ? <a href={postUrl(post)}>{post.data.title}</a> : s.title}</h3>
 								<p class="series__desc">{s.desc}</p>
 							</div>
-							<Chips hands={post ? post.data.hands : s.hands} class="series__hands" label="치는 쪽" />
 							{post ? (
 								<time class="series__when measured" datetime={isoDate(post.data.pubDate)}>{shortDate(post.data.pubDate)}</time>
 							) : (

@@ -1,6 +1,5 @@
 ---
 import { render } from 'astro:content';
-import Chips from '../../components/Chips.astro';
 import Base from '../../layouts/Base.astro';
 import { SERIES } from '../../data/series';
 import { getPosts, isoDate, postUrl, readingMinutes } from '../../lib/posts';
@@ -34,7 +33,6 @@ const nextPlan = SERIES.find((s) => s.stage === nextStage);
 					<div><dt>올린 날</dt><dd><time class="measured" datetime={isoDate(post.data.pubDate)}>{isoDate(post.data.pubDate)}</time></dd></div>
 					{post.data.updated && <div><dt>고친 날</dt><dd><time class="measured" datetime={isoDate(post.data.updated)}>{isoDate(post.data.updated)}</time></dd></div>}
 					<div><dt>읽는 시간</dt><dd>약 {readingMinutes(post.body)}분</dd></div>
-					<div><dt>친 쪽</dt><dd><Chips hands={post.data.hands} /></dd></div>
 				</dl>
 			</header>
 

@@ -60,7 +60,7 @@ async function fromAnalytics(raw: string): Promise<Visitors> {
 			],
 			metrics: [{ name: 'activeUsers' }],
 		}),
-		signal: AbortSignal.timeout(20_000),
+		signal: AbortSignal.timeout(45_000),
 	});
 	if (!res.ok) throw new Error(`report request failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
 	const report = (await res.json()) as {
@@ -93,10 +93,13 @@ async function load(): Promise<Visitors | null> {
 	// Google sometimes answers 5xx for a moment: try three times before giving up
 	for (const wait of [0, 3_000, 10_000]) {
 		if (wait) await sleep(wait);
+		const started = Date.now();
 		try {
-			return await fromAnalytics(raw);
+			const counted = await fromAnalytics(raw);
+			console.log(`[visitors] today ${counted.today}, total ${counted.total} in ${Date.now() - started} ms`);
+			return counted;
 		} catch (error) {
-			console.warn(`[visitors] try failed: ${(error as Error).message}`);
+			console.warn(`[visitors] try failed after ${Date.now() - started} ms: ${(error as Error).message}`);
 		}
 	}
 	// Keep the last published numbers (their time stays old) rather than dropping the line
