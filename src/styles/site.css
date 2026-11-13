@@ -162,6 +162,13 @@ a:hover { text-decoration-color: var(--color-accent); }
 .site-footer__mark { grid-column: 1 / span 6; display: grid; gap: var(--space-xs); }
 .site-footer__mark .wordmark { font-size: var(--text-2xl); }
 .site-footer__mark p { color: var(--color-muted); }
+.visits { display: grid; gap: var(--space-2xs); margin-top: var(--space-sm); }
+.visits dl { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-lg); margin: 0; }
+.visits dl div { display: flex; align-items: baseline; gap: var(--space-xs); }
+.visits dt { font-size: var(--text-sm); color: var(--color-muted); }
+.visits dd { margin: 0; font-size: var(--text-xl); line-height: 1.2; color: var(--color-ink); }
+.visits p { margin: 0; font-size: var(--text-xs); }
+.visits time { color: var(--color-cool); }
 .site-footer__links { grid-column: 9 / -1; display: grid; gap: var(--space-xs); margin: 0; padding: 0; list-style: none; }
 .site-footer__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-ink-2); }
 .site-footer__links a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }

@@ -8,6 +8,8 @@ export const SITE = {
 	googleSiteVerification: 'tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg',
 	// Google Analytics 4 measurement ID (G-XXXXXXXXXX); empty means no tracking script
 	gaMeasurementId: 'G-8W7XDWBK2X',
+	// GA4 property ID (digits, from 관리 → 속성 세부정보), used at build time to show visitor counts
+	gaPropertyId: '564238661',
 	about: [
 		'로컬 LLM을 직접 설치하고, 서버로 띄우고, 실제로 붙여 쓰기까지의 과정을 단계별로 적습니다.',
 		'명령어는 대부분 AI 조수 Claude가 치고, 무엇을 할지는 제가 정합니다.',
