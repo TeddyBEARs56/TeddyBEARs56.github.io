@@ -47,29 +47,29 @@ async function accessToken(key: ServiceAccountKey): Promise<string> {
 	return ((await res.json()) as { access_token: string }).access_token;
 }
 
-async function fromAnalytics(raw: string): Promise<Visitors> {
-	const token = await accessToken(JSON.parse(raw) as ServiceAccountKey);
+/** Users from `startDate` through today; "today" follows the property's time zone (Korea) */
+async function activeUsers(token: string, startDate: string): Promise<number> {
+	const started = Date.now();
 	const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${SITE.gaPropertyId}:runReport`, {
 		method: 'POST',
 		headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-		body: JSON.stringify({
-			// "today" follows the property's time zone (Korea)
-			dateRanges: [
-				{ startDate: 'today', endDate: 'today', name: 'today' },
-				{ startDate: SINCE, endDate: 'today', name: 'total' },
-			],
-			metrics: [{ name: 'activeUsers' }],
-		}),
+		body: JSON.stringify({ dateRanges: [{ startDate, endDate: 'today' }], metrics: [{ name: 'activeUsers' }] }),
 		signal: AbortSignal.timeout(45_000),
 	});
-	if (!res.ok) throw new Error(`report request failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
-	const report = (await res.json()) as {
-		rows?: { dimensionValues?: { value: string }[]; metricValues?: { value: string }[] }[];
-	};
-	// With two date ranges GA adds a "dateRange" column; a range with no visits has no row
-	const count = (name: string) =>
-		Number(report.rows?.find((r) => r.dimensionValues?.[0]?.value === name)?.metricValues?.[0]?.value ?? 0);
-	return { today: count('today'), total: count('total'), at: new Date() };
+	if (!res.ok) throw new Error(`report ${startDate} failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
+	const report = (await res.json()) as { rows?: { metricValues?: { value: string }[] }[] };
+	console.log(`[visitors] report ${startDate} answered in ${Date.now() - started} ms`);
+	// A range with no visits has no row
+	return Number(report.rows?.[0]?.metricValues?.[0]?.value ?? 0);
+}
+
+async function fromAnalytics(raw: string): Promise<Visitors> {
+	const started = Date.now();
+	const token = await accessToken(JSON.parse(raw) as ServiceAccountKey);
+	console.log(`[visitors] signed in in ${Date.now() - started} ms`);
+	const today = await activeUsers(token, 'today');
+	const total = await activeUsers(token, SINCE);
+	return { today, total, at: new Date() };
 }
 
 /** The numbers the live site shows now, read back from its own home page */
