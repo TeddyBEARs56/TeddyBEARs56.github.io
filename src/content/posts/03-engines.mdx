@@ -1,0 +1,176 @@
+---
+stage: 3
+title: 다른 엔진과 비교
+description: 로컬 LLM 연재 3단계. 같은 모델을 서버에서는 llama.cpp와 애플의 MLX로, 인텔 노트북에서는 Vulkan·SYCL·OpenVINO(GPU·NPU)·CPU로 돌려 속도와 메모리를 견준 기록입니다.
+excerpt: 같은 모델도 엔진을 바꾸면 속도가 달라집니다. 서버에서는 애플이 만든 MLX가 50% 빨랐고, 노트북에서는 인텔 전용 방식이 오히려 느렸습니다.
+lead: 2단계까지는 두 기계 모두 llama.cpp라는 엔진 하나로 돌렸습니다. 이번에는 칩을 만든 회사의 엔진으로 바꿔 끼워, 같은 모델이 얼마나 빨라지는지 쟀습니다. 서버는 애플의 MLX, 노트북은 인텔의 SYCL과 OpenVINO입니다. 노트북에 든 NPU도 처음 써 봤습니다. 고르는 건 제가, 받고 재는 건 Claude가 했습니다.
+pubDate: 2026-11-13
+hands: [claude]
+reading:
+  was: 27.03 t/s
+  now: 40.36 t/s
+  setting: MLX
+  decided: person
+  loggedBy: 서버
+  time: '16:28:46'
+  datetime: '2026-11-13T16:28:46+09:00'
+  why: 같은 Gemma를 애플이 만든 엔진으로 돌려서
+---
+
+import Code from '../../components/Code.astro';
+import Note from '../../components/Note.astro';
+import Trail from '../../components/Trail.astro';
+
+## 엔진만 바꿔 끼운다
+
+2단계에서 모델 파일을 악보, 엔진을 연주자에 비유했습니다. 이번에는 악보는 그대로 두고 연주자만 바꿉니다. 측정은 2단계와 같습니다. 질문 512토큰을 읽고 답 128토큰을 쓰는 데 걸리는 속도를 3번씩 재서 평균을 냅니다. 단위는 초당 토큰입니다.
+
+| 기계 | 지금까지 쓴 엔진 | 견준 엔진 |
+| --- | --- | --- |
+| 서버 | llama.cpp + Metal | **MLX**, 애플이 만든 엔진 |
+| 노트북 | llama.cpp + Vulkan | **SYCL**, **OpenVINO**, 인텔 쪽 방식 / CPU만 |
+
+Metal과 Vulkan은 GPU에게 일을 시키는 범용 통로이고, MLX·SYCL·OpenVINO는 칩 회사가 자기 칩에 맞춰 만든 길입니다. 전용 길이 더 빠를 것이라고 예상했습니다.
+
+## 서버: 애플의 MLX
+
+MLX는 모델 파일 형식이 달라서 GGUF 파일을 그대로 쓸 수 없습니다. 같은 모델을 MLX 형식(4비트)으로 다시 받았습니다. Qwen은 7분 21초, Gemma는 8분 18초 걸렸습니다.
+
+<Code title="터미널, 서버" wrap>
+
+```sh
+$ uv tool install --python 3.12 mlx-lm
+$ uv tool install --python 3.12 huggingface_hub
+$ hf download mlx-community/Qwen3.8-27B-4bit --local-dir ~/models/mlx/Qwen3.8-27B-4bit
+$ hf download mlx-community/gemma-4-26b-a4b-it-4bit --local-dir ~/models/mlx/gemma-4-26b-a4b-it-4bit
+$ mlx_lm.benchmark --model ~/models/mlx/gemma-4-26b-a4b-it-4bit -p 512 -g 128 -n 3
+Averages: prompt_tps=427.671, generation_tps=40.459, peak_memory=14.753
+```
+
+</Code>
+
+| 파일 | llama.cpp용 GGUF | MLX용 |
+| --- | --- | --- |
+| Qwen 3.8 27B | `16.56 GB` (Q4_K_M) | `16.07 GB` (4bit) |
+| Gemma 4 26B-A4B | `13.60 GB` (IQ4_XS) | `15.37 GB` (4bit) |
+
+같은 날 같은 서버에서 두 엔진을 차례로 쟀습니다.
+
+| 조합 | 질문 읽기 (pp512) | 답 쓰기 (tg128) | 쓴 메모리 |
+| --- | --- | --- | --- |
+| Qwen, llama.cpp | `61.13` | `6.29` | |
+| Qwen, **MLX** | `65.37` | `6.91` | `16.27 GB` |
+| Gemma, llama.cpp | `415.09` | `27.03` | |
+| Gemma, **MLX** | `427.67` | `40.46` | `14.75 GB` |
+
+- **Gemma는 답 쓰기가 50% 빨라졌다.** 초당 27토큰에서 40토큰이다. 16:28에 한 번 더 재도 `40.36`으로 같았다. MLX 파일이 1.8GB 더 큰데도 빨랐다.
+- **Qwen은 10% 빨라졌다.** 1단계의 계산(메모리 읽는 속도 ÷ 토큰마다 읽는 양)으로 보면, 초당 120GB 중 llama.cpp는 87%, MLX는 92%를 썼다. 이미 천장에 가까워서 더 올라갈 자리가 적었다.
+- 질문 읽기는 두 모델 모두 3~7%만 빨라졌다. 차이는 답을 한 토큰씩 쓸 때 났다.
+- 전문가 혼합 모델(Gemma)에서 차이가 크게 난 이유까지는 확인하지 못했다.
+
+## 노트북: 인텔 쪽 엔진 세 가지
+
+llama.cpp는 같은 버전을 엔진별로 따로 조립해 올려 둡니다. 2단계에서 쓴 Vulkan판과 같은 b12340 버전으로 세 가지를 더 받았습니다.
+
+<Code title="명령 프롬프트, 노트북" wrap>
+
+```sh
+> curl.exe -L -o llama-sycl.zip https://github.com/ggml-org/llama.cpp/releases/download/b12340/llama-b12340-bin-win-sycl-x64.zip
+> curl.exe -L -o llama-openvino.zip https://github.com/ggml-org/llama.cpp/releases/download/b12340/llama-b12340-bin-win-openvino-2026.4.1-x64.zip
+> curl.exe -L -o llama-cpu.zip https://github.com/ggml-org/llama.cpp/releases/download/b12340/llama-b12340-bin-win-cpu-x64.zip
+```
+
+</Code>
+
+| 엔진 | 무엇인가 | 노트북에서 잡힌 장치 |
+| --- | --- | --- |
+| SYCL | 인텔 GPU 전용 통로 | Arc 140V |
+| OpenVINO | 인텔이 만든 AI 엔진 | CPU, Arc 140V, **NPU** 셋 중 고름 |
+| CPU | GPU 없이 CPU만 | Core Ultra 7 258V, 8코어 |
+
+<Code title="OpenVINO판이 찾은 장치">
+
+```sh
+> llama-cli.exe --list-devices
+  OPENVINO0: GGML_OPENVINO_DEVICE=CPU (selected) - Intel(R) Core(TM) Ultra 7 258V (32266 MiB, 24171 MiB free)
+  OPENVINO1: GGML_OPENVINO_DEVICE=GPU - Intel(R) Arc(TM) 140V GPU (16GB) (iGPU) (22601 MiB, 22601 MiB free)
+  OPENVINO2: GGML_OPENVINO_DEVICE=NPU - Intel(R) AI Boost (NPU 4000) (16384 MiB, 16384 MiB free)
+```
+
+</Code>
+
+같은 모델 파일로 엔진만 바꿔 쟀습니다. 공유 GPU 메모리 한도는 2단계에서 올린 24GB 상태입니다.
+
+| 엔진 | Qwen 읽기 | Qwen 쓰기 | Gemma 읽기 | Gemma 쓰기 |
+| --- | --- | --- | --- | --- |
+| **Vulkan** | `204.26` | `4.44` | `769.09` | `20.43` |
+| SYCL | `54.41` | `3.63` | `154.45` | `12.71` |
+| CPU만 | `15.37` | `3.44` | `63.89` | `13.21` |
+| OpenVINO GPU | 멈춤 | | 지원 안 됨 | |
+
+- **인텔 전용 통로(SYCL)가 오히려 3~5배 느렸다.** Gemma 쓰기는 CPU만 쓸 때보다도 느렸다. 아래 작은 모델에서는 쓰기 속도가 Vulkan과 같았으니, 이번 두 모델의 새 구조에 SYCL 쪽 최적화가 아직 따라오지 못한 것으로 보인다.
+- **CPU만 써도 답 쓰기는 GPU의 77%였다.** 읽기는 GPU가 13배 빨랐다. 쓰는 속도는 메모리를 읽는 속도가 정한다는 2단계의 결론 그대로다. CPU와 GPU가 같은 메모리를 나눠 쓰니 쓰는 속도도 비슷해진다.
+- **OpenVINO는 두 모델을 아직 돌리지 못했다.** Qwen은 계산 중에 프로그램이 죽었고, Gemma는 처리하지 못하는 계산이 있다는 오류가 났다. OpenVINO판 설명서의 검증 목록에도 두 모델은 없다.
+
+## 작은 모델로 NPU까지
+
+NPU는 AI 계산만 하는 작은 칩입니다. llama.cpp에서는 OpenVINO판으로만 쓸 수 있고, 설명서에 따르면 정해진 압축 방식(주로 Q4_0)과 검증된 작은 모델만 됩니다. 처음에 Gemma로 시도했더니 압축 방식(IQ4_XS)을 처리하지 못했습니다. 그래서 검증 목록에 있는 **Qwen3 4B**(Q4_K_M, 2.50GB)를 받아 여섯 가지 엔진으로 모두 쟀습니다.
+
+<Code title="명령 프롬프트, 노트북">
+
+```sh
+> set GGML_OPENVINO_DEVICE=NPU
+> llama-bench.exe -m ..\models\Qwen3-4B-Q4_K_M.gguf -ngl 99 -fa 1 -p 512 -n 128 -r 3
+```
+
+</Code>
+
+| 엔진 | 질문 읽기 (pp512) | 답 쓰기 (tg128) |
+| --- | --- | --- |
+| Vulkan | `1,363.68` | **`33.53`** |
+| SYCL | `398.37` | **`34.12`** |
+| OpenVINO GPU | **`1,897.11`** | `21.02` |
+| OpenVINO **NPU** | `323.51` | `11.99` |
+| CPU만 | `103.19` | `20.51` |
+| OpenVINO CPU | `88.65` | `9.47` |
+
+- **NPU로 LLM이 돌았다.** 읽기는 CPU의 3배였지만, 쓰기는 CPU보다도 느렸다. NPU는 빠르기보다 전기를 적게 쓰는 게 장점인 칩인데, 이번에는 전력을 재지 못했다.
+- **OpenVINO GPU는 읽기가 가장 빨랐다.** Vulkan보다 39% 빠르다. 대신 쓰기는 Vulkan의 63%였다.
+- 이 모델로 낼 수 있는 이론상 최고 쓰기 속도는 초당 약 55토큰이다. Vulkan과 SYCL이 그 61%까지 냈다.
+
+<Note title="참고">
+OpenVINO판으로 측정할 때는 `-fa 1`(flash attention) 옵션이 꼭 있어야 합니다. 설명서에 적혀 있고, 처음에는 이 옵션 없이 재서 다시 쟀습니다.
+</Note>
+
+## 정리
+
+| 기계 | 고른 엔진 | 이유 |
+| --- | --- | --- |
+| 서버 | **MLX** | 같은 모델에서 쓰기가 10~50% 빠르다 |
+| 노트북 | **Vulkan** | 큰 모델 둘 다 가장 빠르고, 다른 엔진은 아직 못 돌리거나 느리다 |
+
+4단계에서 서버로 띄울 때는 이 결과를 보고 엔진을 정합니다. MLX에도 llama.cpp처럼 질문을 받는 서버 기능(`mlx_lm.server`)이 있습니다.
+
+## 남긴 기록
+
+<Trail
+	date="2026-11-13"
+	items={[
+		{ time: '15:54', who: 'person', what: '3단계로 넘어가 NPU까지 해 보기로 했다', got: '예' },
+		{ time: '15:55', who: 'claude', what: '노트북에 SYCL·OpenVINO·CPU판 엔진을 받았다', got: '3개' },
+		{ time: '16:11', who: 'claude', what: '노트북에서 큰 모델 둘을 엔진별로 쟀다', got: 'Vulkan' },
+		{ time: '16:19', who: 'claude', what: '서버에 MLX 모델 둘을 받았다', got: '31.44 GB' },
+		{ time: '16:19', who: 'claude', what: '노트북에 NPU용 작은 모델을 받았다', got: '2.50 GB' },
+		{ time: '16:23', who: 'claude', what: '서버에서 MLX와 llama.cpp를 견줬다', got: '40.46 t/s' },
+		{ time: '16:27', who: 'claude', what: '노트북 NPU로 작은 모델을 돌렸다', got: '11.99 t/s' },
+		{ time: '16:28', who: 'claude', what: '서버에서 MLX Gemma를 다시 쟀다', got: '40.36 t/s' },
+	]}
+/>
+
+## 배운 것
+
+- 같은 모델 파일도 엔진에 따라 쓰는 속도가 50%까지 달라진다.
+- 칩 회사의 엔진이 늘 빠른 건 아니다. 애플의 MLX는 빨랐고, 인텔의 SYCL은 새 모델 구조에서 느렸다.
+- 답 쓰는 속도는 엔진보다 메모리가 먼저 정한다. CPU만 써도 GPU의 77%가 나왔다.
+- NPU는 작은 모델을 느리게 돌린다. 쓸모는 속도가 아니라 전기 쪽에 있다.
+- 새 엔진은 지원하는 모델 목록부터 확인한다. OpenVINO는 이번 두 모델을 아직 돌리지 못했다.
