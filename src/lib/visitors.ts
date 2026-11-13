@@ -63,10 +63,31 @@ async function activeUsers(token: string, startDate: string): Promise<number> {
 	return Number(report.rows?.[0]?.metricValues?.[0]?.value ?? 0);
 }
 
+/** Diagnosis only: does the realtime side of the same property answer while the daily report hangs? */
+async function realtimeProbe(token: string): Promise<void> {
+	const started = Date.now();
+	try {
+		const res = await fetch(
+			`https://analyticsdata.googleapis.com/v1beta/properties/${SITE.gaPropertyId}:runRealtimeReport`,
+			{
+				method: 'POST',
+				headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+				body: JSON.stringify({ metrics: [{ name: 'activeUsers' }] }),
+				signal: AbortSignal.timeout(20_000),
+			},
+		);
+		const text = (await res.text()).slice(0, 160);
+		console.log(`[visitors] realtime ${res.status} in ${Date.now() - started} ms: ${text}`);
+	} catch (error) {
+		console.log(`[visitors] realtime failed after ${Date.now() - started} ms: ${(error as Error).message}`);
+	}
+}
+
 async function fromAnalytics(raw: string): Promise<Visitors> {
 	const started = Date.now();
 	const token = await accessToken(JSON.parse(raw) as ServiceAccountKey);
 	console.log(`[visitors] signed in in ${Date.now() - started} ms`);
+	await realtimeProbe(token);
 	const today = await activeUsers(token, 'today');
 	const total = await activeUsers(token, SINCE);
 	return { today, total, at: new Date() };
