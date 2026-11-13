@@ -18,7 +18,7 @@ const nextPost = posts.find((p) => p.data.stage === nextStage);
 const nextPlan = SERIES.find((s) => s.stage === nextStage);
 ---
 
-<Base title={post.data.title} description={post.data.description} current="latest">
+<Base title={post.data.title} description={post.data.description} current="latest" published={post.data.pubDate}>
 	<div class="container post">
 		<article aria-labelledby="post-title">
 			<header class="post__head">
