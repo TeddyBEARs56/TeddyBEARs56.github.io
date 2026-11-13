@@ -70,6 +70,17 @@ const nav = [
 		<style is:global>
 			html, body { overflow-x: clip; }
 		</style>
+		{SITE.gaMeasurementId && (
+			<>
+				<script async src={`https://www.googletagmanager.com/gtag/js?id=${SITE.gaMeasurementId}`}></script>
+				<script is:inline define:vars={{ gaId: SITE.gaMeasurementId }}>
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				</script>
+			</>
+		)}
 	</head>
 	<body>
 		<a class="skip" href="#main">본문으로 건너뛰기</a>
