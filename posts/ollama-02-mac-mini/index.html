@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mac mini에서 Ollama로 코딩 맡기기 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 2편. 지난 연재의 코딩 과제 세 개를 같은 Mac mini에서 Ollama로 다시 맡겼습니다. 생각을 끈 조건으로 24번 돌리는 동안 Ollama는 한 번도 멈추지 않았고, Qwen3.8 27B는 mlx-lm 때 3/6에서 6/6이 됐습니다. 처음 두 회차가 생각을 켠 채였던 일도 적습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-02-mac-mini/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="Mac mini에서 Ollama로 코딩 맡기기 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 2편. 지난 연재의 코딩 과제 세 개를 같은 Mac mini에서 Ollama로 다시 맡겼습니다. 생각을 끈 조건으로 24번 돌리는 동안 Ollama는 한 번도 멈추지 않았고, Qwen3.8 27B는 mlx-lm 때 3/6에서 6/6이 됐습니다. 처음 두 회차가 생각을 켠 채였던 일도 적습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-02-mac-mini/"><meta property="article:published_time" content="2026-11-18T13:13:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Mac mini에서 Ollama로 코딩 맡기기","description":"Ollama로 다시 돌려 보기 2편. 지난 연재의 코딩 과제 세 개를 같은 Mac mini에서 Ollama로 다시 맡겼습니다. 생각을 끈 조건으로 24번 돌리는 동안 Ollama는 한 번도 멈추지 않았고, Qwen3.8 27B는 mlx-lm 때 3/6에서 6/6이 됐습니다. 처음 두 회차가 생각을 켠 채였던 일도 적습니다.","datePublished":"2026-11-18T13:13:00.000Z","dateModified":"2026-11-18T13:13:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-02-mac-mini/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-02-mac-mini/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>2편</li></ol></nav><h1 id="post-title">Mac mini에서 Ollama로 코딩 맡기기</h1><p class="post__lead">지난 연재 <span class="nb">「로컬</span> 모델에게 코딩 <span class="nb">맡기기」에서</span> Mac mini의 MLX 서버는 메모리가 모자라 여섯 번 멈췄습니다. 같은 과제를 같은 Mac mini에서 Ollama로 다시 돌렸습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-18"><span class="nb">2026-11-18</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>같은 시험을 Ollama로 돌린다.</strong> 과제, Claude Code 설정, 게이트웨이는 지난 연재 그대로 두고, 모델 서버를 Ollama로 바꾼다.</li>
+<li><strong>결과를 <span class="nb">mlx-lm</span> 때와 견준다.</strong> 통과 수와 걸린 시간, 멈춘 횟수를 본다.</li>
+<li><strong>차이가 난 까닭을 기록에서 찾는다.</strong> 메모리, 파일 고치기 실패, 오류로 끝난 실행을 본다.</li>
+</ol>
+<h2 id="같은-시험을-ollama로">같은 시험을 Ollama로</h2>
+<p>과제는 지난 연재와 같은 세 개입니다. 이 블로그의 원본 사본에서 읽기 시간을 계산하는 곳을 <span class="nb">찾고(찾기),</span> Cybug 목록의 건수가 모두 0으로 나오게 일부러 넣은 버그를 <span class="nb">고치고(고치기),</span> RSS 피드에 버그 기록을 글과 함께 최신순으로 섞어 <span class="nb">넣습니다(더하기).</span> 찾기는 파일을 바꾸지 않고 맞는 파일 이름과 숫자를 댔는지로 가립니다. 고치기와 더하기는 시험 프로그램이 사본을 다시 빌드해서 가립니다. Claude Code 설정도 같습니다. 기억할 글 길이 <span class="nb">49,152토큰,</span> 한 번에 쓰는 답 <span class="nb">4,096토큰,</span> 40번 주고받기, 45분 제한입니다. 모델마다 과제 셋을 2회씩, 모두 24번 돌렸습니다.</p>
+<p>다른 점도 하나 있습니다. 이번에는 노트북의 Ollama 시험을 같은 시간에 돌렸고, 노트북 차례의 Claude Code와 빌드도 Mac mini에서 돌았습니다. 지난 연재는 두 기계를 차례로 돌렸으니, 이번에는 Mac mini가 더 바빴던 셈입니다.</p>
+<p>Ollama <span class="nb">0.40.16을</span> Homebrew로 깔고, 시험 동안에는 MLX 서버를 멈췄습니다. Ollama는 GPU 메모리가 24GiB보다 작으면 기억할 글 길이를 <span class="nb">4,096토큰으로</span> 잡기 때문에, 시험 길이에 맞춰 늘렸습니다. 대화 <span class="nb">기억(KV</span> <span class="nb">캐시)은</span> 16비트로 두었습니다. Homebrew 서비스로 띄우면 8비트가 됩니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-foreground)">OLLAMA_CONTEXT_LENGTH</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string)">49152</span><span style="color:var(--astro-code-foreground)"> OLLAMA_NUM_PARALLEL</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string)">1</span><span style="color:var(--astro-code-foreground)"> OLLAMA_MAX_LOADED_MODELS</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string)">1</span><span style="color:var(--astro-code-foreground)"> OLLAMA_KEEP_ALIVE</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string)">30m</span><span style="color:var(--astro-code-foreground)"> OLLAMA_KV_CACHE_TYPE</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string)">f16</span><span style="color:var(--astro-code-token-function)"> ollama</span><span style="color:var(--astro-code-token-string)"> serve</span></span></code></pre></figure>
+<p>Ollama는 받은 파일 형식에 따라 엔진을 고릅니다. 이번 네 모델은 둘씩 갈렸습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>Ollama가 받은 것</th>
+<th>엔진</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>NVFP4 중심</td>
+<td>MLX</td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td>NVFP4 중심</td>
+<td>MLX</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td>GGUF(UD-IQ4_XS)</td>
+<td><span class="nb">llama.cpp</span></td>
+</tr>
+<tr>
+<td>Devstral 24B</td>
+<td>GGUF(Q4_K_M)</td>
+<td><span class="nb">llama.cpp</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Ollama가 내려주는 NVFP4 파일은 대부분의 층을 4비트로 두고, 일부 층은 8비트나 16비트로 둔 혼합 형식이었습니다.</p>
+<p><span class="nb">Qwen3.6</span> 35B는 Ollama가 내려주는 NVFP4 <span class="nb">파일(23GB)이</span> 메모리에 들어가지 않았습니다. Ollama가 올리기 전에 거절했습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Ollama의 답</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>model requires 21.5 GiB but only 21.5 GiB are available (after 512.0 MiB overhead)</span></span></code></pre></figure>
+<p>두 수가 같아 보이는 것은 반올림 때문입니다. 파일은 <span class="nb">21.52GiB이고,</span> 쓸 수 있는 자리는 <span class="nb">22.0GiB에서</span> <span class="nb">0.5GiB를</span> 뺀 <span class="nb">21.5GiB였습니다.</span> 그래서 노트북과 같은 GGUF 파일을 받아 Ollama에 들여왔습니다. 이 모델은 <span class="nb">llama.cpp</span> 엔진으로 돌았습니다.</p>
+<h2 id="처음-두-회차는-생각을-켠-채였다">처음 두 회차는 생각을 켠 채였다</h2>
+<p>첫 두 회차에서 <span class="nb">Qwen3.8과</span> Gemma는 과제 12개를 모두 통과했습니다. 그런데 기록을 열어 보니 <span class="nb">생각(추론)한</span> 글이 과제마다 수백에서 1만 7천 자씩 남아 있었습니다. 지난 연재의 <span class="nb">mlx-lm</span> 서버는 생각을 끈 조건이었으니, 이대로는 견줄 수 없었습니다.</p>
+<p>Claude Code는 요청마다 생각을 켜 달라고 보냅니다. 게이트웨이는 이 요청을 Claude가 아닌 모델에 맞게 바꿔 넘기는데, 이때 설정 파일에 적어 둔 <span class="nb">「생각</span> <span class="nb">끔」을</span> 덮어씁니다. <span class="nb">mlx-lm</span> 서버는 띄울 때부터 생각을 꺼 두어 이 요청과 상관없이 생각하지 않았고, Ollama는 요청대로 생각했습니다. 생각 기능이 없는 Devstral은 이 요청에 400 오류로 답해, 과제마다 3초도 안 돼 끝났습니다. 자세한 과정은 <a href="/bugs/2026-11-18-litellm-thinking-override/">Cybug에 따로 적었습니다</a>.</p>
+<p>그래서 Claude Code를 <code><span class="nb">MAX_THINKING_TOKENS=0</span></code>으로 띄워 생각 요청을 빼고 처음부터 다시 돌렸습니다. 아래 결과는 모두 이렇게 다시 돌린 24번입니다. 생각을 켠 채 돈 <span class="nb">Qwen3.8과</span> Gemma의 12번, 그리고 400 오류로 끝난 Devstral의 6번은 따로 떼어 두었습니다.</p>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>Ollama</th>
+<th><span class="nb">mlx-lm(지난</span> <span class="nb">연재)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td><span class="nb">6/6</span></td>
+<td><span class="nb">3/6</span></td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td><span class="nb">6/6</span></td>
+<td><span class="nb">5/6</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td><span class="nb">5/6</span></td>
+<td><span class="nb">5/6</span></td>
+</tr>
+<tr>
+<td>Devstral 24B</td>
+<td><span class="nb">3/6</span></td>
+<td><span class="nb">2/6</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Devstral의 <span class="nb">mlx-lm</span> 결과는 대화 형식 오류를 고친 사본으로 돌린 것입니다. 걸린 <span class="nb">시간(통과한</span> 실행의 가운데 <span class="nb">값)은</span> 이랬습니다.</p>
+<ul>
+<li><strong><span class="nb">Qwen3.8</span> 27B:</strong> 찾기 3분 44초, 고치기 10분 44초, 더하기 10분 5초. <span class="nb">mlx-lm에서는</span> 고치기를 한 번도 통과하지 못했다.</li>
+<li><strong>Gemma 4 26B:</strong> 찾기 49초, 고치기 3분 34초, 더하기 1분 24초. <span class="nb">mlx-lm에서는</span> 고치기가 5분과 19분, 더하기가 11분과 14분이었다.</li>
+<li><strong><span class="nb">Qwen3.6</span> 35B:</strong> 찾기 53초, 고치기 2분 40초, 더하기 1분 54초로, <span class="nb">mlx-lm과</span> 비슷했다.</li>
+<li><strong>Devstral 24B:</strong> 찾기는 한 번 통과해 8분 6초, 고치기는 20분 24초와 21분 23초. 더하기는 결과물은 맞았지만 두 번 다 오류로 끝났고, <span class="nb">33~37분이</span> 걸렸다.</li>
+</ul>
+<h2 id="한-번도-멈추지-않았다">한 번도 멈추지 않았다</h2>
+<p>지난 연재의 시험에서 MLX 서버는 메모리가 모자라 6번 멈췄고, 그중 4번이 이번에 다시 돌린 네 모델에서였습니다. Ollama는 24번 내내 멈추지 않았고, Ollama 기록에 <span class="nb">오류(ERROR)</span> 줄도 없었습니다. 다만 시험 스크립트가 아래 Devstral의 429 때문에 Ollama를 두 번 다시 띄웠고, 그때 처리 중이던 Devstral 요청 두 개가 500 오류로 끊겼습니다.</p>
+<p>메모리를 잡는 방식은 엔진에 따라 달랐습니다. Ollama가 보고한 크기를 보면 이렇습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>엔진</th>
+<th>올린 직후 → 가장 클 때</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>MLX</td>
+<td>18GB → 28GB</td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td>MLX</td>
+<td>16GB → 25GB</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td><span class="nb">llama.cpp</span></td>
+<td>18GB 그대로</td>
+</tr>
+<tr>
+<td>Devstral 24B</td>
+<td><span class="nb">llama.cpp</span></td>
+<td>23GB 그대로</td>
+</tr>
+</tbody>
+</table></div>
+<p>MLX 엔진은 대화가 길어질수록 메모리를 늘렸고, 새 과제를 시작해도 줄이지 않았습니다. Mac mini의 메모리는 24GB인데, Ollama의 MLX 엔진 기록에는 가장 많이 쓸 때 <span class="nb">30.2GiB가</span> 남았습니다. 실제 메모리보다 커서 압축이나 스왑으로 버틴 것으로 보입니다. 스왑 양은 재지 않았습니다.</p>
+<p><span class="nb">llama.cpp</span> 엔진은 대화 자리를 처음에 다 잡아 두어, Ollama가 보고한 크기가 변하지 않았습니다. 다만 다음 요청에서 다시 읽지 않으려고 앞서 읽은 대화의 기억을 복사해 따로 두었습니다. 한도는 8GiB였고, Devstral 때는 이 사본이 <span class="nb">6.4GiB까지</span> 찼습니다. 이 몫은 Ollama가 보고한 크기에 들어가지 않습니다. Devstral은 23GB를 다 GPU에 올리지 못해 <span class="nb">10%를</span> CPU로 돌렸습니다.</p>
+<p>Ollama의 MLX 엔진은 <span class="nb">mlx-lm</span> 서버와 다른 프로그램이라, 대화 기억을 다루는 방식도 다를 것입니다. 왜 멈추지 않았는지는 이번에 확인하지 못했습니다.</p>
+<h2 id="같은-gemma가-덜-헤맸다">같은 Gemma가 덜 헤맸다</h2>
+<p>Gemma 4 26B는 같은 모델인데 일하는 모습이 크게 달랐습니다. 더하기를 <span class="nb">mlx-lm에서는</span> <span class="nb">31~39번</span> 주고받으며 1만 2천 토큰 넘게 썼는데, Ollama에서는 <span class="nb">8~9번</span> 주고받고 <span class="nb">1~2분</span> 만에 끝냈습니다.</p>
+<p>차이는 파일을 고치는 방법에서 났습니다. Claude Code의 고치기 도구는 바꿀 부분을 파일에 있는 그대로 적어야 받아들입니다. <span class="nb">mlx-lm의</span> Gemma는 이 도구를 44번 불러 38번 거절당했습니다. 바꿀 부분을 파일에 없는 모양으로 <span class="nb">적었거나(32번),</span> 바뀌는 것이 없는 수정을 <span class="nb">보냈습니다(6번).</span> Ollama의 Gemma는 고치기에서 이 도구를 한 번씩 불러 바로 맞혔고, 더하기에서는 이 도구를 쓰지 않고 파일을 한 번에 통째로 다시 썼습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>실행</th>
+<th><span class="nb">mlx-lm</span></th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>고치기 1회</td>
+<td>거절 <span class="nb">0/1</span></td>
+<td>거절 <span class="nb">0/1</span></td>
+</tr>
+<tr>
+<td>고치기 2회</td>
+<td>거절 <span class="nb">12/12,</span> 통째로 1</td>
+<td>거절 <span class="nb">0/1</span></td>
+</tr>
+<tr>
+<td>더하기 1회</td>
+<td>거절 <span class="nb">15/18,</span> 통째로 1</td>
+<td>통째로 1</td>
+</tr>
+<tr>
+<td>더하기 2회</td>
+<td>거절 <span class="nb">11/13,</span> 통째로 2</td>
+<td>통째로 1</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">「거절</span> <span class="nb">15/18」은</span> 고치기 도구를 18번 불러 15번 거절당했다는 뜻이고, <span class="nb">「통째로</span> <span class="nb">1」은</span> 파일을 통째로 다시 쓴 횟수입니다.</p>
+<p>두 쪽은 양자화 <span class="nb">형식(mlx-community의</span> 4비트와 Ollama의 NVFP4 중심 혼합 <span class="nb">형식)도,</span> 대화 형식을 바꾸는 코드도 다릅니다. 어느 쪽이 차이를 만들었는지는 이번 시험만으로는 가릴 수 없었습니다.</p>
+<h2 id="devstral은-풀었지만-느렸다">Devstral은 풀었지만 느렸다</h2>
+<p>지난 연재에서 Devstral은 대화 형식 오류로 바로 멈췄고, 형식 검사를 뺀 사본을 따로 만들어야 했습니다. Ollama는 자체 대화 형식을 써서 그런 오류 없이 돌았습니다. 다만 23GB 가운데 <span class="nb">10%를</span> CPU로 돌렸고, 느렸습니다. 과제 여섯 개 가운데 셋만 통과했습니다.</p>
+<p>더하기 두 번은 파일을 맞게 고쳐 놓고도 오류로 끝났습니다. 1회차 기록을 맞춰 보면 이렇습니다.</p>
+<ol>
+<li><strong><span class="nb">16:09:24:</span></strong> Claude Code가 요청을 보냈다. Ollama는 앞의 대화 3만 3천 토큰을 처음부터 다시 읽기 시작했다. 앞서 읽어 둔 것 가운데 다시 쓸 수 있었던 것은 <span class="nb">1,264토큰뿐이었고,</span> 읽는 속도는 초당 42토큰 안팎이었다.</li>
+<li><strong><span class="nb">16:14:36:</span></strong> 5분쯤 기다린 Claude Code가 같은 요청을 다시 보내기 시작했다.</li>
+<li><strong>게이트웨이:</strong> 시험용 API 키는 동시 요청을 하나만 받게 해 두었다. 첫 요청이 아직 처리 중이라 다시 보낸 요청을 429로 거절했다.</li>
+<li><strong><span class="nb">16:20:41:</span></strong> Claude Code는 21번 모두 429를 받고 오류로 끝났다. 대화 기록에는 <span class="nb">16:17:40부터의</span> 11번만 남았다.</li>
+<li><strong><span class="nb">16:20:44:</span></strong> 다음 모델을 올리려던 시험 스크립트의 확인 요청도 429를 받았다. 스크립트가 Ollama를 다시 띄우자, 첫 요청은 11분 20초 만에 500 오류로 끊겼다. 대화를 <span class="nb">87%쯤</span> 읽은 때였다.</li>
+</ol>
+<p>게이트웨이 기록은 API 키를 가려 적기 때문에, 앞쪽 10번이 같은 Claude Code의 것이라는 것은 연결 포트로 맞춰 본 것입니다. 2회차도 같은 모양이었습니다. Claude Code가 왜 5분여 만에 첫 요청을 놓았는지는 기록에 없었습니다. 요청 시간 제한은 30분으로 두었습니다.</p>
+<p>Claude Code가 놓은 요청도 게이트웨이와 Ollama는 끝까지 붙잡고 있었습니다. 동시 요청 한도를 늘릴지, 놓은 요청을 끊게 할지는 따로 시험해 봐야 합니다. 대화를 왜 처음부터 다시 읽었는지도 기록에 없었습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>Ollama는 24번 내내 멈추지 않았다.</strong> 같은 Mac mini, 같은 과제에서 <span class="nb">mlx-lm</span> 서버는 이 네 모델로 4번 멈췄다.</li>
+<li><strong>Ollama는 파일 형식에 따라 엔진을 고르고, 엔진마다 메모리를 잡는 방식이 다르다.</strong> MLX 엔진은 쓰는 만큼 늘리고, <span class="nb">llama.cpp</span> 엔진은 대화 자리를 처음에 잡아 두되 앞서 읽은 대화의 사본을 따로 둔다.</li>
+<li><strong>같은 모델도 엔진에 따라 일하는 모습이 달랐다.</strong> Gemma 4는 <span class="nb">mlx-lm에서</span> 고치기 도구를 44번 불러 38번 거절당했고, Ollama에서는 파일을 한 번에 고쳤다.</li>
+<li><strong>게이트웨이를 거쳐도 Claude Code의 생각 요청은 모델까지 간다.</strong> 생각을 끄려면 Claude Code 쪽에서 요청을 빼야 했다.</li>
+<li><strong>Claude Code가 놓은 요청도 서버는 끝까지 붙잡는다.</strong> 동시 요청을 하나만 받는 키에서는 다시 보낸 요청이 모두 429로 거절됐다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-18"><li><time class="measured" datetime="2026-11-18T13:18+09:00"><span class="nb">13:18</span></time><span class="trail__what">MLX 서버를 멈추는 시험 모드를 켬</span><code class="trail__got">Ollama 1회차 시작</code></li><li><time class="measured" datetime="2026-11-18T13:50+09:00"><span class="nb">13:50</span></time><span class="trail__what">1회차 결과를 읽음</span><code class="trail__got">Devstral 400, <span class="nb">Qwen3.6</span> 올리기 거절</code></li><li><time class="measured" datetime="2026-11-18T14:33+09:00"><span class="nb">14:33</span></time><span class="trail__what">기록에서 생각한 글을 셈</span><code class="trail__got"><span class="nb">Qwen3.8과</span> Gemma가 생각함</code></li><li><time class="measured" datetime="2026-11-18T14:37+09:00"><span class="nb">14:37</span></time><span class="trail__what">생각 요청 있이, 없이 같은 질문을 보냄</span><code class="trail__got">요청이 있으면 생각함</code></li><li><time class="measured" datetime="2026-11-18T14:42+09:00"><span class="nb">14:42</span></time><span class="trail__what">Claude Code의 생각 요청을 빼고 다시 시작</span><code class="trail__got">네 모델 2회씩</code></li><li><time class="measured" datetime="2026-11-18T18:06+09:00"><span class="nb">18:06</span></time><span class="trail__what">24번을 마침</span><code class="trail__got">멈춤 0번</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-03-laptop/" class="pager__next"><small>다음 글</small><strong>3편 노트북에서 Ollama로 코딩 맡기기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#같은-시험을-ollama로">같은 시험을 Ollama로</a></li><li><a href="#처음-두-회차는-생각을-켠-채였다">처음 두 회차는 생각을 켠 채였다</a></li><li><a href="#결과">결과</a></li><li><a href="#한-번도-멈추지-않았다">한 번도 멈추지 않았다</a></li><li><a href="#같은-gemma가-덜-헤맸다">같은 Gemma가 덜 헤맸다</a></li><li><a href="#devstral은-풀었지만-느렸다">Devstral은 풀었지만 느렸다</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

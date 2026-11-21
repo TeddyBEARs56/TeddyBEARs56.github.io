@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>커밋 메시지 맡겨 보기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 8단계. 변경 내용(diff)을 Mac mini의 로컬 모델에 보내 커밋 메시지 초안을 받는 도구를 만들고, Claude가 실제로 쓴 지난 커밋 메시지 7개와 견줬습니다. 지시문 두 줄을 더하자 본문을 쓴 초안이 2개에서 7개로 늘었습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/08-commit-message/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="커밋 메시지 맡겨 보기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 8단계. 변경 내용(diff)을 Mac mini의 로컬 모델에 보내 커밋 메시지 초안을 받는 도구를 만들고, Claude가 실제로 쓴 지난 커밋 메시지 7개와 견줬습니다. 지시문 두 줄을 더하자 본문을 쓴 초안이 2개에서 7개로 늘었습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/08-commit-message/"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"커밋 메시지 맡겨 보기","description":"로컬 LLM 연재 8단계. 변경 내용(diff)을 Mac mini의 로컬 모델에 보내 커밋 메시지 초안을 받는 도구를 만들고, Claude가 실제로 쓴 지난 커밋 메시지 7개와 견줬습니다. 지시문 두 줄을 더하자 본문을 쓴 초안이 2개에서 7개로 늘었습니다.","datePublished":"2026-11-16T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/08-commit-message/","mainEntityOfPage":"https://teddybears56.github.io/posts/08-commit-message/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>8단계</li></ol></nav><h1 id="post-title">커밋 메시지 맡겨 보기</h1><p class="post__lead">지금까지 만든 서버를 실제 일에 붙여 봅니다. 고른 일은 커밋 메시지입니다. 매일 여러 번 하는 작은 일이고, Claude가 그동안 써 온 메시지가 있어서 견주기 쉽습니다. 실전에 바로 쓰기 전에, Claude와 함께 만든 지난 커밋 7개로 시험했습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 9분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>초안 도구를 만든다.</strong> 올려 둔 변경을 Mac mini의 로컬 모델에 보내고, 커밋 메시지 초안을 받는다.</li>
+<li><strong>지난 커밋으로 견준다.</strong> Claude와 함께 만든 커밋 7개를 골라, 로컬 모델의 초안과 Claude가 그때 쓴 메시지를 나란히 놓는다.</li>
+<li><strong>지시문을 고쳐 한 번 더 견준다.</strong> 첫 결과에서 모자란 점을 지시문으로 메운다.</li>
+</ol>
+<h2 id="왜-커밋-메시지인가">왜 커밋 메시지인가</h2>
+<p>커밋 메시지는 변경을 저장소에 기록할 때 붙이는 설명입니다. 요즘 제 커밋 메시지는 대부분 Claude가 씁니다. 코드를 함께 고친 Claude Code가 커밋까지 하고, 메시지 끝에 <code><span class="nb">Co-Authored-By:</span> Claude</code> 꼬리말을 붙입니다.</p>
+<p>로컬 모델에 맡겨 보기 좋은 이유는 셋입니다.</p>
+<ul>
+<li><strong>자주 하는 작은 일입니다.</strong> 하루에도 여러 번 합니다. 답이 짧아서, 느린 Mac mini 모델도 기다릴 만합니다.</li>
+<li><strong>견줄 답이 이미 있습니다.</strong> 지난 커밋마다 Claude가 쓴 메시지가 남아 있습니다.</li>
+<li><strong>코드가 내 네트워크 밖으로 나가지 않습니다.</strong> 변경 내용은 Mac mini에만 갑니다.</li>
+</ul>
+<h2 id="도구">도구</h2>
+<p><code><span class="nb">~/llm-lab/commit_msg.py</span></code> 파일 하나입니다. 4단계에서 띄운 OpenAI 호환 API로 Mac mini에 묻습니다. 필요한 패키지를 파일 맨 위에 적어 두어서, <code>uv run</code>이 알아서 설치하고 실행합니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>터미널, 내 컴퓨터의 프로젝트 폴더</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> run</span><span style="color:var(--astro-code-token-string)"> ~/llm-lab/commit_msg.py</span><span style="color:var(--astro-code-token-comment)">                         # git add로 올려 둔 변경으로 초안</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> run</span><span style="color:var(--astro-code-token-string)"> ~/llm-lab/commit_msg.py</span><span style="color:var(--astro-code-token-string)"> --rev</span><span style="color:var(--astro-code-token-string)"> HEAD</span><span style="color:var(--astro-code-token-comment)">              # 이미 한 커밋으로 시험. 실제 메시지와 나란히</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> git</span><span style="color:var(--astro-code-token-string)"> commit</span><span style="color:var(--astro-code-token-string)"> -e</span><span style="color:var(--astro-code-token-string)"> -m</span><span style="color:var(--astro-code-token-string-expression)"> &quot;$(</span><span style="color:var(--astro-code-token-function)">uv</span><span style="color:var(--astro-code-token-string)"> run</span><span style="color:var(--astro-code-token-string)"> ~/llm-lab/commit_msg.py</span><span style="color:var(--astro-code-token-string-expression)">)&quot;</span><span style="color:var(--astro-code-token-comment)">   # 초안이 채워진 편집기로 커밋</span></span></code></pre></figure>
+<p>초안은 표준 출력으로, 걸린 시간과 토큰 수는 표준 오류로 나갑니다. 그래서 세 번째 줄처럼 초안만 커밋에 넘길 수 있습니다.</p>
+<p>모델에게는 세 가지를 보냅니다. diff는 무엇이 어떻게 바뀌었는지 줄 단위로 보여 주는 변경 기록입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>모델에게 보내는 질문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>최근 커밋:</span></span>
+<span class="line"><span>(이 저장소의 최근 커밋 제목 10개)</span></span>
+<span class="line"><span>바뀐 파일:</span></span>
+<span class="line"><span>(파일마다 바뀐 줄 수)</span></span>
+<span class="line"><span>변경 내용:</span></span>
+<span class="line"><span>(diff. 잠금 파일은 빼고, 16,000자가 넘으면 뒤를 자른다)</span></span></code></pre></figure>
+<p>최근 커밋 제목을 함께 보내는 것은 저장소마다 다른 형식을 따르게 하려는 것입니다. <code><span class="nb">fix(범위):</span> …</code>처럼 쓰는 저장소도 있고, 이 블로그처럼 <span class="nb">「글:」로</span> 시작하는 저장소도 있습니다.</p>
+<p>API를 부르는 부분은 4단계와 같습니다. <code>temperature</code>는 답이 얼마나 들쭉날쭉한지 정하는 값입니다. 낮게 두어 같은 diff에는 비슷한 답이 나오게 했습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span><span class="nb">commit_msg.py</span> 일부</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="python"><code><span class="line"><span style="color:var(--astro-code-foreground)">client </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-function)"> OpenAI</span><span style="color:var(--astro-code-token-punctuation)">(base_url</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;http://192.168.x.x:8080/v1&quot;</span><span style="color:var(--astro-code-token-punctuation)">, api_key</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;none&quot;</span><span style="color:var(--astro-code-token-punctuation)">)</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">stream </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)"> client</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-foreground)">chat</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-foreground)">completions</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-token-function)">create</span><span style="color:var(--astro-code-token-punctuation)">(</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    model</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-punctuation)">model,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    messages</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-punctuation)">[{</span><span style="color:var(--astro-code-token-string-expression)">&quot;role&quot;</span><span style="color:var(--astro-code-token-punctuation)">: </span><span style="color:var(--astro-code-token-string-expression)">&quot;system&quot;</span><span style="color:var(--astro-code-token-punctuation)">, </span><span style="color:var(--astro-code-token-string-expression)">&quot;content&quot;</span><span style="color:var(--astro-code-token-punctuation)">: SYSTEM}, {</span><span style="color:var(--astro-code-token-string-expression)">&quot;role&quot;</span><span style="color:var(--astro-code-token-punctuation)">: </span><span style="color:var(--astro-code-token-string-expression)">&quot;user&quot;</span><span style="color:var(--astro-code-token-punctuation)">, </span><span style="color:var(--astro-code-token-string-expression)">&quot;content&quot;</span><span style="color:var(--astro-code-token-punctuation)">: prompt}],</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    max_tokens</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-constant)">500</span><span style="color:var(--astro-code-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    temperature</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-constant)">0.2</span><span style="color:var(--astro-code-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    stream</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-constant)">True</span><span style="color:var(--astro-code-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">    stream_options</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-punctuation)">{</span><span style="color:var(--astro-code-token-string-expression)">&quot;include_usage&quot;</span><span style="color:var(--astro-code-token-punctuation)">: </span><span style="color:var(--astro-code-token-constant)">True</span><span style="color:var(--astro-code-token-punctuation)">},  </span><span style="color:var(--astro-code-token-comment)"># 끝에 읽은 양과 쓴 양을 받는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-punctuation)">)</span></span></code></pre></figure>
+<p><code>SYSTEM</code>이 지시문입니다. 시스템 프롬프트라고도 하며, 모든 질문 앞에 붙습니다. 처음 지시문은 이랬습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>처음 지시문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>너는 git 커밋 메시지를 쓰는 도우미다.</span></span>
+<span class="line"><span>- &#39;최근 커밋&#39;의 언어와 형식을 그대로 따른다.</span></span>
+<span class="line"><span>- 첫 줄에 무엇을 바꿨는지 한 줄로 쓴다. 50자 안팎.</span></span>
+<span class="line"><span>- 변경이 여러 갈래면 빈 줄 하나 뒤에 &#39;- &#39;로 시작하는 줄을 세 개까지 덧붙인다.</span></span>
+<span class="line"><span>- diff에 없는 내용은 지어내지 않는다.</span></span>
+<span class="line"><span>- 커밋 메시지만 출력한다. 설명, 따옴표, 코드 블록은 쓰지 않는다.</span></span></code></pre></figure>
+<p>같은 질문을 Claude에게도 보내는 <code><span class="nb">--claude</span></code> 옵션도 만들어 두었습니다. <code>claude <span class="nb">-p</span></code>로 부르는데, 처음에는 연결해 둔 MCP와 스킬 목록이 함께 실려 요금이 다섯 배 넘게 나왔습니다. 그 이야기는 <a href="/bugs/2026-11-16-claude-p-mcp-token-bloat/">Cybug 글</a>에 따로 적었습니다. 이번 시험에서는 Claude를 새로 부르지 않고, Claude가 그때 실제로 쓴 메시지와 견줬습니다.</p>
+<p>먼저 이 블로그 저장소의 마지막 커밋으로 도구가 도는지 봤습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>터미널, 이 블로그 저장소</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ uv run ~/llm-lab/commit_msg.py --rev HEAD</span></span>
+<span class="line"><span>━━ 로컬: Qwen3.8-27B-4bit ━━</span></span>
+<span class="line"><span>7단계 글 문장 다듬기: SearXNG 선택 이유, 설치 배경, 설정 차이, 레거시 동작 원리</span></span>
+<span class="line"><span>── 읽은 양 1,481토큰 · 첫 글자 23.4초 · 전체 27.9초 · 쓴 양 31토큰 · 요금 0원</span></span>
+<span class="line"><span>━━ 실제 커밋 메시지 ━━</span></span>
+<span class="line"><span>글: 7단계 웹 검색 문장 다듬기 — SearXNG를 고른 이유, 기본값과 다른 설정 두 가지</span></span></code></pre></figure>
+<p>내용은 거의 맞혔습니다. 이 저장소의 커밋은 <span class="nb">「글:」로</span> 시작하는데, 그 머리말만 빠뜨렸습니다. 28초 가운데 23초는 diff를 읽는 데 썼습니다.</p>
+<h2 id="시험-방법">시험 방법</h2>
+<p>실전에 바로 쓰기 전에 지난 커밋으로 시험하기로 했습니다.</p>
+<ul>
+<li>제가 개발하는 비공개 저장소 다섯 곳에서, 최근 60일 동안 Claude와 함께 만든 제 커밋 513개를 모았습니다.</li>
+<li>그중 diff가 <span class="nb">2,000~15,000자인</span> 것에서 저장소와 종류가 고르게 7개를 골랐습니다. 너무 작으면 볼 것이 없고, 너무 크면 diff가 잘립니다.</li>
+<li>7개마다 <code><span class="nb">--rev</span></code>로 로컬 초안을 받아, Claude가 그때 쓴 메시지와 견줬습니다. 모델은 Mac mini의 Qwen <span class="nb">3.8</span> 27B입니다.</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>어떤 커밋</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>링크 서버: 새 앱의 앱 링크 설정</td>
+<td>파일 3개, 20줄</td>
+</tr>
+<tr>
+<td>2</td>
+<td>API 중계 서버: 로그인 쿠키를 연장하는 조건</td>
+<td>파일 2개, 13줄</td>
+</tr>
+<tr>
+<td>3</td>
+<td>모바일 앱: 알림 읽음 표시가 늦게 온 응답에 덮이던 버그</td>
+<td>파일 1개, 23줄</td>
+</tr>
+<tr>
+<td>4</td>
+<td>모바일 앱: 아이폰 애플 로그인을 시스템 창으로</td>
+<td>파일 7개, 87줄</td>
+</tr>
+<tr>
+<td>5</td>
+<td>백엔드: 이름을 바꾸면 다른 표에 복사해 둔 이름도 함께 바꾸기</td>
+<td>파일 3개, 36줄</td>
+</tr>
+<tr>
+<td>6</td>
+<td>관리자 웹: 화면에서 내부 코드 숨기기. PR 하나를 합친 커밋</td>
+<td>파일 5개, 61줄</td>
+</tr>
+<tr>
+<td>7</td>
+<td>백엔드: DB 칸 형식을 엔티티에 맞추기</td>
+<td>파일 3개, 9줄</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="note" aria-labelledby="note-uvr2vh"><h3 id="note-uvr2vh">조건이 같지는 않습니다</h3><p>Claude는 작업하던 대화를 보면서 메시지를 썼습니다. 무엇을 왜 고쳤는지, 어떤 시험을 돌렸는지 다 아는 상태였습니다. 로컬 모델은 diff와 최근 커밋 제목만 봅니다. 그래서 세 가지로 나눠 봤습니다. 무엇을 바꿨는지 맞혔나, 저장소의 형식을 따랐나, 왜 바꿨는지 썼나.</p></aside>
+<p>공개하지 않는 코드라서 메시지를 그대로 싣지 않습니다. 아래 예시는 이름과 값을 바꾼 것입니다. 무엇을 쓰고 무엇을 빠뜨렸는지는 실제 결과 그대로입니다.</p>
+<h2 id="첫-번째-결과">첫 번째 결과</h2>
+<p><span class="nb">○는</span> 맞음, <span class="nb">△는</span> 일부, <span class="nb">✕는</span> 없음입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>무엇을 바꿨나</th>
+<th>형식</th>
+<th>왜 바꿨나</th>
+<th>본문</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+<td>없음</td>
+<td>43초</td>
+</tr>
+<tr>
+<td>2</td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+<td>없음</td>
+<td>25초</td>
+</tr>
+<tr>
+<td>3</td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+<td>없음</td>
+<td>28초</td>
+</tr>
+<tr>
+<td>4</td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+<td>없음</td>
+<td>59초</td>
+</tr>
+<tr>
+<td>5</td>
+<td>○</td>
+<td>○</td>
+<td>✕</td>
+<td>3줄</td>
+<td>46초</td>
+</tr>
+<tr>
+<td>6</td>
+<td>△ 네 곳 중 한 곳 빠짐</td>
+<td>○</td>
+<td>✕</td>
+<td>3줄</td>
+<td>62초</td>
+</tr>
+<tr>
+<td>7</td>
+<td>△ 시험 설정 한 줄 빠짐</td>
+<td>○</td>
+<td>△</td>
+<td>없음</td>
+<td>27초</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>제목은 7개 모두 쓸 만했다.</strong> 무엇을 바꿨는지 맞혔고, 저장소의 형식을 지켰고, 지어낸 내용이 없었다. 1번은 최근 커밋 가운데 같은 일을 다른 앱에 한 커밋이 있어서, 그 제목의 틀을 그대로 따랐다.</li>
+<li><strong>본문은 2개뿐이었다.</strong> Claude는 7개 모두 본문을 썼고, 이유와 그대로 둔 것, 확인한 시험 같은 내용을 담았다. 로컬이 쓴 본문 2개는 바뀐 곳을 늘어놓은 것이었다.</li>
+<li><strong>diff에 있는 변경을 빠뜨리기도 했다.</strong> 6번은 네 곳 중 한 곳을, 7번은 시험 설정 한 줄을 빠뜨렸다.</li>
+<li><strong>이유가 코드 주석에 있어도 쓰기도 하고 안 쓰기도 했다.</strong> 2번은 주석의 이유를 제목에 썼고, 5번은 쓰지 않았다. 7번은 어노테이션을 <span class="nb">「주석」이라고</span> 옮겼다.</li>
+<li><strong>시간은 <span class="nb">25~62초,</span> 평균 41초였다.</strong> 첫 글자가 나오기까지 <span class="nb">19~54초로,</span> 대부분 diff를 읽는 시간이다.</li>
+</ul>
+<h2 id="지시문-고치기">지시문 고치기</h2>
+<p>두 줄을 바꿨습니다. 이유를 한두 문장 쓰게 하고, 바뀐 곳 목록은 네 줄까지 늘렸습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>바꾼 지시문, 바뀐 줄만</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="diff"><code><span class="line"><span style="color:var(--astro-code-foreground)">  - 첫 줄에 무엇을 바꿨는지 한 줄로 쓴다. 50자 안팎.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-deleted)"><span style="user-select:none">-</span> - 변경이 여러 갈래면 빈 줄 하나 뒤에 &#39;- &#39;로 시작하는 줄을 세 개까지 덧붙인다.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-inserted)"><span style="user-select:none">+</span> - 빈 줄 하나 뒤에 왜 바꿨는지 한두 문장으로 쓴다. 코드 주석에 이유가 있으면 그것을 쓴다. diff에서 이유를 알 수 없으면 쓰지 않는다.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-inserted)"><span style="user-select:none">+</span> - 변경이 여러 갈래면 &#39;- &#39;로 시작하는 줄을 네 개까지 덧붙인다.</span></span></code></pre></figure>
+<p>본문까지 쓰면 300토큰에서 잘릴 수 있어서, 답의 상한도 500토큰으로 올렸습니다. 나머지 규칙은 그대로 두었습니다. 그래야 결과가 달라졌을 때 이 두 줄의 효과라고 말할 수 있습니다.</p>
+<h2 id="두-번째-결과">두 번째 결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>처음 지시문</th>
+<th>고친 지시문</th>
+<th>Claude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>본문을 쓴 것</td>
+<td>2개</td>
+<td>7개</td>
+<td>7개</td>
+</tr>
+<tr>
+<td>왜 바꿨는지 쓴 것</td>
+<td>4개, 일부 1개</td>
+<td>7개</td>
+<td>7개</td>
+</tr>
+<tr>
+<td>쓴 양</td>
+<td><span class="nb">27~65토큰</span></td>
+<td><span class="nb">48~128토큰</span></td>
+<td></td>
+</tr>
+<tr>
+<td>평균 시간</td>
+<td>41초</td>
+<td>47초</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>나아진 것</th>
+<th>아직 Claude와 다른 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>바뀐 곳 3줄. Claude 본문의 3줄과 거의 같다</td>
+<td>앱이 없을 때 어떻게 되는지는 없다</td>
+</tr>
+<tr>
+<td>2</td>
+<td>이유 문장. 주석에 있던 이슈 번호까지</td>
+<td>그대로 둔 조건은 없다</td>
+</tr>
+<tr>
+<td>3</td>
+<td>제목에 증상을, 목록에 고친 방법 4줄을 썼다</td>
+<td>주석에 있던 이슈 번호는 쓰지 않았다</td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="nb">「서버가</span> 값을 줄 때만 시스템 <span class="nb">창」,</span> <span class="nb">「다른</span> 플랫폼은 <span class="nb">그대로」,</span> 취소 안내</td>
+<td>다른 저장소의 PR 번호. diff에 없었다</td>
+</tr>
+<tr>
+<td>5</td>
+<td>이유 문장</td>
+<td>첫 번째에 있던 바뀐 곳 목록이 빠졌다</td>
+</tr>
+<tr>
+<td>6</td>
+<td>이유 문장</td>
+<td>네 줄까지 쓸 수 있었는데 세 줄만 쓰고, 같은 한 곳을 또 빠뜨렸다. 목록이 화면 대신 컴포넌트 이름 위주다</td>
+</tr>
+<tr>
+<td>7</td>
+<td>이유가 Claude와 거의 같다. 빠졌던 한 줄도 썼다</td>
+<td>실제 DB로 돌려 본 시험 결과. diff 밖이다</td>
+</tr>
+</tbody>
+</table></div>
+<p>새로 들어간 내용은 하나하나 diff에서 찾아 확인했습니다. 지어낸 내용은 없었습니다. 4번의 취소 안내도 diff에 있던 문구입니다.</p>
+<p>7번을 나란히 놓으면 이렇습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Claude가 쓴 메시지, 이름을 바꾼 예시</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>fix(db): SMALLINT 칸 두 개를 엔티티에 맞춤 — 운영의 DDL 검증에서 서버가 뜨지 못하는 문제 방지</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>두 마이그레이션이 SMALLINT로 만든 칸을 엔티티는 INTEGER로 기대해, ddl-auto=validate인 운영에서는</span></span>
+<span class="line"><span>API와 워커가 시작하지 못한다. 개발 서버는 ddl-auto=update라 드러나지 않았고, CI는 MySQL 시험을 돌리지 않는다.</span></span>
+<span class="line"><span>(이어서 고친 방법과 DB는 그대로라는 것, 시험 설정 수정 한 가지, 실제 MySQL로 돌려 본 시험과 결과)</span></span></code></pre></figure>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>로컬 모델, 처음 지시문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>fix(db): 엔티티에 SMALLINT 타입 주석 추가 — DDL 검증 실패 방지</span></span></code></pre></figure>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>로컬 모델, 고친 지시문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>fix(db): 엔티티에 SMALLINT JdbcTypeCode 추가</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>두 마이그레이션이 SMALLINT로 만든 컬럼을 Hibernate가 INTEGER로 기대해 DDL 검증 실패로 API·워커 기동이 멈추는 문제를 해결합니다.</span></span>
+<span class="line"><span>- 두 엔티티의 해당 필드에 @JdbcTypeCode(SqlTypes.SMALLINT) 적용</span></span>
+<span class="line"><span>- 통합 테스트 애플리케이션에 패키지 스캔 추가</span></span></code></pre></figure>
+<p>시간은 한 개에 6초쯤 늘었습니다. 쓰는 양이 늘었기 때문입니다. 첫 예시만 88초가 걸렸는데, 그때 웹 UI에서 들어온 <span class="nb">17,009토큰짜리</span> 요청이 먼저 처리되고 있었습니다. Mac mini는 질문을 한 번에 하나씩 읽습니다. 평균 47초는 이 예시를 뺀 값이고, 넣으면 53초입니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>제목 초안으로는 쓸 만하다.</strong> 두 번 모두 7개 다 무엇을 바꿨는지 맞혔고, 저장소의 형식을 지켰다.</li>
+<li><strong>본문은 지시문에 따라 크게 달라진다.</strong> 두 줄을 더하자 본문을 쓴 초안이 2개에서 7개가 됐다.</li>
+<li><strong>이유는 거의 다 코드 주석에서 왔다.</strong> 이 저장소들에서는 Claude가 코드를 쓰면서 이유와 날짜를 주석에 남겨 두었다. 그래서 로컬 모델도 이유를 쓸 수 있었다. 주석이 없는 코드라면 이만큼 쓰지 못할 것이다.</li>
+<li><strong>작업하면서 알게 된 맥락은 여전히 Claude만 쓴다.</strong> 실제 DB로 돌린 시험, 다른 저장소의 PR, 따로 고친 데이터가 그렇다.</li>
+<li><strong>고르지는 않다.</strong> 이유를 얻은 대신 목록을 잃은 <span class="nb">예(5번),</span> 같은 곳을 두 번 빠뜨린 <span class="nb">예(6번)가</span> 있었다. 주석에 있던 이슈 번호를 한 번은 <span class="nb">쓰고(2번)</span> 한 번은 <span class="nb">뺐다(3번).</span> 저장소는 <span class="nb">「~한다」로</span> 쓰는데, 두 번은 <span class="nb">「해결합니다」로</span> 썼다.</li>
+</ul>
+<p>그래서 아직 실전에 바로 붙이지는 않았습니다. 쓴다면 로컬 초안을 받아 diff 밖의 맥락을 직접 채우는 방식이 될 것입니다. 바꾼 지시문은 이제 도구의 기본값입니다.</p>
+<h2 id="코드는-어디로-가나">코드는 어디로 가나</h2>
+<ul>
+<li>로컬 초안을 받을 때 diff는 같은 네트워크의 Mac mini에만 갑니다.</li>
+<li>Mac mini 서버의 기록 파일에는 요청 시각, 보낸 컴퓨터의 주소, 읽은 토큰 수 같은 숫자만 남습니다. 보낸 diff 속 낱말로 기록을 찾아봤는데 나오지 않았습니다.</li>
+<li><code><span class="nb">--claude</span></code>를 붙이면 같은 질문이 Claude로 갑니다. 평소 Claude Code를 쓸 때와 같습니다.</li>
+<li>이번 시험에서는 Claude를 새로 부르지 않았습니다. 그때 남은 메시지와 견줬을 뿐입니다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이번에는 웹 UI가 아닌 다른 프로그램도 같은 Mac mini에 물었습니다. 그러자 웹 UI의 긴 요청 뒤에서 기다리는 일이 생겼습니다. 9단계에서는 여러 사람이 같은 서버를 쓸 때를 대비합니다. 사람마다 API 키를 나눠 주고, 누가 얼마나 쓰는지 보고, 요청을 한곳에서 받아 나눠 주는 게이트웨이를 둡니다.</p>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-16"><li><time class="measured" datetime="2026-11-16T16:53+09:00"><span class="nb">16:53</span></time><span class="trail__what">이 블로그의 마지막 커밋으로 도구 확인</span><code class="trail__got">28초, 머리말만 빠뜨림</code></li><li><time class="measured" datetime="2026-11-16T16:59+09:00"><span class="nb">16:59</span></time><span class="trail__what">실전 대신 지난 커밋으로, Claude가 쓴 메시지와 견주기로</span><code class="trail__got">시험 방법 정함</code></li><li><time class="measured" datetime="2026-11-16T17:00+09:00"><span class="nb">17:00</span></time><span class="trail__what">Claude와 함께 만든 커밋 513개에서 7개 고름</span><code class="trail__got">저장소 5곳, 종류 고루</code></li><li><time class="measured" datetime="2026-11-16T17:06+09:00"><span class="nb">17:06</span></time><span class="trail__what">처음 지시문으로 7개</span><code class="trail__got">제목 7개, 본문 2개, 평균 41초</code></li><li><time class="measured" datetime="2026-11-16T17:09+09:00"><span class="nb">17:09</span></time><span class="trail__what">이유 문장과 목록 네 줄을 더한 지시문으로 다시</span><code class="trail__got">지시문 수정</code></li><li><time class="measured" datetime="2026-11-16T17:16+09:00"><span class="nb">17:16</span></time><span class="trail__what">고친 지시문으로 7개</span><code class="trail__got">본문 7개, 이유 7개, 평균 47초</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/09-gateway/" class="pager__next"><small>다음 글</small><strong>9단계 게이트웨이 세우기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#왜-커밋-메시지인가">왜 커밋 메시지인가</a></li><li><a href="#도구">도구</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#첫-번째-결과">첫 번째 결과</a></li><li><a href="#지시문-고치기">지시문 고치기</a></li><li><a href="#두-번째-결과">두 번째 결과</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#코드는-어디로-가나">코드는 어디로 가나</a></li><li><a href="#다음-단계로">다음 단계로</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

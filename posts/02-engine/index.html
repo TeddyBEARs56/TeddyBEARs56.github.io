@@ -1,0 +1,504 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>엔진 직접 돌리기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 2단계. llama.cpp를 직접 받아 조립했습니다. 서버와 인텔 노트북에서 Qwen 3.8 27B와 Gemma 4 26B-A4B에게 질문하고, 속도와 기억할 수 있는 글 길이를 잰 기록입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/02-engine/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="엔진 직접 돌리기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 2단계. llama.cpp를 직접 받아 조립했습니다. 서버와 인텔 노트북에서 Qwen 3.8 27B와 Gemma 4 26B-A4B에게 질문하고, 속도와 기억할 수 있는 글 길이를 잰 기록입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/02-engine/"><meta property="article:published_time" content="2026-11-12T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"엔진 직접 돌리기","description":"로컬 LLM 연재 2단계. llama.cpp를 직접 받아 조립했습니다. 서버와 인텔 노트북에서 Qwen 3.8 27B와 Gemma 4 26B-A4B에게 질문하고, 속도와 기억할 수 있는 글 길이를 잰 기록입니다.","datePublished":"2026-11-12T00:00:00.000Z","dateModified":"2026-11-13T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/02-engine/","mainEntityOfPage":"https://teddybears56.github.io/posts/02-engine/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>2단계</li></ol></nav><h1 id="post-title">엔진 직접 돌리기</h1><p class="post__lead">1단계에서 받은 모델 파일은 악보와 같아서, 읽고 연주할 엔진이 있어야 답을 합니다. 이번 단계에서는 명령어를 직접 쳐서 <span class="nb">llama.cpp를</span> 받아 조립하고, 모델에게 처음 질문하고, 속도와 기억할 수 있는 글 길이를 잽니다. 다음 날에는 인텔 노트북에서도 같은 측정을 합니다. 노트북이 멈춘 까닭을 따라가 두 기계 모두 GPU가 쓸 메모리 한도를 올리고, 더 긴 글을 기억하게 합니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-12"><span class="nb">2026-11-12</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-13"><span class="nb">2026-11-13</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 12분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>서버에서 <span class="nb">llama.cpp를</span> 받아 조립한다.</strong> 모델 파일을 돌릴 엔진이 필요하다.</li>
+<li><strong>첫 질문을 하고 속도를 잰다.</strong> 답을 제대로 하는지, 얼마나 빨리 쓰는지부터 본다.</li>
+<li><strong>기억할 글 길이를 바꿔 가며 메모리를 확인하고, 생각 모드도 켜 본다.</strong> 실제로 쓸 설정을 정하려고.</li>
+<li><strong>다음 날, 인텔 노트북에서 같은 측정을 하고 두 번째 모델 Gemma도 두 기계에서 돌린다.</strong> 기계와 모델이 바뀌면 무엇이 달라지는지 본다.</li>
+<li><strong>노트북이 Qwen 66층에서 멈춘 까닭을 공유 GPU 메모리에서 찾고, 그 한도를 올린다.</strong> 한도보다 <span class="nb">3,000MB나</span> 적은 양에서 멈췄기 때문이다.</li>
+<li><strong>Gemma로 기억 길이를 끝까지 늘려 보고, 서버의 한도도 올린다.</strong> 노트북은 한도를 올리자 더 긴 글을 기억했다.</li>
+</ol>
+<h2 id="받고-조립하기">받고, 조립하기</h2>
+<p><span class="nb">llama.cpp는</span> <span class="nb">설계도(소스</span> <span class="nb">코드)로</span> 공개되어 있습니다. 그래서 받은 다음 이 서버에 맞게 <span class="nb">조립(빌드)해야</span> 쓸 수 있습니다. 명령 다섯 줄이면 됩니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> git</span><span style="color:var(--astro-code-token-string)"> clone</span><span style="color:var(--astro-code-token-string)"> https://github.com/ggml-org/llama.cpp</span><span style="color:var(--astro-code-token-comment)">   # 설계도 받기</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> brew</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> cmake</span><span style="color:var(--astro-code-token-comment)">                                # 조립 도구 설치</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> cd</span><span style="color:var(--astro-code-token-string)"> llama.cpp</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> cmake</span><span style="color:var(--astro-code-token-string)"> -B</span><span style="color:var(--astro-code-token-string)"> build</span><span style="color:var(--astro-code-token-comment)">                                    # 이 서버에 맞는 조립 순서 정하기</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> cmake</span><span style="color:var(--astro-code-token-string)"> --build</span><span style="color:var(--astro-code-token-string)"> build</span><span style="color:var(--astro-code-token-string)"> --config</span><span style="color:var(--astro-code-token-string)"> Release</span><span style="color:var(--astro-code-token-string)"> -j</span><span style="color:var(--astro-code-token-constant)"> 10</span><span style="color:var(--astro-code-token-comment)">        # 일꾼 10명이 동시에 조립</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>걸린 시간</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>설계도 받기</td>
+<td><code>26초</code></td>
+<td><code>671 MB</code>, 오늘 낮에 올라온 최신본</td>
+</tr>
+<tr>
+<td>조립 도구 설치</td>
+<td><code>5초</code></td>
+<td><code>cmake <span class="nb">4.4.5</span></code></td>
+</tr>
+<tr>
+<td>조립 준비</td>
+<td><code>5초</code></td>
+<td>GPU로 계산하게 해 주는 Metal이 자동으로 켜짐</td>
+</tr>
+<tr>
+<td>조립</td>
+<td><code>1분 4초</code></td>
+<td>프로그램 <code>136개</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>조립 준비 때 <code>OpenSSL not found</code> 경고가 하나 나왔습니다. <span class="nb">llama.cpp가</span> 인터넷에서 모델을 직접 받는 기능만 꺼진다는 뜻입니다. 모델은 1단계에서 이미 받아 두었으니 그냥 넘어갔습니다.</p>
+<h2 id="첫-질문">첫 질문</h2>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ./build/bin/llama-cli</span><span style="color:var(--astro-code-token-string)"> -m</span><span style="color:var(--astro-code-token-string)"> ~/models/Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    -c</span><span style="color:var(--astro-code-token-constant)"> 8192</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-constant)"> 300</span><span style="color:var(--astro-code-token-string)"> -st</span><span style="color:var(--astro-code-token-string)"> --reasoning-budget</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-string)"> --simple-io</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    -p</span><span style="color:var(--astro-code-token-string-expression)"> &quot;안녕? 너는 누구야? 한국어로 두 문장으로 답해 줘.&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">안녕하세요,</span><span style="color:var(--astro-code-token-string)"> 저는</span><span style="color:var(--astro-code-token-string)"> 알리바바</span><span style="color:var(--astro-code-token-string)"> 그룹에서</span><span style="color:var(--astro-code-token-string)"> 개발한</span><span style="color:var(--astro-code-token-string)"> 다목적</span><span style="color:var(--astro-code-token-string)"> 언어</span><span style="color:var(--astro-code-token-string)"> 모델</span><span style="color:var(--astro-code-token-string)"> Qwen입니다.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">궁금한</span><span style="color:var(--astro-code-token-string)"> 점이</span><span style="color:var(--astro-code-token-string)"> 있거나</span><span style="color:var(--astro-code-token-string)"> 도움이</span><span style="color:var(--astro-code-token-string)"> 필요하시면</span><span style="color:var(--astro-code-token-string)"> 언제든</span><span style="color:var(--astro-code-token-string)"> 편하게</span><span style="color:var(--astro-code-token-string)"> 말씀해</span><span style="color:var(--astro-code-token-string)"> 주세요.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">[ Prompt: </span><span style="color:var(--astro-code-token-constant)">33.1</span><span style="color:var(--astro-code-foreground)"> t/s </span><span style="color:var(--astro-code-token-keyword)">|</span><span style="color:var(--astro-code-foreground)"> Generation: </span><span style="color:var(--astro-code-token-constant)">6.2</span><span style="color:var(--astro-code-foreground)"> t/s ]</span></span></code></pre></figure>
+<p>맨 아래 줄의 <code><span class="nb">t/s</span></code>는 초당 토큰 수입니다. 토큰은 모델이 글을 읽고 쓰는 단위로, 낱말 조각쯤 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><span class="nb">-m</span></code></td>
+<td>모델 파일</td>
+</tr>
+<tr>
+<td><code><span class="nb">-c</span> 8192</code></td>
+<td>기억할 글 길이, 토큰 수</td>
+</tr>
+<tr>
+<td><code><span class="nb">-n</span> 300</code></td>
+<td>답은 최대 300토큰까지</td>
+</tr>
+<tr>
+<td><code><span class="nb">-st</span></code></td>
+<td>한 번 묻고 끝냄</td>
+</tr>
+<tr>
+<td><code>--reasoning-budget 0</code></td>
+<td>답하기 전에 속으로 생각하지 않고 바로 답함</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="속도-재기">속도 재기</h2>
+<p>짧은 답 하나로 잰 속도는 대략적입니다. 그래서 측정 도구 <code><span class="nb">llama-bench</span></code>로 다시 쟀습니다. 각각 5번씩 재서 평균을 냅니다. 출력 표는 몇 칸을 줄여서 옮겼습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ./build/bin/llama-bench</span><span style="color:var(--astro-code-token-string)"> -m</span><span style="color:var(--astro-code-token-string)"> ~/models/Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-token-string)"> -p</span><span style="color:var(--astro-code-token-constant)"> 512</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-constant)"> 128</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">|</span><span style="color:var(--astro-code-token-function)"> model</span><span style="color:var(--astro-code-token-keyword)">                    |</span><span style="color:var(--astro-code-token-function)">       size</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)">  test</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)">          t/s</span><span style="color:var(--astro-code-token-keyword)"> |</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">|</span><span style="color:var(--astro-code-token-function)"> qwen35</span><span style="color:var(--astro-code-token-string)"> 27B</span><span style="color:var(--astro-code-token-string)"> Q4_K</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Medium</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)">  15.42</span><span style="color:var(--astro-code-token-string)"> GiB</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)"> pp512</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)"> 62.04</span><span style="color:var(--astro-code-token-string)"> ±</span><span style="color:var(--astro-code-token-constant)"> 0.02</span><span style="color:var(--astro-code-token-keyword)"> |</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">|</span><span style="color:var(--astro-code-token-function)"> qwen35</span><span style="color:var(--astro-code-token-string)"> 27B</span><span style="color:var(--astro-code-token-string)"> Q4_K</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Medium</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)">  15.42</span><span style="color:var(--astro-code-token-string)"> GiB</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)"> tg128</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)">  6.27</span><span style="color:var(--astro-code-token-string)"> ±</span><span style="color:var(--astro-code-token-constant)"> 0.01</span><span style="color:var(--astro-code-token-keyword)"> |</span></span></code></pre></figure>
+<p>질문을 읽는 <span class="nb">속도(</span><code>pp512</code><span class="nb">)는</span> 초당 62토큰입니다. 답을 쓰는 <span class="nb">속도(</span><code>tg128</code><span class="nb">)는</span> 초당 <span class="nb">6.27토큰입니다.</span> 쓰기가 10배 느린 이유는 두 가지입니다.</p>
+<ul>
+<li>읽을 때는 토큰 여러 개를 한꺼번에 계산한다. 쓸 때는 앞 토큰을 써야 다음 토큰을 쓸 수 있다.</li>
+<li>토큰 하나를 쓸 때마다 모델 파일 <span class="nb">16.5GB를</span> 메모리에서 한 번 통째로 훑는다.</li>
+</ul>
+<p>이 칩은 메모리를 초당 약 120GB 읽습니다. 그러니 이론상 최고 속도는 120 ÷ <span class="nb">16.5</span> ≈ <strong>초당 <span class="nb">7.3토큰</span></strong>입니다. 실제로 나온 <span class="nb">6.27은</span> 그 한계의 <span class="nb">85%</span> 정도입니다. 같은 칩에서 답을 더 빨리 쓰게 하려면 모델을 더 작게 만드는 수밖에 없습니다.</p>
+<h2 id="얼마나-긴-글을-기억하나">얼마나 긴 글을 기억하나</h2>
+<p>속도는 칩이 정하는 한계에 이미 가까웠습니다. 다음으로 정할 것은 기억할 글 길이입니다. 1단계에서는 토큰 하나를 기억하는 데 64KB씩 든다고 계산했습니다. 이번에는 길이를 바꿔 가며 실제 메모리를 확인했습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ./build/bin/llama-cli</span><span style="color:var(--astro-code-token-string)"> -m</span><span style="color:var(--astro-code-token-string)"> ~/models/Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-token-string)"> -c</span><span style="color:var(--astro-code-token-constant)"> 16384</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-constant)"> 1</span><span style="color:var(--astro-code-token-string)"> -st</span><span style="color:var(--astro-code-token-string)"> --simple-io</span><span style="color:var(--astro-code-token-string)"> -v</span><span style="color:var(--astro-code-token-string)"> -p</span><span style="color:var(--astro-code-token-string-expression)"> &quot;hi&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">offloaded</span><span style="color:var(--astro-code-token-string)"> 66/66</span><span style="color:var(--astro-code-token-string)"> layers</span><span style="color:var(--astro-code-token-string)"> to</span><span style="color:var(--astro-code-token-string)"> GPU</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">KV</span><span style="color:var(--astro-code-token-string)"> buffer</span><span style="color:var(--astro-code-token-string)"> size</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-constant)">  1024.00</span><span style="color:var(--astro-code-token-string)"> MiB</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">MTL0</span><span style="color:var(--astro-code-foreground)"> (Apple </span><span style="color:var(--astro-code-token-string)">M4</span><span style="color:var(--astro-code-foreground)">) </span><span style="color:var(--astro-code-token-keyword)">|</span><span style="color:var(--astro-code-token-function)"> 18186</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-constant)"> 1054</span><span style="color:var(--astro-code-token-string)"> +</span><span style="color:var(--astro-code-foreground)"> (16136 </span><span style="color:var(--astro-code-token-string)">=</span><span style="color:var(--astro-code-token-constant)"> 14769</span><span style="color:var(--astro-code-token-string)"> +</span><span style="color:var(--astro-code-token-constant)"> 1173</span><span style="color:var(--astro-code-token-string)"> +</span><span style="color:var(--astro-code-token-constant)"> 193</span><span style="color:var(--astro-code-foreground)">) + 995</span></span></code></pre></figure>
+<p>모델은 여러 층을 차례로 거치며 계산합니다. 첫 줄은 그 층이 모두 GPU에 올라갔다는 뜻입니다. 마지막 줄은 GPU 메모리 <span class="nb">18,186MB를</span> 어떻게 나눠 썼는지 보여 줍니다. <span class="nb">1,054MB가</span> 남았고, <span class="nb">16,136MB를</span> 썼습니다. 쓴 몫은 모델 <span class="nb">14,769</span> + 기억 <span class="nb">1,173</span> + 계산 193입니다. 대화 <span class="nb">기억(</span><code>KV</code><span class="nb">)은</span> 64KB × <span class="nb">16,384</span> = <span class="nb">1,024MB로,</span> 계산과 똑같았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기억할 글 길이</th>
+<th>GPU에 올라간 층</th>
+<th>남는 메모리</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><span class="nb">16,384</span></code></td>
+<td>66층 전부</td>
+<td><code><span class="nb">1,054</span> MB</code></td>
+<td>문제없음</td>
+</tr>
+<tr>
+<td><code><span class="nb">32,768</span></code></td>
+<td>66층 중 64층</td>
+<td><code><span class="nb">1,167</span> MB</code></td>
+<td>2층이 CPU로 밀려나 조금 느려짐</td>
+</tr>
+<tr>
+<td>자동, <code><span class="nb">31,232</span></code></td>
+<td>66층 전부</td>
+<td><code>52 MB</code></td>
+<td>끝날 때 GPU 오류</td>
+</tr>
+</tbody>
+</table></div>
+<p>옵션을 주지 않으면 엔진이 길이를 스스로 정합니다. 모델의 26만 토큰을 메모리에 맞게 <span class="nb">31,232로</span> 줄입니다. 그런데 엔진이 세지 못한 메모리가 1GB쯤 있었습니다. 그래서 GPU 메모리를 거의 다 쓰고 오류가 났습니다. 앞으로는 <strong><code><span class="nb">-c</span> 16384</code>로</strong> 직접 정해서 씁니다. 설명서의 26만 토큰보다 한참 짧지만, 한국어로 A4 수십 장 분량입니다.</p>
+<h2 id="생각-모드">생각 모드</h2>
+<p>이 모델은 답하기 전에 속으로 생각할 수 있습니다. 첫 질문에서는 <code><span class="nb">--reasoning-budget</span> 0</code>으로 이것을 막아 두었습니다. 이번에는 그 옵션을 빼고 간단한 문제를 냈습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ./build/bin/llama-cli</span><span style="color:var(--astro-code-token-string)"> -m</span><span style="color:var(--astro-code-token-string)"> ~/models/Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-token-string)"> -c</span><span style="color:var(--astro-code-token-constant)"> 16384</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-constant)"> 2000</span><span style="color:var(--astro-code-token-string)"> -st</span><span style="color:var(--astro-code-token-string)"> --simple-io</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    -p</span><span style="color:var(--astro-code-token-string-expression)"> &quot;사과가 3개 있었는데 2개를 먹고 5개를 더 샀다. 그중 절반을 친구에게 줬다면 몇 개가 남았나? 답만 짧게.&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">[Start thinking]</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">...</span><span style="color:var(--astro-code-token-string)"> Compute:</span><span style="color:var(--astro-code-token-constant)"> 3</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-constant)"> 2</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-string)"> 1.</span><span style="color:var(--astro-code-token-string)"> +5</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-string)"> 6.</span><span style="color:var(--astro-code-token-string)"> half</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-string)"> 3.</span><span style="color:var(--astro-code-token-string)"> left</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-string)"> 3.</span><span style="color:var(--astro-code-token-string)"> ...</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">[End thinking]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">3개</span></span></code></pre></figure>
+<p>정답이었고, 25초 걸렸습니다. 한국어로 물었는데 생각은 영어로 하고 답만 한국어로 했습니다. 생각도 초당 6토큰씩 쓰므로, 생각이 길어질수록 그만큼 기다려야 합니다. 간단한 대화에서는 생각을 끄고, 어려운 문제에만 켜는 편이 낫겠습니다.</p>
+<h2 id="인텔-노트북에서-돌리기">인텔 노트북에서 돌리기</h2>
+<p>서버에서는 GPU 메모리 때문에 기억할 글 길이를 <span class="nb">16,384로</span> 묶었습니다. 다른 기계에서는 어디까지 되는지 보려고, 다음 날 인텔 노트북에서 같은 일을 했습니다.</p>
+<p>노트북에서는 직접 조립하지 않았습니다. <span class="nb">llama.cpp가</span> 미리 조립해 올려 둔 윈도우용 <strong>Vulkan</strong> 판을 받았습니다. Vulkan은 서버의 Metal처럼 인텔 GPU로 계산하게 해 주는 방식입니다. 버전은 서버와 한 단계 차이인 b12340입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>명령 프롬프트, 노트북</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> curl.exe -L -o llama-vulkan.zip https://github.com/ggml-org/llama.cpp/releases/download/b12340/llama-b12340-bin-win-vulkan-x64.zip</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> tar.exe -xf llama-vulkan.zip -C llama-vulkan</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> llama-cli.exe -m ..\models\Qwen3.8-27B-UD-Q4_K_M.gguf -c 4096 -ngl 65 -n 300 -st --reasoning-budget 0 --simple-io -f q1.txt</span></span></code></pre></figure>
+<p>윈도우 터미널에서는 한글을 그대로 넘기면 깨지기 쉽습니다. 그래서 질문을 <span class="nb">UTF-8</span> 파일 <code><span class="nb">q1.txt</span></code>에 담아 <code><span class="nb">-f</span></code>로 넘겼습니다.</p>
+<h2 id="노트북에-qwen을-다-올리면-멈춘다">노트북에 Qwen을 다 올리면 멈춘다</h2>
+<p>서버처럼 66층을 전부 GPU에 올리자, 첫 계산에서 <code>device lost</code> 오류를 내며 멈췄습니다. 윈도우 시스템 기록에는 GPU가 다시 시작된 흔적이 없었습니다. GPU에 올리는 층 <span class="nb">수(</span><code><span class="nb">-ngl</span></code><span class="nb">)를</span> 줄여 가며 경계를 찾았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>GPU에 올린 층</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>66</code> <span class="nb">(전부)</span></td>
+<td>멈춤</td>
+</tr>
+<tr>
+<td><code>65</code></td>
+<td>됨, 마지막 출력층 하나만 CPU에 남음</td>
+</tr>
+<tr>
+<td><code>60</code> 이하</td>
+<td>됨, CPU에 남는 층이 많을수록 느려짐</td>
+</tr>
+</tbody>
+</table></div>
+<p>출력층은 약 <span class="nb">1,000MB입니다.</span> 엔진 기록을 보면 66층 전부일 때 GPU가 쓰려던 양은 <span class="nb">15,331MB였습니다.</span> 출력층을 빼면 약 <span class="nb">14,340MB입니다.</span></p>
+<h2 id="공유-gpu-메모리-간단한-분석">공유 GPU 메모리, 간단한 분석</h2>
+<p>1단계에서 본 대로 노트북 GPU는 컴퓨터 메모리를 빌려 씁니다. 윈도우가 빌려주는 한도를 공유 GPU 메모리라고 하고, 이 노트북은 <strong><span class="nb">18,392MB</span></strong>입니다. 그런데 실제로는 그보다 <span class="nb">3,000MB나</span> 적은 <span class="nb">15,331MB에서</span> 멈췄습니다. 뒤에서 다룰 Gemma까지 넣어, 측정 결과를 GPU가 쓰려던 양 순서로 모으면 이렇습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>조합</th>
+<th>GPU가 쓰려던 양</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma <span class="nb">26B-A4B</span> 전부, 기억 길이 <span class="nb">16,384</span></td>
+<td>약 <code><span class="nb">13,800</span> MB</code></td>
+<td>됨</td>
+</tr>
+<tr>
+<td>Qwen 65층, 기억 길이 <span class="nb">4,096</span></td>
+<td>약 <code><span class="nb">14,340</span> MB</code></td>
+<td>됨</td>
+</tr>
+<tr>
+<td>Qwen 66층 전부, 기억 길이 <span class="nb">4,096</span></td>
+<td><code><span class="nb">15,331</span> MB</code></td>
+<td>멈춤</td>
+</tr>
+<tr>
+<td>Qwen 65층, 기억 길이 <span class="nb">32,768</span></td>
+<td>약 <code><span class="nb">16,130</span> MB</code></td>
+<td>멈춤</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>같은 몫을 <strong>윈도우 화면 표시와 화면 공유 프로그램도 빌려 쓴다.</strong> 측정 중 노트북에 켜 둔 화면 공유가 끊긴 일도 있었다. 그 뒤로는 측정할 때 화면 공유를 껐다.</li>
+<li>되고 안 되는 경계는 <span class="nb">14,340MB와</span> <span class="nb">15,331MB</span> 사이다. 18GB 한도를 다 쓸 수는 없다. 이때는 안정적인 선을 <strong>GPU 이름표에 적힌 16GB에서 화면 몫을 뺀 <span class="nb">15,000MB</span> 근처</strong>로 추정했다. 확인하지 못한 추정이었고, 아래에서 한도를 올려 보니 틀렸다.</li>
+<li><span class="nb">서버(맥)는</span> 한도 <span class="nb">19.07GB에서</span> 1GB를 남기고 안정적으로 돌았다. 한도 숫자를 그대로 믿지 말고 <span class="nb">1~2GB는</span> 여유를 둬야 한다는 점은 두 기계가 같았다.</li>
+</ul>
+<h2 id="한도를-24gb로-올려-보니">한도를 24GB로 올려 보니</h2>
+<p>한계가 이름표의 16GB인지, 공유 GPU 메모리 한도인지는 한도를 올려 보면 가려집니다. GPU가 빌릴 몫은 인텔 그래픽 설정 <span class="nb">앱(Intel</span> Graphics <span class="nb">Software)에서</span> 정할 수 있습니다. <strong>그래픽 → 일반 → 공유 <span class="nb">GPU/NPU</span> 메모리 재정의</strong> 메뉴입니다. 처음 값은 메모리의 <span class="nb">57%인</span> 18GB였습니다. 윈도우 몫으로 8GB는 남기기로 하고, <span class="nb">76%인</span> <span class="nb">23.9GB로</span> 올렸습니다. 그리고 노트북을 다시 켰습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>명령 프롬프트, 노트북</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> llama-cli.exe --list-devices</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">Vulkan0:</span><span style="color:var(--astro-code-token-string)"> Intel</span><span style="color:var(--astro-code-foreground)">(</span><span style="color:var(--astro-code-token-function)">R</span><span style="color:var(--astro-code-foreground)">) </span><span style="color:var(--astro-code-token-string)">Arc</span><span style="color:var(--astro-code-foreground)">(</span><span style="color:var(--astro-code-token-function)">TM</span><span style="color:var(--astro-code-foreground)">) </span><span style="color:var(--astro-code-token-string)">140V</span><span style="color:var(--astro-code-token-string)"> GPU</span><span style="color:var(--astro-code-foreground)"> (16GB) (</span><span style="color:var(--astro-code-token-function)">24522</span><span style="color:var(--astro-code-token-string)"> MiB,</span><span style="color:var(--astro-code-token-constant)"> 23754</span><span style="color:var(--astro-code-token-string)"> MiB</span><span style="color:var(--astro-code-token-string)"> free</span><span style="color:var(--astro-code-foreground)">)</span></span></code></pre></figure>
+<p>한도가 <span class="nb">18,392MB에서</span> <span class="nb">24,522MB로</span> 늘었습니다. 이 상태에서 Qwen을 66층 전부 GPU에 올리고, 기억 길이를 늘려 가며 다시 쟀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기억 길이</th>
+<th>GPU가 쓰려던 양</th>
+<th>결과</th>
+<th>답 쓰기 <span class="nb">(초당</span> <span class="nb">토큰)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">4,096</span></td>
+<td><code><span class="nb">15,331</span> MB</code></td>
+<td>됨, 예전 한도에서는 멈춤</td>
+<td></td>
+</tr>
+<tr>
+<td><span class="nb">16,384</span></td>
+<td><code><span class="nb">16,111</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">4.3</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">32,768</span></td>
+<td><code><span class="nb">17,151</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">4.3</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">65,536</span></td>
+<td><code><span class="nb">19,231</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">4.6</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">98,304</span></td>
+<td><code><span class="nb">21,311</span> MB</code></td>
+<td>됨, 느려짐</td>
+<td><code><span class="nb">2.2</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">131,072</span></td>
+<td>약 <code><span class="nb">23,300</span> MB</code> <span class="nb">(계산)</span></td>
+<td>5분 넘게 응답 없어 끊음</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">4,096은</span> 다시 켠 직후의 첫 실행이었습니다. 백신 검사 같은 일이 겹쳐서 표에서 속도를 뺐습니다.</p>
+<ul>
+<li><strong>예전 추정은 틀렸다.</strong> 이름표의 16GB가 진짜 한계였다면 한도를 올려도 <span class="nb">15,331MB에서</span> 멈췄어야 한다. 그런데 됐다. 한계는 공유 GPU 메모리 한도였다.</li>
+<li><strong>이번에도 한도를 끝까지 쓰지는 못했다.</strong> <span class="nb">98,304부터는</span> 노트북 메모리 32GB가 <span class="nb">98%까지</span> 찼다. 윈도우는 모자란 만큼을 디스크의 페이지 파일로 밀어냈고, 답 쓰는 속도가 반으로 떨어졌다. GPU 몫은 미리 떼어 두는 칸이 아니다. 쓸 때 가져가는 몫이라서, GPU가 많이 쓰면 그만큼 윈도우 몫이 준다.</li>
+<li>그래서 노트북에서 실제로 쓸 기억 길이는 <strong><span class="nb">65,536</span></strong>으로 잡는다. 예전 <span class="nb">16,384의</span> 4배다.</li>
+</ul>
+<p>마지막 1층인 출력층까지 GPU에 올리면 빨라지는지도 <code><span class="nb">llama-bench</span></code>로 쟀습니다. 3번씩 잰 평균입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>조합</th>
+<th>질문 읽기 <span class="nb">(pp512)</span></th>
+<th>답 쓰기 <span class="nb">(tg128)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>65층, 출력층은 CPU</td>
+<td><code><span class="nb">193.37</span></code></td>
+<td><code><span class="nb">4.22</span></code></td>
+</tr>
+<tr>
+<td>66층 전부</td>
+<td><code><span class="nb">204.26</span></code></td>
+<td><code><span class="nb">4.44</span></code></td>
+</tr>
+</tbody>
+</table></div>
+<p>읽기는 <span class="nb">6%</span> 빨라졌습니다. 쓰기는 66층 전부일 때의 <code><span class="nb">4.44</span></code>가 오전에 65층으로 잰 <code><span class="nb">4.45</span></code>와 같습니다. 차이가 없다고 보는 게 맞습니다. 한도를 올려도 메모리를 읽는 속도는 그대로이기 때문입니다. 한도를 올려서 얻은 것은 속도가 아니라 <strong>기억할 수 있는 길이</strong>였습니다.</p>
+<h2 id="두-번째-모델-gemma-4-26b-a4b">두 번째 모델, Gemma 4 <span class="nb">26B-A4B</span></h2>
+<p>같은 날, 두 번째 모델도 두 기계에서 돌렸습니다. 1단계에서 고른 전문가 혼합 모델입니다. 단어 하나를 쓸 때 모델 전체가 아니라 일부만 꺼내 쓰는 구조입니다. 같은 첫 질문을 두 기계에 던졌습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기계</th>
+<th>답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>서버</td>
+<td>안녕하세요! 저는 구글에서 만든 대규모 언어 모델입니다. 무엇을 도와드릴까요?</td>
+</tr>
+<tr>
+<td>노트북</td>
+<td>안녕하세요! 저는 Google DeepMind에서 개발한 대규모 언어 모델인 Gemma 4입니다. 텍스트와 이미지를 이해하고 처리하여 다양한 도움을 드릴 수 있습니다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>사과 문제도 두 기계 모두 <span class="nb">「3개」로</span> 맞혔습니다. 서버에서는 생각까지 포함해 8초가 걸렸습니다. Qwen은 25초였습니다. 이 모델도 생각은 영어로 했습니다.</p>
+<h2 id="네-가지-조합의-속도">네 가지 조합의 속도</h2>
+<p>한도를 올리기 전인 오전에, 두 기계에서 같은 모델 파일로 같은 <code><span class="nb">llama-bench</span></code> 측정을 했습니다. 단위는 초당 토큰입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>조합</th>
+<th>질문 읽기 <span class="nb">(pp512)</span></th>
+<th>답 쓰기 <span class="nb">(tg128)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>서버, Qwen <span class="nb">3.8</span> 27B</td>
+<td><code><span class="nb">62.04</span></code></td>
+<td><code><span class="nb">6.27</span></code></td>
+</tr>
+<tr>
+<td>노트북, Qwen <span class="nb">3.8</span> 27B <span class="nb">(65층)</span></td>
+<td><code><span class="nb">190.35</span></code></td>
+<td><code><span class="nb">4.45</span></code></td>
+</tr>
+<tr>
+<td>서버, Gemma 4 <span class="nb">26B-A4B</span></td>
+<td><code><span class="nb">417.06</span></code></td>
+<td><code><span class="nb">26.41</span></code></td>
+</tr>
+<tr>
+<td>노트북, Gemma 4 <span class="nb">26B-A4B</span></td>
+<td><code><span class="nb">770.81</span></code></td>
+<td><code><span class="nb">20.62</span></code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>모델 구조가 기계보다 큰 차이를 냈다.</strong> 전문가 혼합인 Gemma는 두 기계 모두에서 Qwen보다 답을 4배 넘게 빨리 썼다. 초당 <span class="nb">20~26토큰이면</span> 대화하기에 충분하다.</li>
+<li><strong>노트북은 읽기가 <span class="nb">2~3배</span> 빠르고, 쓰기는 서버의 <span class="nb">70~78%였다.</span></strong> Arc GPU는 계산 능력이 좋아서 한꺼번에 읽는 일은 빠르다. 하지만 한 토큰씩 쓰는 일은 메모리 읽는 속도에 달려 있다.</li>
+<li><strong>메모리가 빨라도 답이 빨라지지는 않았다.</strong> 노트북 메모리는 초당 136GB로, 숫자로는 서버보다 빠르다. 그런데 Qwen에서 실제로는 그 <span class="nb">54%만</span> 썼다. 서버는 <span class="nb">85%를</span> 썼다.</li>
+<li>노트북도 기억할 글 길이는 처음에 <span class="nb">16,384토큰까지</span> 됐고, <span class="nb">32,768토큰에서는</span> 멈췄다. 앞에서 본 대로, 공유 메모리 한도를 올린 뒤에는 <span class="nb">65,536토큰까지</span> 제 속도로 됐다.</li>
+</ul>
+<h2 id="gemma는-26만-토큰까지">Gemma는 26만 토큰까지</h2>
+<p>속도에서는 Gemma가 앞섰습니다. 남은 것은 얼마나 긴 글을 기억하느냐입니다. Qwen은 기억 길이를 늘리면 금방 메모리가 찼습니다. 같은 방법으로 Gemma도 두 기계에서 늘려 봤습니다. 노트북은 한도를 24GB로 올린 상태입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기억 길이</th>
+<th>서버, 한도 <span class="nb">18,185MB</span></th>
+<th>노트북, 한도 <span class="nb">24,522MB</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">32,768</span></td>
+<td><code><span class="nb">14,156</span> MB</code> 됨</td>
+<td><code><span class="nb">14,025</span> MB</code> 됨</td>
+</tr>
+<tr>
+<td><span class="nb">65,536</span></td>
+<td><code><span class="nb">14,956</span> MB</code> 됨</td>
+<td><code><span class="nb">14,697</span> MB</code> 됨</td>
+</tr>
+<tr>
+<td><span class="nb">131,072</span></td>
+<td><code><span class="nb">16,556</span> MB</code> 됨</td>
+<td><code><span class="nb">16,041</span> MB</code> 됨</td>
+</tr>
+<tr>
+<td><span class="nb">262,144</span></td>
+<td><code><span class="nb">19,756</span> MB</code> 멈춤</td>
+<td><code><span class="nb">18,729</span> MB</code> 됨</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">262,144는</span> 이 모델이 받을 수 있는 최대 길이입니다. 노트북은 이 최대치를 그대로 쓸 수 있었습니다. 서버는 한 칸 아래인 <span class="nb">131,072까지였고,</span> 뒤에서 한도를 올리자 <span class="nb">262,144도</span> 됐습니다. <span class="nb">131,072를</span> 넣었을 때도 답 쓰는 속도는 서버가 초당 24토큰, 노트북이 19토큰이었습니다. 짧을 때와 거의 같습니다.</p>
+<ul>
+<li><strong>기억할 자리를 Qwen의 3분의 1만 쓴다.</strong> 엔진 기록을 보면 Gemma의 기억할 자리는 두 칸으로 나뉜다. 글 길이에 따라 커지는 칸은 토큰마다 약 20KB다. Qwen은 64KB다. 나머지 한 칸은 길이와 상관없이 300MB로 고정이다. 일부 층만 글 전체를 기억하고, 나머지 층은 최근 일부만 기억하는 구조라서 그렇다.</li>
+<li><strong>같은 일을 해도 계산 공간은 서버가 더 컸다.</strong> <span class="nb">262,144에서</span> 계산 공간은 <span class="nb">서버(Metal)가</span> <span class="nb">1,384MB,</span> <span class="nb">노트북(Vulkan)이</span> 357MB였다. 서버가 멈춘 데에는 이 차이도 한몫했다.</li>
+<li>긴 문서를 통째로 넣을 일이 있다면 Gemma가 맞다. 빠르고, 길게 기억한다.</li>
+</ul>
+<h2 id="서버도-한도를-올려-보니">서버도 한도를 올려 보니</h2>
+<p>노트북은 한도를 올려 더 긴 글을 기억하게 됐습니다. 그런데 서버는 아직 Qwen이 <span class="nb">16,384,</span> Gemma가 <span class="nb">131,072까지였습니다.</span> macOS에도 GPU가 쓸 수 있는 몫을 정하는 설정이 있습니다. 서버는 다른 프로그램을 거의 돌리지 않는 전용 기계입니다. 그래서 macOS 몫은 2GB만 남기고 22GB로 올렸습니다. 이 명령은 관리자 암호가 필요합니다. 이 값은 다시 켜면 원래대로 돌아갑니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sudo</span><span style="color:var(--astro-code-token-string)"> sysctl</span><span style="color:var(--astro-code-token-string)"> iogpu.wired_limit_mb=</span><span style="color:var(--astro-code-token-constant)">22528</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">iogpu.wired_limit_mb:</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-foreground)"> -</span><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-token-constant)"> 22528</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ./build/bin/llama-cli</span><span style="color:var(--astro-code-token-string)"> --list-devices</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">  MTL0:</span><span style="color:var(--astro-code-token-string)"> Apple</span><span style="color:var(--astro-code-token-string)"> M4</span><span style="color:var(--astro-code-foreground)"> (22528 </span><span style="color:var(--astro-code-token-string)">MiB,</span><span style="color:var(--astro-code-token-constant)"> 22527</span><span style="color:var(--astro-code-token-string)"> MiB</span><span style="color:var(--astro-code-token-string)"> free</span><span style="color:var(--astro-code-foreground)">)</span></span></code></pre></figure>
+<p>한도가 <span class="nb">18,185MB에서</span> <span class="nb">22,528MB로</span> 늘었습니다. Gemma는 기억 길이 <span class="nb">262,144도</span> <span class="nb">19,757MB로</span> 됐습니다. 답 쓰는 속도도 초당 <span class="nb">24.9토큰으로</span> 그대로였습니다. Qwen은 기억 길이를 늘려 가며 다시 쟀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기억 길이</th>
+<th>GPU가 쓰려던 양</th>
+<th>결과</th>
+<th>답 쓰기 <span class="nb">(초당</span> <span class="nb">토큰)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">16,384</span></td>
+<td><code><span class="nb">16,137</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">6.1</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">32,768</span></td>
+<td><code><span class="nb">17,241</span> MB</code></td>
+<td>됨, 예전 한도에서는 멈춤</td>
+<td><code><span class="nb">6.3</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">49,152</span></td>
+<td><code><span class="nb">18,345</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">5.7</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">65,536</span></td>
+<td><code><span class="nb">19,449</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">6.2</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">81,920</span></td>
+<td><code><span class="nb">20,553</span> MB</code></td>
+<td>됨</td>
+<td><code><span class="nb">6.1</span></code></td>
+</tr>
+<tr>
+<td><span class="nb">98,304</span></td>
+<td><code><span class="nb">21,657</span> MB</code></td>
+<td>멈춤, GPU 오류</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>서버도 기억 길이가 <span class="nb">16,384에서</span> <span class="nb">81,920으로</span> 5배가 됐다.</strong> 노트북의 <span class="nb">65,536보다</span> 조금 더 길다.</li>
+<li><strong>두 기계는 한도 앞에서 다르게 행동했다.</strong> <span class="nb">노트북(윈도우)은</span> 메모리가 모자라도 디스크로 밀어내며 느리게나마 돌았다. <span class="nb">서버(macOS)는</span> 한도를 넘는 순간 GPU 오류로 멈췄다. 대신 한도 안에서는 길이를 늘려도 속도가 끝까지 초당 6토큰이었다.</li>
+<li><span class="nb">98,304가</span> 멈춘 것은 앞에서 본 <span class="nb">「엔진이</span> 세지 못하는 <span class="nb">1GB」</span> 때문으로 보인다. <span class="nb">21,657MB에</span> 1GB를 더하면 한도 <span class="nb">22,528MB를</span> 넘는다.</li>
+</ul>
+<h2 id="서버가-남긴-기록">서버가 남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-12"><li><time class="measured" datetime="2026-11-12T21:36+09:00"><span class="nb">21:36</span></time><span class="trail__what"><span class="nb">llama.cpp</span> 설계도를 받았다</span><code class="trail__got">671 MB</code></li><li><time class="measured" datetime="2026-11-12T21:37+09:00"><span class="nb">21:37</span></time><span class="trail__what">조립 도구를 깔고 조립 순서를 정했다</span><code class="trail__got">METAL</code></li><li><time class="measured" datetime="2026-11-12T21:40+09:00"><span class="nb">21:40</span></time><span class="trail__what">조립을 마쳤다</span><code class="trail__got">136개</code></li><li><time class="measured" datetime="2026-11-12T21:41+09:00"><span class="nb">21:41</span></time><span class="trail__what"><span class="nb">8,192토큰으로</span> 올라가는지 시험했다</span><code class="trail__got">통과</code></li><li><time class="measured" datetime="2026-11-12T21:44+09:00"><span class="nb">21:44</span></time><span class="trail__what">첫 질문을 했다</span><code class="trail__got"><span class="nb">6.2</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-12T21:48+09:00"><span class="nb">21:48</span></time><span class="trail__what">속도를 다섯 번씩 쟀다</span><code class="trail__got"><span class="nb">6.27</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-12T21:49+09:00"><span class="nb">21:49</span></time><span class="trail__what"><span class="nb">32,768토큰과</span> 자동 길이를 시험했다</span><code class="trail__got">GPU 오류</code></li><li><time class="measured" datetime="2026-11-12T21:58+09:00"><span class="nb">21:58</span></time><span class="trail__what"><span class="nb">16,384토큰으로</span> 메모리를 확인했다</span><code class="trail__got"><span class="nb">66/66층</span></code></li><li><time class="measured" datetime="2026-11-12T21:59+09:00"><span class="nb">21:59</span></time><span class="trail__what">생각 모드로 문제를 냈다</span><code class="trail__got">3개</code></li></ol>
+<p>다음 날의 노트북 측정 기록입니다.</p>
+<ol class="trail" aria-label="작업 기록, 2026-11-13"><li><time class="measured" datetime="2026-11-13T10:51+09:00"><span class="nb">10:51</span></time><span class="trail__what">노트북에 Vulkan판 <span class="nb">llama.cpp를</span> 받았다</span><code class="trail__got">36 MB</code></li><li><time class="measured" datetime="2026-11-13T11:10+09:00"><span class="nb">11:10</span></time><span class="trail__what">Qwen을 66층 전부 GPU에 올렸다</span><code class="trail__got">device lost</code></li><li><time class="measured" datetime="2026-11-13T11:16+09:00"><span class="nb">11:16</span></time><span class="trail__what">층 수를 줄여 가며 경계를 찾았다</span><code class="trail__got">65층</code></li><li><time class="measured" datetime="2026-11-13T11:19+09:00"><span class="nb">11:19</span></time><span class="trail__what">노트북에서 Qwen 속도를 쟀다</span><code class="trail__got"><span class="nb">4.45</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T11:21+09:00"><span class="nb">11:21</span></time><span class="trail__what">기억 길이 <span class="nb">32,768을</span> 시험했다</span><code class="trail__got">device lost</code></li><li><time class="measured" datetime="2026-11-13T11:35+09:00"><span class="nb">11:35</span></time><span class="trail__what">서버에서 Gemma 속도를 쟀다</span><code class="trail__got"><span class="nb">26.41</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T11:42+09:00"><span class="nb">11:42</span></time><span class="trail__what">측정을 위해 화면 공유를 껐다</span><code class="trail__got">UxPlay</code></li><li><time class="measured" datetime="2026-11-13T11:43+09:00"><span class="nb">11:43</span></time><span class="trail__what">노트북에서 Gemma 속도를 쟀다</span><code class="trail__got"><span class="nb">20.62</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T15:23+09:00"><span class="nb">15:23</span></time><span class="trail__what">공유 GPU 메모리 한도를 올리고 노트북을 다시 켰다</span><code class="trail__got"><span class="nb">23.9</span> GB</code></li><li><time class="measured" datetime="2026-11-13T15:23+09:00"><span class="nb">15:23</span></time><span class="trail__what">GPU가 빌릴 수 있는 몫을 다시 읽었다</span><code class="trail__got"><span class="nb">24,522</span> MB</code></li><li><time class="measured" datetime="2026-11-13T15:25+09:00"><span class="nb">15:25</span></time><span class="trail__what">Qwen을 66층 전부 GPU에 다시 올렸다</span><code class="trail__got">됨</code></li><li><time class="measured" datetime="2026-11-13T15:30+09:00"><span class="nb">15:30</span></time><span class="trail__what">기억 길이를 늘려 가며 쟀다</span><code class="trail__got"><span class="nb">65,536</span></code></li><li><time class="measured" datetime="2026-11-13T15:35+09:00"><span class="nb">15:35</span></time><span class="trail__what">기억 길이 <span class="nb">131,072를</span> 시험했다</span><code class="trail__got">응답 없음</code></li><li><time class="measured" datetime="2026-11-13T15:38+09:00"><span class="nb">15:38</span></time><span class="trail__what">65층과 66층 속도를 견줬다</span><code class="trail__got"><span class="nb">4.44</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T15:40+09:00"><span class="nb">15:40</span></time><span class="trail__what">두 기계에서 Gemma 기억 길이를 늘려 봤다</span><code class="trail__got"><span class="nb">262,144</span></code></li><li><time class="measured" datetime="2026-11-13T15:51+09:00"><span class="nb">15:51</span></time><span class="trail__what">서버의 GPU 몫 한도를 올렸다</span><code class="trail__got"><span class="nb">22,528</span> MB</code></li><li><time class="measured" datetime="2026-11-13T15:52+09:00"><span class="nb">15:52</span></time><span class="trail__what">서버에서 Gemma <span class="nb">262,144를</span> 다시 시험했다</span><code class="trail__got">됨</code></li><li><time class="measured" datetime="2026-11-13T15:52+09:00"><span class="nb">15:52</span></time><span class="trail__what">서버에서 Qwen 기억 길이를 늘려 갔다</span><code class="trail__got"><span class="nb">81,920</span></code></li><li><time class="measured" datetime="2026-11-13T15:58+09:00"><span class="nb">15:58</span></time><span class="trail__what">서버에서 <span class="nb">98,304를</span> 시험했다</span><code class="trail__got">GPU 오류</code></li></ol>
+<h2 id="배운-것">배운 것</h2>
+<ul>
+<li>답 쓰는 속도는 모델 크기와 칩이 메모리를 읽는 속도가 정한다. <span class="nb">16.5GB</span> 모델이면 이 서버에서 초당 6토큰 남짓이다.</li>
+<li>기억할 글 길이는 직접 정한다. 엔진에 맡겼더니 GPU 메모리를 다 쓰고 오류가 났다.</li>
+<li>생각 모드는 정확하지만 그만큼 오래 기다려야 한다.</li>
+<li>전문가 혼합 모델은 비슷한 크기에서 4배 빠르다. 실제로 쓸 모델은 이쪽이 유력하다.</li>
+<li>내장 GPU의 메모리 한도는 다 쓸 수 없다. 화면 몫과 여유를 남겨야 한다.</li>
+<li>GPU가 빌릴 몫은 두 기계 모두 올릴 수 있다. 윈도우는 인텔 설정 앱에서, macOS는 <code>sysctl</code>로 올린다. 더 긴 글을 기억하게 되지만 빨라지지는 않는다.</li>
+<li>한도를 넘으면 윈도우는 디스크로 밀어내며 느려지고, macOS는 그 자리에서 멈춘다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>두 기계에서 두 모델이 돌아가고, 기억할 글 길이도 늘었습니다. 하지만 엔진은 <span class="nb">llama.cpp</span> 하나만 써 봤고, 이것이 각 기계에서 가장 빠른 엔진인지는 아직 모릅니다. 그래서 3단계에서는 서버는 애플의 MLX로, 노트북은 인텔 쪽 엔진으로 바꿔 끼우고 <span class="nb">llama.cpp와</span> 견줍니다.</p></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/03-engines/" class="pager__next"><small>다음 글</small><strong>3단계 다른 엔진과 비교</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#받고-조립하기">받고, 조립하기</a></li><li><a href="#첫-질문">첫 질문</a></li><li><a href="#속도-재기">속도 재기</a></li><li><a href="#얼마나-긴-글을-기억하나">얼마나 긴 글을 기억하나</a></li><li><a href="#생각-모드">생각 모드</a></li><li><a href="#인텔-노트북에서-돌리기">인텔 노트북에서 돌리기</a></li><li><a href="#노트북에-qwen을-다-올리면-멈춘다">노트북에 Qwen을 다 올리면 멈춘다</a></li><li><a href="#공유-gpu-메모리-간단한-분석">공유 GPU 메모리, 간단한 분석</a></li><li><a href="#한도를-24gb로-올려-보니">한도를 24GB로 올려 보니</a></li><li><a href="#두-번째-모델-gemma-4-26b-a4b">두 번째 모델, Gemma 4 <span class="nb">26B-A4B</span></a></li><li><a href="#네-가지-조합의-속도">네 가지 조합의 속도</a></li><li><a href="#gemma는-26만-토큰까지">Gemma는 26만 토큰까지</a></li><li><a href="#서버도-한도를-올려-보니">서버도 한도를 올려 보니</a></li><li><a href="#서버가-남긴-기록">서버가 남긴 기록</a></li><li><a href="#배운-것">배운 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

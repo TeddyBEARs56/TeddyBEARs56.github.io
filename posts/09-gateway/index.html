@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>게이트웨이 세우기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 9단계. 모델 서버 앞에 게이트웨이(LiteLLM)를 세우고 프로그램마다 API 키를 나눠 줬습니다. API 키가 없으면 401로 막고, 누가 몇 토큰을 썼는지 남깁니다. 서로 다른 긴 질문이 몰릴 때 얼마나 느려지는지도 다시 쟀습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/09-gateway/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="게이트웨이 세우기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 9단계. 모델 서버 앞에 게이트웨이(LiteLLM)를 세우고 프로그램마다 API 키를 나눠 줬습니다. API 키가 없으면 401로 막고, 누가 몇 토큰을 썼는지 남깁니다. 서로 다른 긴 질문이 몰릴 때 얼마나 느려지는지도 다시 쟀습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/09-gateway/"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"게이트웨이 세우기","description":"로컬 LLM 연재 9단계. 모델 서버 앞에 게이트웨이(LiteLLM)를 세우고 프로그램마다 API 키를 나눠 줬습니다. API 키가 없으면 401로 막고, 누가 몇 토큰을 썼는지 남깁니다. 서로 다른 긴 질문이 몰릴 때 얼마나 느려지는지도 다시 쟀습니다.","datePublished":"2026-11-16T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/09-gateway/","mainEntityOfPage":"https://teddybears56.github.io/posts/09-gateway/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>9단계</li></ol></nav><h1 id="post-title">게이트웨이 세우기</h1><p class="post__lead">지금까지 Mac mini의 모델 서버는 같은 네트워크의 누구에게나 열려 있었습니다. API 키를 확인하지 않았고, 누가 물었는지는 보낸 컴퓨터의 주소로만 남았습니다. 이번에는 모델 서버 앞에 게이트웨이를 세웁니다. 요청을 한곳에서 받아 API 키를 확인하고, 알맞은 서버로 넘기고, 사용량을 남기는 프로그램입니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 14분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>몰릴 때를 잰다.</strong> 4단계에서 미룬 숙제다. 서로 다른 긴 질문을 1개, 2개, 4개씩 한꺼번에 보낸다.</li>
+<li><strong>게이트웨이를 세운다.</strong> 요청을 한곳에서 받아 API 키를 확인하고, 알맞은 서버로 넘기는 프로그램이다.</li>
+<li><strong>API 키를 나눠 준다.</strong> 프로그램마다 따로 주고, 쓸 수 있는 모델과 한도를 정한다.</li>
+<li><strong>누가 얼마나 쓰는지 본다.</strong></li>
+<li><strong>모델 서버를 바깥에서 막는다.</strong> 4단계부터 API 키 없이 열려 있던 8080번 포트다.</li>
+</ol>
+<h2 id="지금까지는">지금까지는</h2>
+<p>Mac mini의 MLX 서버는 4단계부터 같은 네트워크 전체에서 질문을 받았습니다. API 키는 확인하지 않았습니다. 서버 기록에는 요청 시각과 보낸 컴퓨터의 주소만 남습니다. 사흘 치 기록을 보니 묻는 곳은 둘이었습니다.</p>
+<ul>
+<li><strong>같은 기계의 웹 UI</strong><span class="nb">(127.0.0.1):</span> 웹 UI로 들어온 질문은 누가 했든 이 주소 하나로 남는다.</li>
+<li><strong>제 컴퓨터</strong>: 8단계의 커밋 메시지 도구가 보낸 요청이다.</li>
+</ul>
+<p>막을 이유는 더 있었습니다. 이 서버는 요청 하나로 올려 둔 모델을 바꿔 끼웁니다. 8단계 도구의 <code><span class="nb">--model</span></code>이 그 기능을 썼습니다. 누구든 바꾸면 다른 사람도 그 모델을 쓰게 됩니다. 그리고 한 사람의 긴 질문 뒤에서 다른 사람이 기다립니다. 얼마나 기다리는지부터 쟀습니다.</p>
+<h2 id="몰리면-얼마나-느려지나">몰리면 얼마나 느려지나</h2>
+<p>4단계에서는 같은 짧은 질문을 동시에 보냈고, 4명이 물어도 거의 느려지지 않았습니다. 이번에는 질문마다 다른 글을 넣었습니다. <span class="nb">1,500자짜리</span> 글을 요약하게 했고, 질문 하나에 읽는 양은 <span class="nb">750~860토큰,</span> 답은 150토큰입니다. 질문 맨 앞에는 번호를 달았습니다. 서버가 앞서 읽은 질문을 임시로 저장해 두었다가 다시 쓰는 <span class="nb">일(프롬프트</span> <span class="nb">캐시)이</span> 끼어들지 않게 하려는 것입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>동시에 보낸 질문</th>
+<th>1개</th>
+<th>2개</th>
+<th>4개</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mac mini, 마지막 사람의 첫 글자</td>
+<td><span class="nb">12.7초</span></td>
+<td><span class="nb">25.5초</span></td>
+<td><span class="nb">74.1초</span></td>
+</tr>
+<tr>
+<td>Mac mini, 모두 끝남</td>
+<td><span class="nb">35.3초</span></td>
+<td><span class="nb">50.0초</span></td>
+<td><span class="nb">99.0초</span></td>
+</tr>
+<tr>
+<td>노트북, 마지막 사람의 첫 글자</td>
+<td><span class="nb">4.9초</span></td>
+<td><span class="nb">8.1초</span></td>
+<td><span class="nb">30.1초</span></td>
+</tr>
+<tr>
+<td>노트북, 모두 끝남</td>
+<td><span class="nb">13.3초</span></td>
+<td><span class="nb">19.3초</span></td>
+<td><span class="nb">41.3초</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>긴 질문은 묶이지 않는다.</strong> Mac mini는 6단계에서 메모리 부족으로 멈춘 뒤로 질문을 한 번에 하나씩 읽고, 답은 한 번에 둘까지 쓰게 해 두었다. 그래서 2개를 보내면 둘 다 읽은 뒤에야 쓰기 시작한다. 혼자일 때 <span class="nb">12.7초</span> 걸리던 첫 글자가 둘 다 25초쯤에 나왔다.</li>
+<li><strong>셋째부터는 자리를 기다린다.</strong> 4개를 보내자 둘은 25초쯤에 첫 글자가 나왔고, 나머지 둘은 앞의 두 답이 거의 끝난 <span class="nb">73~74초에야</span> 나왔다. 노트북 서버도 답을 쓰는 자리가 둘이라, 4개 중 둘은 30초를 기다렸다.</li>
+<li><strong>노트북이 두 배 넘게 빠르다.</strong> 4개를 모두 끝내는 데 Mac mini는 99초, 노트북은 <span class="nb">41.3초가</span> 걸렸다.</li>
+</ul>
+<h2 id="게이트웨이-고르기">게이트웨이 고르기</h2>
+<p>게이트웨이는 여러 모델 서버 앞에 서서 요청을 먼저 받는 프로그램입니다. 견준 길은 셋입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>방법</th>
+<th>좋은 점</th>
+<th>아쉬운 점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open WebUI의 API 키</td>
+<td>이미 띄워 둔 웹 UI에 들어 있다. 계정마다 키를 만든다</td>
+<td>요청 수나 동시 요청 수에 한도를 걸 수 없다. 프로그램도 웹 UI 계정이 있어야 한다</td>
+</tr>
+<tr>
+<td>직접 만들기</td>
+<td>작고, 하는 일이 다 보인다</td>
+<td>키 관리, 사용량 기록, 한도를 모두 새로 짜야 한다. 보안 구멍도 혼자 책임진다</td>
+</tr>
+<tr>
+<td><strong>LiteLLM</strong></td>
+<td>가장 널리 쓰이는 공개 게이트웨이다. 키마다 쓸 모델과 한도를 정하고, 사용량을 남기고, 여러 서버로 나눠 보낸다</td>
+<td>무겁다. PostgreSQL이 따로 필요하다. 기능이 많은 만큼 보안 공지가 잦다</td>
+</tr>
+</tbody>
+</table></div>
+<p>고른 것은 <strong>LiteLLM입니다.</strong> 이 연재는 실제로 많이 쓰는 도구를 익히는 것이 목적이기도 합니다. 대신 설치는 조심했습니다. LiteLLM은 올해 두 번, <span class="nb">PyPI(파이썬</span> 패키지 <span class="nb">저장소)에</span> 비밀값을 훔치는 코드가 든 버전이 올라갔습니다. 3월에는 <span class="nb">1.82.7과</span> <span class="nb">1.82.8,</span> 10월 21일에는 <span class="nb">1.107.0입니다.</span> 셋 다 PyPI에서 내려갔지만, 내려가기 전에 설치한 컴퓨터는 비밀값이 이미 빠져나갔을 수 있습니다. 그래서 네 가지를 지켰습니다.</p>
+<ul>
+<li><strong>나온 지 2주가 넘은 버전:</strong> 10월 28일에 나온 <span class="nb">1.106.6을</span> 골랐다. 두 번째 사고 뒤에 나온 버전이다. GitHub에 공개된 LiteLLM 보안 공지 45개의 영향 범위를 모두 봤는데, 모두 이보다 앞선 버전이었다.</li>
+<li><strong>함께 깔리는 패키지도 2주 전 것까지만:</strong> uv의 <code><span class="nb">--exclude-newer</span></code>는 그 날짜 뒤에 올라온 버전을 고르지 않게 한다.</li>
+<li><strong>깐 뒤에 흔적을 찾는다:</strong> 10월의 악성 버전은 파이썬이 켜질 때마다 저절로 실행되는 <code><span class="nb">cook.pth</span></code> 파일을 심었다. 설치한 폴더에는 그런 <code><span class="nb">.pth</span></code> 파일도, 알려진 악성 파일 이름도 없었다.</li>
+<li><strong>고정하지 못한 것도 적어 둔다:</strong> LiteLLM이 데이터베이스를 다룰 때 쓰는 Prisma는 처음 켤 때 Node와 실행 파일을 따로 내려받는다. 이 부분은 위의 고정에 묶이지 않는다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini 터미널</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> brew</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> postgresql@18</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> tool</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> --python</span><span style="color:var(--astro-code-token-constant)"> 3.12</span><span style="color:var(--astro-code-token-string)"> --exclude-newer</span><span style="color:var(--astro-code-token-string)"> 2026-11-02T00:00:00Z</span><span style="color:var(--astro-code-token-string-expression)"> &#39;litellm[proxy,extra_proxy]==1.106.6&#39;</span></span></code></pre></figure>
+<h2 id="세우기">세우기</h2>
+<p>게이트웨이는 Mac mini에 둡니다. 웹 UI도 이제 모델 서버에 직접 묻지 않고 게이트웨이를 거칩니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>구조</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>같은 네트워크의 PC·휴대폰 브라우저</span></span>
+<span class="line"><span>        │  http://192.168.x.x:3000  (로그인)</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>Mac mini ── Open WebUI (3000번)</span></span>
+<span class="line"><span>              │  웹 UI용 API 키 + 묻는 사람의 이메일</span></span>
+<span class="line"><span>              ▼</span></span>
+<span class="line"><span>Mac mini ── 게이트웨이 LiteLLM (4000번)  ◀── 커밋 도구, 다른 프로그램 (각자의 API 키)</span></span>
+<span class="line"><span>            API 키 확인, 한도, 사용량 기록</span></span>
+<span class="line"><span>            키와 사용량은 PostgreSQL에 (Mac mini 안에서만)</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              ├──▶ Mac mini MLX 서버 (8080번, 이제 Mac mini 안에서만)</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              └──▶ 노트북 llama.cpp 서버 (8081번, 노트북용 API 키)</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>하는 일</th>
+<th>어디에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LiteLLM</td>
+<td>API 키 확인, 한도, 서버 고르기, 사용량 기록</td>
+<td>Mac mini 4000번 포트</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>키와 사용량을 저장하는 데이터베이스</td>
+<td>Mac mini 5432번 포트, Mac mini 안에서만 접속</td>
+</tr>
+<tr>
+<td>비밀값 세 개</td>
+<td>관리자 <span class="nb">키(마스터</span> <span class="nb">키),</span> 저장할 비밀값을 암호화하는 키, 데이터베이스 암호</td>
+<td>Mac mini의 파일. 주인만 읽을 수 있게 두고 화면에 출력하지 않음</td>
+</tr>
+</tbody>
+</table></div>
+<p>설정 파일에는 비밀값을 적지 않고, 시작 스크립트가 파일에서 읽어 넘깁니다. 줄인 설정은 아래와 같습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span class="measured">~/llm-service/gateway-config.yaml <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">model_list</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> qwen3.8-27b</span><span style="color:var(--astro-code-token-comment)">             # Mac mini</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> openai/default_model</span><span style="color:var(--astro-code-token-comment)">       # MLX 서버가 띄운 모델 그대로</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> http://127.0.0.1:8080/v1</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> none</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      additional_drop_params</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string)">extra_body</span><span style="color:var(--astro-code-foreground)">]   </span><span style="color:var(--astro-code-token-comment)"># 표준 밖 필드는 넘기지 않는다 (아래 「다른 Claude의 검토」)</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> gemma-4-26b</span><span style="color:var(--astro-code-token-comment)">             # 노트북</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> openai/gemma-4-26b-a4b</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> http://192.168.x.x:8081/v1</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> os.environ/LAPTOP_LLM_KEY</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      additional_drop_params</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string)">extra_body</span><span style="color:var(--astro-code-foreground)">]</span></span>
+<span class="line"><span style="color:var(--astro-code-token-comment)">  # auto: 노트북과 Mac mini를 한 이름으로 묶는다 (아래 「덜 바쁜 쪽으로 보내기」)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">router_settings</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  routing_strategy</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> least-busy</span><span style="color:var(--astro-code-token-comment)">          # 처리 중인 요청이 적은 쪽으로</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  num_retries</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-comment)">                        # 실패한 긴 질문을 다시 보내지 않는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  enable_health_check_routing</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> true</span><span style="color:var(--astro-code-token-comment)">     # 상태 확인에서 떨어진 서버로는 보내지 않는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  fallbacks</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">    - </span><span style="color:var(--astro-code-token-keyword)">auto</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string)">qwen3.8-27b</span><span style="color:var(--astro-code-foreground)">]               </span><span style="color:var(--astro-code-token-comment)"># auto가 실패하면 Mac mini가 대신 답한다</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">general_settings</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  master_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> os.environ/LITELLM_MASTER_KEY</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  database_url</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> os.environ/DATABASE_URL</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  store_prompts_in_spend_logs</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> false</span><span style="color:var(--astro-code-token-comment)">    # 사용량 기록에 질문과 답은 남기지 않는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  background_health_checks</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> true</span><span style="color:var(--astro-code-token-comment)">        # 노트북만 1분마다 한 토큰짜리 질문으로 확인</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  health_check_interval</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> 60</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  model_list_healthy_only</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> true</span><span style="color:var(--astro-code-token-comment)">         # 답하지 않는 모델은 목록에서 숨긴다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  user_header_mappings</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-comment)">                 # 웹 UI가 알려 주는 사람</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">    - </span><span style="color:var(--astro-code-token-keyword)">header_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> X-OpenWebUI-User-Email</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      litellm_user_role</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> customer</span></span></code></pre></figure>
+<p>모델 이름을 서버 쪽 이름과 따로 둔 것이 중요합니다. 요청에 어떤 이름을 넣든 게이트웨이는 정해 둔 이름만 받고, MLX 서버에는 늘 <code><span class="nb">default_model</span></code>을 보냅니다. 이제 요청으로 Mac mini의 모델을 바꿔 끼울 수 없습니다.</p>
+<aside class="note" aria-labelledby="note-rehdbz"><h3 id="note-rehdbz">처음 켤 때 두 번 멈춘 이유</h3><p>처음에는 <code><span class="nb">litellm[proxy]</span></code>만 설치했습니다. 그러자 데이터베이스 도구 Prisma가 없다며 멈췄습니다. 안내대로 <code><span class="nb">extra_proxy</span></code> 묶음을 더했더니, 이번에는 마이그레이션 213개를 다 넣은 뒤 <span class="nb">「Prisma</span> 실행 파일을 찾을 수 <span class="nb">없다」며</span> 멈췄습니다. 마이그레이션은 데이터베이스에 표를 만들고 고치는 단계입니다. Prisma가 쓸 파이썬 코드를 만드는 <code>prisma generate</code>를 손으로 한 번 돌리자 15초 만에 켜졌습니다. 다시 설치하면 이것도 다시 해야 합니다.</p></aside>
+<p>무게는 디스크 590MB, 메모리는 LiteLLM이 <span class="nb">0.6GB,</span> PostgreSQL이 <span class="nb">0.1GB</span> 안팎입니다. 웹 <span class="nb">UI(0.6GB)와</span> 비슷합니다.</p>
+<h2 id="api-키-나눠-주기">API 키 나눠 주기</h2>
+<p>키는 지금 쓰는 <strong>프로그램마다</strong> 줬습니다. 웹 UI를 쓰는 사람에게는 키를 주지 않습니다. 웹 UI가 자기 키 하나로 묻고, 묻는 사람의 이메일을 함께 보냅니다. 웹 UI 없이 자기 프로그램으로 쓰려는 사람이 생기면, 그 사람에게도 같은 방법으로 키를 하나 만들어 줍니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>키 이름</th>
+<th>쓰는 곳</th>
+<th>쓸 수 있는 모델</th>
+<th>한도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>open-webui</code></td>
+<td>웹 UI</td>
+<td>Mac mini, 노트북</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>commit-tool</code></td>
+<td>제 컴퓨터의 커밋 도구</td>
+<td>Mac mini, 노트북, auto</td>
+<td>분당 10회, 동시 1개</td>
+</tr>
+<tr>
+<td><code><span class="nb">test-user</span></code></td>
+<td>시험용. 다 쓰고 막음</td>
+<td>Mac mini, auto</td>
+<td>분당 2회, 동시 1개</td>
+</tr>
+</tbody>
+</table></div>
+<p>키는 관리자 키로 LiteLLM에 요청해 만듭니다. Mac mini에 둔 작은 <span class="nb">스크립트(</span><code><span class="nb">gw-admin.py</span></code><span class="nb">)가</span> 이 요청을 보내고, 받은 키를 주인만 읽는 파일에 바로 저장합니다. 키는 화면에 나오지 않습니다. 커밋 도구의 키는 제 컴퓨터로 옮긴 뒤 Mac mini의 사본을 지웠습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>키를 만드는 요청 <span class="nb">(gw-admin.py가</span> 보내는 <span class="nb">것)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> curl</span><span style="color:var(--astro-code-token-string)"> http://127.0.0.1:4000/key/generate</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    -H</span><span style="color:var(--astro-code-token-string-expression)"> &quot;Authorization: Bearer $MASTER_KEY&quot;</span><span style="color:var(--astro-code-token-string)"> -H</span><span style="color:var(--astro-code-token-string-expression)"> &#39;Content-Type: application/json&#39;</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    -d</span><span style="color:var(--astro-code-token-string-expression)"> &#39;{&quot;key_alias&quot;: &quot;commit-tool&quot;, &quot;models&quot;: [&quot;qwen3.8-27b&quot;, &quot;gemma-4-26b&quot;, &quot;auto&quot;],</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string-expression)">         &quot;rpm_limit&quot;: 10, &quot;max_parallel_requests&quot;: 1,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string-expression)">         &quot;allowed_routes&quot;: [&quot;/v1/chat/completions&quot;, &quot;/chat/completions&quot;, &quot;/v1/models&quot;, &quot;/models&quot;]}&#39;</span></span></code></pre></figure>
+<p><code><span class="nb">allowed_routes</span></code>는 이 키로 부를 수 있는 주소입니다. 채팅과 모델 목록만 열었습니다. 처음에는 넣지 않았다가 검토에서 지적을 받고 더했습니다.</p>
+<h2 id="막히는지-보기">막히는지 보기</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>보낸 요청</th>
+<th>응답</th>
+<th>게이트웨이의 말</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API 키 없이</td>
+<td>401</td>
+<td>No api key passed in</td>
+</tr>
+<tr>
+<td>틀린 키로</td>
+<td>401</td>
+<td>Invalid proxy server token passed</td>
+</tr>
+<tr>
+<td><code><span class="nb">test-user</span></code>로 노트북 모델</td>
+<td>403</td>
+<td>이 키로는 쓸 수 없는 모델</td>
+</tr>
+<tr>
+<td><code><span class="nb">test-user</span></code>로 1분에 세 번</td>
+<td>셋째가 429</td>
+<td>Limit type: requests, Current limit: 2</td>
+</tr>
+<tr>
+<td>동시 1개 키로 두 개를 한꺼번에</td>
+<td>둘째가 429</td>
+<td>Limit type: max_parallel_requests</td>
+</tr>
+<tr>
+<td><span class="nb">막은(block)</span> 키로</td>
+<td>401</td>
+<td>Key is blocked</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>한도를 넘으면 기다리게 하지 않고 바로 거절한다.</strong> 둘째 요청은 <span class="nb">0.0초</span> 만에 429를 받았다. 기다렸다가 다시 보내는 일은 부르는 쪽 몫이다.</li>
+<li><strong>1분은 시계의 분이 아니라 첫 요청부터 잰다.</strong> 정각에 맞춰 보냈는데도 앞 요청에서 1분이 안 지나 막혔다.</li>
+<li><strong>흘려 받다 끊어도 자리가 풀린다.</strong> 동시 1개 키로 답을 흘려 받다가 2초 만에 끊고 바로 다시 물었더니 200이었다.</li>
+</ul>
+<h2 id="누가-얼마나-쓰나">누가 얼마나 쓰나</h2>
+<p>LiteLLM은 요청마다 키, 사람, 모델, 읽은 토큰과 쓴 토큰, 걸린 시간을 PostgreSQL에 남깁니다. Mac mini에서 <code><span class="nb">gw-admin.py</span> usage</code>로 묶어 봅니다. 아래는 오늘 시험한 기록의 일부입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>Mac mini 터미널</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ ~/llm-service/gw-admin.py usage</span></span>
+<span class="line"><span>     키       |       사람       |    모델     | 성공 | 실패 | 읽은_토큰 | 쓴_토큰 | 평균_초</span></span>
+<span class="line"><span>--------------+------------------+-------------+------+------+-----------+---------+--------</span></span>
+<span class="line"><span> (상태 확인)  | -                | -           |   32 |    0 |       772 |      32 |     1.2</span></span>
+<span class="line"><span> commit-tool  | -                | auto        |    1 |    0 |      8975 |     109 |    25.0</span></span>
+<span class="line"><span> commit-tool  | -                | gemma-4-26b |    1 |    0 |      1600 |      92 |    11.6</span></span>
+<span class="line"><span> commit-tool  | -                | qwen3.8-27b |    7 |    0 |      1644 |      49 |     4.7</span></span>
+<span class="line"><span> open-webui   | &lt;시험용 이메일&gt;  | qwen3.8-27b |    1 |    0 |        20 |       2 |     0.5</span></span>
+<span class="line"><span> test-user    | -                | qwen3.8-27b |    4 |    7 |        87 |      91 |     4.2</span></span></code></pre></figure>
+<ul>
+<li><strong>사람 칸은 웹 UI가 알려 준다.</strong> 웹 UI는 묻는 사람의 이메일을 <code><span class="nb">X-OpenWebUI-User-Email</span></code> 헤더에 실어 보낸다. 표의 <code><span class="nb">open-webui</span></code> 줄은 그 헤더에 시험용 이메일을 넣어 직접 보낸 것이다. 다만 다른 키를 가진 사람도 같은 헤더를 붙일 수 있다. 그래서 사람 칸은 <code><span class="nb">open-webui</span></code> 키 줄에서만 믿는다.</li>
+<li><strong>질문과 답은 남기지 않는다.</strong> 지금까지 쌓인 기록 80줄 가운데 질문이나 답이 든 줄은 0이었다. 시험에 쓴 질문 문장을 게이트웨이의 로그 파일에서도 찾아봤는데 나오지 않았다. 다만 LiteLLM 코드에는 서버 오류 메시지가 요청 내용을 되풀이할 수 있다고 적혀 있다. 오류가 나면 로그 파일에 일부가 섞일 수 있다는 뜻이다. 대화 자체는 웹 UI가 자기 데이터베이스에 저장한다.</li>
+<li><strong><span class="nb">(상태</span> <span class="nb">확인)은</span> 게이트웨이 자신이다.</strong> 노트북이 깨어 있는지 1분마다 한 토큰짜리 질문으로 확인한다. 아래에서 다룬다.</li>
+</ul>
+<h2 id="덜-바쁜-쪽으로-보내기">덜 바쁜 쪽으로 보내기</h2>
+<p><code>auto</code>는 Mac mini와 노트북을 한 이름으로 묶은 것입니다. 받은 요청은 처리 중인 요청이 적은 쪽으로 보냅니다. 서로 다른 긴 질문 4개를 한꺼번에 보내 봤습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>보낸 곳</th>
+<th>나뉜 결과</th>
+<th>마지막 사람의 첫 글자</th>
+<th>모두 끝남</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mac mini만</td>
+<td>4개</td>
+<td><span class="nb">74.1초</span></td>
+<td><span class="nb">99.0초</span></td>
+</tr>
+<tr>
+<td>노트북만</td>
+<td>4개</td>
+<td><span class="nb">30.1초</span></td>
+<td><span class="nb">41.3초</span></td>
+</tr>
+<tr>
+<td><code>auto</code> <span class="nb">(Mac</span> mini를 먼저 <span class="nb">적음)</span></td>
+<td>Mac mini 3개, 노트북 1개</td>
+<td><span class="nb">60.5초</span></td>
+<td><span class="nb">84.5초</span></td>
+</tr>
+<tr>
+<td><code>auto</code> <span class="nb">(노트북을</span> 먼저 <span class="nb">적음)</span></td>
+<td>2개씩</td>
+<td><span class="nb">25.0초</span></td>
+<td><span class="nb">48.5초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>처음에는 4개 중 3개가 느린 Mac mini로 갔습니다. LiteLLM 코드를 보니 이유가 있었습니다. 처리 중인 요청 수가 같으면 목록의 첫 서버를 고릅니다. 그리고 요청 수는 고른 뒤 서버로 보내는 순간에야 늘어납니다. 그래서 한꺼번에 들어온 요청은 서로를 다 세지 못한 채 고르게 되고, 첫 서버 쪽으로 쏠립니다. 노트북을 먼저 적자 이번에는 2개씩 나뉘었고, 모두 끝나는 시간이 <span class="nb">84.5초에서</span> <span class="nb">48.5초로</span> 줄었습니다. 그래도 노트북에 4개를 다 보낸 <span class="nb">41.3초보다는</span> 느립니다. 이 방식은 서버가 얼마나 빠른지는 보지 않습니다. 둘 다 한가하면 언제나 첫 서버, 이제는 노트북으로 갑니다.</p>
+<p>노트북은 잠들거나 꺼질 수 있습니다. 그런데 LiteLLM은 연결이 안 되는 오류가 나도 그 서버를 쉬게 하지 않습니다. 그래서 세 가지를 더했습니다.</p>
+<ul>
+<li><strong>노트북만 1분마다 확인한다.</strong> 답하지 않으면 그 서버로는 보내지 않는다. Mac mini는 긴 질문 뒤에서 확인이 늦어질 수 있어 확인하지 않는다.</li>
+<li><strong>답하지 않는 모델은 목록에서 숨긴다.</strong> 웹 UI의 모델 목록에서 노트북 모델이 빠진다. 6단계에서 노트북이 잠들면 목록에서 빠지던 것과 같다.</li>
+<li><strong><code>auto</code>가 실패하면 Mac mini가 대신 답한다.</strong></li>
+</ul>
+<p>잠든 노트북은 연결을 거절하는 서버로 흉내 냈습니다. 시험용 이름을 잠시 세 개 만들었습니다.</p>
+<ul>
+<li><strong>그 서버 하나만 묶은 이름:</strong> 첫 확인 뒤 모델 목록에서 사라졌다.</li>
+<li><strong>그 서버를 Mac mini 앞에 묶은 이름:</strong> 3번 물었는데 3번 모두 Mac mini가 답했다. 확인에서 떨어진 서버를 건너뛴 것이다.</li>
+<li><strong>확인하지 않는 그 서버 하나에, 실패하면 Mac mini로 넘기게 한 이름:</strong> 연결이 거절되자 Mac mini가 <span class="nb">0.9초</span> 만에 대신 답했다.</li>
+</ul>
+<p>시험을 마치고 이 이름들은 지웠습니다.</p>
+<h2 id="모델-서버-막기">모델 서버 막기</h2>
+<p>마지막으로 MLX 서버가 받는 주소를 <code><span class="nb">0.0.0.0</span></code><span class="nb">(모든</span> <span class="nb">네트워크)에서</span> <code><span class="nb">127.0.0.1</span></code><span class="nb">(Mac</span> mini <span class="nb">안)로</span> 바꿨습니다. 그 전에 쓰는 곳 둘을 게이트웨이로 옮겼습니다.</p>
+<ul>
+<li><strong>웹 UI:</strong> 연결을 게이트웨이 하나로 바꿨다. 모델 이름이 게이트웨이 쪽 <span class="nb">이름(</span><code><span class="nb">qwen3.8-27b</span></code>, <code><span class="nb">gemma-4-26b</span></code><span class="nb">)으로</span> 바뀌어서, 이름과 설명, 시스템 프롬프트를 새 이름에 다시 붙였다. 다시 켜는 데 6초 걸렸다.</li>
+<li><strong>커밋 도구:</strong> 주소를 게이트웨이로 바꾸고, API 키는 제 컴퓨터의 파일에서 읽게 했다. 모델은 <code><span class="nb">--model</span></code>로 고른다. 전에는 노트북 방화벽이 Mac mini에서 온 연결만 받아서 제 컴퓨터에서는 노트북 모델을 쓸 수 없었다. 이제 게이트웨이를 거치니 쓸 수 있다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>제 컴퓨터 터미널</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ curl http://192.168.x.x:8080/v1/models</span></span>
+<span class="line"><span>curl: (7) Failed to connect to 192.168.x.x port 8080 after 216 ms: Couldn&#39;t connect to server</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>$ curl http://192.168.x.x:4000/v1/models</span></span>
+<span class="line"><span>{&quot;error&quot;:{&quot;message&quot;:&quot;Authentication Error, No api key passed in.&quot;,&quot;type&quot;:&quot;auth_error&quot;,&quot;param&quot;:&quot;None&quot;,&quot;code&quot;:&quot;401&quot;}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>$ uv run ~/llm-lab/commit_msg.py --rev HEAD --model auto</span></span>
+<span class="line"><span>━━ 로컬: auto ━━</span></span>
+<span class="line"><span>── 답한 곳 노트북 · 읽은 양 8,975토큰 · 첫 글자 18.2초 · 전체 25.1초 · 쓴 양 109토큰 · 요금 0원</span></span></code></pre></figure>
+<p>MLX 서버에 바로 물으면 연결 자체가 안 됩니다. 게이트웨이는 API 키 없이는 답하지 않습니다. 키를 가진 커밋 도구는 게이트웨이를 거쳐 노트북의 답을 받았습니다.</p>
+<p>이제 이 연재에서 띄운 프로그램 가운데 네트워크로 열린 것은 둘입니다. 웹 <span class="nb">UI(3000번)와</span> <span class="nb">게이트웨이(4000번)입니다.</span> MLX 서버, PostgreSQL, 검색 서버 SearXNG는 Mac mini 안에서만 받습니다.</p>
+<h2 id="다른-claude의-검토">다른 Claude의 검토</h2>
+<p>다 세운 뒤, 이 작업을 모르는 새 맥락의 Claude에게 설정과 스크립트를 검토하게 했습니다. 서버에는 들어가지 않고 파일과 LiteLLM 소스만 읽게 했습니다. 지적은 9개였고, 하나씩 코드와 시험으로 확인했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>어디</th>
+<th>지적</th>
+<th>확인하고 한 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>필드</td>
+<td>키만 있으면 표준 밖 필드를 모델 서버까지 보낼 수 있다. MLX 서버는 요청의 <code>draft_model</code>, <code>adapters</code>를 읽어 다른 모델을 불러온다</td>
+<td>맞음. 받은 필드를 적기만 하는 시험용 서버에 4개가 그대로 도착했다. 모든 서버에 <code>additional_drop_params: [extra_body]</code>를 넣자 0개</td>
+</tr>
+<tr>
+<td>주소</td>
+<td>키로 채팅 말고도 <code><span class="nb">/health</span></code> 같은 주소를 부를 수 있다. <code><span class="nb">/health</span></code>는 한도를 거치지 않고 모든 서버에 실제로 묻는다</td>
+<td>맞음. 키마다 <code>allowed_routes</code>를 걸자 <code><span class="nb">/health</span></code>, <code><span class="nb">/v1/files</span></code>, <code><span class="nb">/key/list</span></code>가 403</td>
+</tr>
+<tr>
+<td>포트</td>
+<td>4000번이 이미 쓰이고 있으면 LiteLLM이 아무 번호에서나 조용히 뜬다</td>
+<td>맞음. 하나 더 띄워 보니 32274번에서 떴다. 시작 스크립트가 먼저 확인하고, 쓰이고 있으면 뜨지 않게 함</td>
+</tr>
+<tr>
+<td>재시도</td>
+<td>실패하면 같은 질문을 두 번 더 보낸다</td>
+<td>맞음. 기본값이 2회. 게이트웨이와 커밋 도구 모두 0회로</td>
+</tr>
+<tr>
+<td>관리 화면</td>
+<td>로그인하면 마스터 키가 평문 HTTP로 지나간다</td>
+<td>맞음. 관리 화면은 쓰지 않고, 사용량은 Mac mini에서 명령으로 봄</td>
+</tr>
+<tr>
+<td>스크립트</td>
+<td>웹 UI 설정을 못 바꿔도 성공이라고 출력한다</td>
+<td>맞음. 바꾼 줄 수를 확인하고, 아니면 멈춤</td>
+</tr>
+<tr>
+<td>사람 칸</td>
+<td>다른 키로도 꾸밀 수 있다</td>
+<td>맞음. 위 <span class="nb">「누가</span> 얼마나 <span class="nb">쓰나」에</span> 적음</td>
+</tr>
+<tr>
+<td>내용 기록</td>
+<td><span class="nb">「내용을</span> 남기지 <span class="nb">않는다」는</span> 사용량 기록에만 맞는다</td>
+<td>맞음. 위에 범위를 좁혀 적음</td>
+</tr>
+<tr>
+<td>원격 접속</td>
+<td>0단계에서 미룬 원격 접속 좁히기가 계획에 없다</td>
+<td>맞음. 아래 <span class="nb">「원격</span> <span class="nb">접속」</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>가장 컸던 것은 첫째입니다. 게이트웨이는 막는 일에서보다 넘겨주는 일에서 구멍이 났습니다. API 키를 받은 사람 누구나, 요청 한 번으로 Mac mini가 다른 모델을 더 불러오게 할 수 있었습니다. 큰 모델이면 24GB 메모리가 모자라 서버가 멈출 수 있고, 그러면 모두가 못 씁니다. 키를 확인하는 것만으로는 부족했습니다. 검토자가 짚은 LiteLLM 코드는 다시 열어 확인했고, 직접 시험할 수 있는 것은 시험했습니다.</p>
+<h2 id="원격-접속">원격 접속</h2>
+<p>0단계에서 <span class="nb">「원격</span> 접속 모두 허용은 9단계에서 다른 사람을 받을 때 <span class="nb">좁힌다」고</span> 미뤘습니다. 지금 확인해 보니 Mac mini의 원격 로그인은 관리자 계정만 받게 되어 있고, 관리자 계정은 제 계정 하나입니다. 다른 사람에게는 macOS 계정 대신 웹 UI 계정과 API 키를 주니, 이 범위는 그대로 둬도 됩니다.</p>
+<p>남은 것은 암호 로그인입니다. 지금은 SSH 키가 없어도 암호로 들어갈 수 있습니다. SSH 키로만 들어오게 바꾸는 스크립트는 만들어 두었습니다. 설정이 잘못되면 스스로 되돌리게 했습니다. 다만 아직 이 네트워크에 들어올 다른 사람이 없어서, 지금은 실행하지 않기로 했습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>서로 다른 긴 질문은 묶이지 않는다.</strong> 4개를 한꺼번에 보내면 마지막 사람은 첫 글자를 Mac mini에서 74초, 노트북에서 30초 기다렸다.</li>
+<li><strong>게이트웨이의 구멍은 넘겨주는 쪽에 있었다.</strong> 키를 확인해도, 모르는 필드를 그대로 넘기면 모델 서버를 흔들 수 있다.</li>
+<li><strong><span class="nb">「덜</span> 바쁜 <span class="nb">쪽」은</span> 빠르기를 모른다.</strong> 한꺼번에 온 요청은 목록의 첫 서버로 몰렸다. 빠른 서버를 먼저 적는 것만으로 <span class="nb">84.5초가</span> <span class="nb">48.5초가</span> 됐다.</li>
+<li><strong>키는 프로그램마다, 사람은 웹 UI가 알려 준다.</strong> 사람 칸은 웹 UI 키 아래에서만 믿는다.</li>
+<li><strong>한도는 줄을 세우지 않고 거절한다.</strong> 429를 받은 쪽이 다시 보내야 한다.</li>
+<li><strong>무겁고 공지가 잦다.</strong> 디스크 590MB, 메모리 <span class="nb">0.6GB에</span> PostgreSQL이 따로 필요하다. 버전을 고정하고 보안 공지를 챙겨야 한다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 여러 사람이 같은 서버를 써도, API 키가 있는 사람만 쓰고 쓴 만큼 남습니다. 연재는 마지막 10단계에서 이 서버로 실제 일을 해 봅니다. 문서를 찾아 읽고 답하게 하거나, 모델을 조금 더 가르쳐 봅니다. 그 밖에 남은 일은 셋입니다.</p>
+<ul>
+<li><strong>늘 켜 두기:</strong> 게이트웨이와 PostgreSQL, 웹 UI, SearXNG는 지금 손으로 띄워 둔 상태입니다. 관리자 암호로 설치 스크립트를 실행해야 Mac mini가 다시 켜질 때 저절로 뜹니다. 그 전에 Mac mini가 다시 켜지면 웹 UI가 돌아오지 않습니다.</li>
+<li><strong>SSH 키로만 로그인:</strong> 스크립트는 준비해 두었고, 다른 사람이 이 네트워크에 들어오기 전에는 실행하지 않습니다.</li>
+<li><strong>HTTPS:</strong> 웹 UI와 게이트웨이는 평문 HTTP입니다. API 키도 같은 네트워크 안에서는 그대로 지나갑니다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-16"><li><time class="measured" datetime="2026-11-16T19:37+09:00"><span class="nb">19:37</span></time><span class="trail__what">MLX 서버 기록에서 묻는 곳 확인</span><code class="trail__got">웹 UI와 커밋 도구 둘</code></li><li><time class="measured" datetime="2026-11-16T19:40+09:00"><span class="nb">19:40</span></time><span class="trail__what">PostgreSQL 18과 LiteLLM <span class="nb">1.106.6</span> 설치</span><code class="trail__got">패키지는 11월 2일 이전 것만</code></li><li><time class="measured" datetime="2026-11-16T19:44+09:00"><span class="nb">19:44</span></time><span class="trail__what">게이트웨이 첫 시작</span><code class="trail__got">Prisma가 없어 멈춤</code></li><li><time class="measured" datetime="2026-11-16T19:45+09:00"><span class="nb">19:45</span></time><span class="trail__what">필요하면 다른 Claude에게 나눠 맡겨도 된다고 했다</span><code class="trail__got">검토를 새 맥락에</code></li><li><time class="measured" datetime="2026-11-16T19:53+09:00"><span class="nb">19:53</span></time><span class="trail__what">prisma generate를 손으로 돌리고 다시 시작</span><code class="trail__got">15초 만에 켜짐</code></li><li><time class="measured" datetime="2026-11-16T19:54+09:00"><span class="nb">19:54</span></time><span class="trail__what">API 키 3개를 만들고 시험</span><code class="trail__got">키 없으면 401, 다른 모델 403</code></li><li><time class="measured" datetime="2026-11-16T20:00+09:00"><span class="nb">20:00</span></time><span class="trail__what">서로 다른 긴 질문을 <span class="nb">1·2·4개</span> 동시에</span><code class="trail__got">4개면 Mac mini 99초, 노트북 <span class="nb">41.3초</span></code></li><li><time class="measured" datetime="2026-11-16T20:04+09:00"><span class="nb">20:04</span></time><span class="trail__what">auto로 4개</span><code class="trail__got">Mac mini 3개, <span class="nb">84.5초</span></code></li><li><time class="measured" datetime="2026-11-16T20:09+09:00"><span class="nb">20:09</span></time><span class="trail__what">노트북을 먼저 적고 다시</span><code class="trail__got">2개씩, <span class="nb">48.5초</span></code></li><li><time class="measured" datetime="2026-11-16T20:11+09:00"><span class="nb">20:11</span></time><span class="trail__what">답하지 않는 서버를 흉내 냄</span><code class="trail__got">목록에서 숨고 Mac mini가 답함</code></li><li><time class="measured" datetime="2026-11-16T20:13+09:00"><span class="nb">20:13</span></time><span class="trail__what">분당 2회 키로 세 번</span><code class="trail__got">셋째 429</code></li><li><time class="measured" datetime="2026-11-16T20:14+09:00"><span class="nb">20:14</span></time><span class="trail__what">동시 1개 키로 두 개를 한꺼번에</span><code class="trail__got">둘째 429</code></li><li><time class="measured" datetime="2026-11-16T20:16+09:00"><span class="nb">20:16</span></time><span class="trail__what">웹 UI 연결을 게이트웨이로</span><code class="trail__got">6초 만에 다시 뜸</code></li><li><time class="measured" datetime="2026-11-16T20:17+09:00"><span class="nb">20:17</span></time><span class="trail__what">MLX 서버를 Mac mini 안에서만 받게</span><code class="trail__got">8080 연결 안 됨</code></li><li><time class="measured" datetime="2026-11-16T20:18+09:00"><span class="nb">20:18</span></time><span class="trail__what">새 맥락의 Claude가 설정 검토</span><code class="trail__got">지적 9개</code></li><li><time class="measured" datetime="2026-11-16T20:20+09:00"><span class="nb">20:20</span></time><span class="trail__what">표준 밖 필드를 버리게 하고 시험용 서버로 확인</span><code class="trail__got">4개에서 0개</code></li><li><time class="measured" datetime="2026-11-16T20:21+09:00"><span class="nb">20:21</span></time><span class="trail__what">키마다 부를 수 있는 주소 제한</span><code class="trail__got"><span class="nb">/health</span> 403</code></li><li><time class="measured" datetime="2026-11-16T20:27+09:00"><span class="nb">20:27</span></time><span class="trail__what">10월 사고 공지를 보고 설치 폴더에서 흔적 찾기</span><code class="trail__got"><span class="nb">.pth</span> 파일 0개</code></li><li><time class="measured" datetime="2026-11-16T20:29+09:00"><span class="nb">20:29</span></time><span class="trail__what">실패하면 Mac mini로 넘기는지 시험</span><code class="trail__got"><span class="nb">0.9초</span> 만에 대신 답함</code></li><li><time class="measured" datetime="2026-11-16T20:38+09:00"><span class="nb">20:38</span></time><span class="trail__what">들어올 다른 사람이 아직 없어 SSH 설정은 두기로 했다</span><code class="trail__got">암호 로그인 그대로</code></li><li><time class="measured" datetime="2026-11-16T20:41+09:00"><span class="nb">20:41</span></time><span class="trail__what">4000번이 쓰이는 중에 LiteLLM을 하나 더 띄움</span><code class="trail__got">32274번에서 뜸</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/10-documents/" class="pager__next"><small>다음 글</small><strong>10단계 연재 글로 답하게 하기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#지금까지는">지금까지는</a></li><li><a href="#몰리면-얼마나-느려지나">몰리면 얼마나 느려지나</a></li><li><a href="#게이트웨이-고르기">게이트웨이 고르기</a></li><li><a href="#세우기">세우기</a></li><li><a href="#api-키-나눠-주기">API 키 나눠 주기</a></li><li><a href="#막히는지-보기">막히는지 보기</a></li><li><a href="#누가-얼마나-쓰나">누가 얼마나 쓰나</a></li><li><a href="#덜-바쁜-쪽으로-보내기">덜 바쁜 쪽으로 보내기</a></li><li><a href="#모델-서버-막기">모델 서버 막기</a></li><li><a href="#다른-claude의-검토">다른 Claude의 검토</a></li><li><a href="#원격-접속">원격 접속</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

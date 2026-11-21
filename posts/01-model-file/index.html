@@ -1,0 +1,386 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>모델은 파일 하나 | Cyborg</title><meta name="description" content="로컬 LLM 연재 1단계. 서버와 인텔 노트북에서 GPU가 쓸 수 있는 메모리 한도를 쟀습니다. 그 안에 들어가게 압축된 Qwen 3.8 27B와 Gemma 4 26B-A4B 모델 파일을 받아 속을 열어 본 기록입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/01-model-file/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="모델은 파일 하나 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 1단계. 서버와 인텔 노트북에서 GPU가 쓸 수 있는 메모리 한도를 쟀습니다. 그 안에 들어가게 압축된 Qwen 3.8 27B와 Gemma 4 26B-A4B 모델 파일을 받아 속을 열어 본 기록입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/01-model-file/"><meta property="article:published_time" content="2026-11-12T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"모델은 파일 하나","description":"로컬 LLM 연재 1단계. 서버와 인텔 노트북에서 GPU가 쓸 수 있는 메모리 한도를 쟀습니다. 그 안에 들어가게 압축된 Qwen 3.8 27B와 Gemma 4 26B-A4B 모델 파일을 받아 속을 열어 본 기록입니다.","datePublished":"2026-11-12T00:00:00.000Z","dateModified":"2026-11-13T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/01-model-file/","mainEntityOfPage":"https://teddybears56.github.io/posts/01-model-file/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>1단계</li></ol></nav><h1 id="post-title">모델은 파일 하나</h1><p class="post__lead">LLM 모델은 숫자가 가득 든 파일 하나라서, 0단계에서 준비한 서버의 메모리 24GB 안에 들어가야 돌아갑니다. 이번 단계에서는 그중 GPU가 쓸 수 있는 몫을 재고, 그 안에 들어가게 압축된 파일을 골라 받아 속을 열어 봅니다. 다음 날에는 비교하려고 인텔 노트북에서도 같은 순서를 밟고 두 번째 모델을 고릅니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-12"><span class="nb">2026-11-12</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-13"><span class="nb">2026-11-13</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>서버 GPU가 쓸 수 있는 메모리를 잰다.</strong> 모델이 들어갈 자리의 크기부터 알아야 한다.</li>
+<li><strong>Qwen <span class="nb">3.8</span> 27B의 압축 단계를 고른다.</strong> 같은 모델도 압축에 따라 크기가 다르다.</li>
+<li><strong>파일을 받고 지문을 맞춘다.</strong> 받는 중에 깨지거나 바뀌지 않았는지 확인한다.</li>
+<li><strong>파일 속을 열어 본다.</strong> 층 구조를 알아야 대화를 기억할 자리를 계산할 수 있다.</li>
+<li><strong>다음 날 노트북의 공유 GPU 메모리를 잰다.</strong> 같은 모델이 다른 기계에서 어떻게 도는지 보려고.</li>
+<li><strong>노트북에 맞는 두 번째 모델을 골라 옮긴다.</strong> 기계끼리, 그리고 모델끼리 비교하려고.</li>
+</ol>
+<h2 id="고른-모델">고른 모델</h2>
+<p><strong>Qwen <span class="nb">3.8</span> 27B</strong>입니다. 2026년 8월에 나온 모델이고, 숫자가 277억 개 들어 있습니다. 라이선스가 Apache <span class="nb">2.0이라</span> 자유롭게 쓸 수 있습니다. 이 서버에 들어가는 모델 가운데 가장 똑똑한 쪽을 골랐습니다. 대신 메모리가 빠듯하고 느릴 것은 감수했습니다.</p>
+<h2 id="서버가-모델에-내줄-수-있는-메모리">서버가 모델에 내줄 수 있는 메모리</h2>
+<p>이 서버는 CPU와 GPU가 메모리 24GB를 함께 씁니다. 다만 그중 GPU가 쓸 수 있는 몫에는 macOS가 정한 한도가 따로 있습니다. 그래서 그 숫자부터 서버에게 직접 물어봤습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span class="measured"><span class="nb">gpumem.swift</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="swift"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">import</span><span style="color:var(--astro-code-token-function)"> Metal</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">let</span><span style="color:var(--astro-code-foreground)"> d </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-function)"> MTLCreateSystemDefaultDevice</span><span style="color:var(--astro-code-token-punctuation)">()</span><span style="color:var(--astro-code-token-keyword)">!</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">print</span><span style="color:var(--astro-code-token-punctuation)">(</span><span style="color:var(--astro-code-token-string-expression)">&quot;recommendedMaxWorkingSetSize:&quot;</span><span style="color:var(--astro-code-token-function)">, d.recommendedMaxWorkingSetSize</span><span style="color:var(--astro-code-token-punctuation)">)</span></span></code></pre></figure>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> swift</span><span style="color:var(--astro-code-token-string)"> gpumem.swift</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">recommendedMaxWorkingSetSize:</span><span style="color:var(--astro-code-token-constant)"> 19069665280</span></span></code></pre></figure>
+<p><strong><span class="nb">19.07GB</span></strong>입니다. 모델 파일과 대화를 기억할 자리가 모두 이 안에 들어가야 합니다.</p>
+<h2 id="같은-모델-압축-단계별-크기">같은 모델, 압축 단계별 크기</h2>
+<p><span class="nb">19.07GB</span> 안에 넣으려면 모델을 줄여야 합니다. 모델 크기는 거의 <strong>숫자 개수 × 숫자 하나에 쓰는 비트 ÷ 8</strong>입니다. 숫자를 덜 정밀하게 저장할수록 파일이 작아집니다. 이렇게 줄이는 일을 양자화라고 합니다. 대신 답의 품질이 조금씩 떨어집니다. 사진을 jpg로 저장할 때 화질을 낮추는 것과 같습니다. 아래는 같은 Qwen <span class="nb">3.8</span> 27B가 압축 단계별로 올라와 있는 실제 파일 크기입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>압축</th>
+<th>크기</th>
+<th>숫자 하나에 쓰는 비트</th>
+<th><span class="nb">19.07GB</span> 안에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BF16 <span class="nb">(원본)</span></td>
+<td><code><span class="nb">54.66</span> GB</code></td>
+<td>16</td>
+<td>안 들어감</td>
+</tr>
+<tr>
+<td><span class="nb">Q8_0</span></td>
+<td><code><span class="nb">29.05</span> GB</code></td>
+<td>약 <span class="nb">8.4</span></td>
+<td>안 들어감</td>
+</tr>
+<tr>
+<td><span class="nb">Q6_K</span></td>
+<td><code><span class="nb">21.98</span> GB</code></td>
+<td>약 <span class="nb">6.3</span></td>
+<td>안 들어감</td>
+</tr>
+<tr>
+<td><span class="nb">Q5_K_M</span></td>
+<td><code><span class="nb">19.87</span> GB</code></td>
+<td>약 <span class="nb">5.7</span></td>
+<td>안 들어감</td>
+</tr>
+<tr>
+<td><span class="nb">Q4_K_M</span></td>
+<td><code><span class="nb">16.56</span> GB</code></td>
+<td>약 <span class="nb">4.8</span></td>
+<td>들어감, 여유 <span class="nb">2.5GB</span></td>
+</tr>
+<tr>
+<td><span class="nb">IQ4_XS</span></td>
+<td><code><span class="nb">14.35</span> GB</code></td>
+<td>약 <span class="nb">4.1</span></td>
+<td>들어감, 여유 <span class="nb">4.7GB</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>품질을 조금이라도 더 지키려고 <strong><span class="nb">Q4_K_M</span></strong>을 골랐습니다. 대신 대화를 기억할 자리가 빠듯해졌습니다.</p>
+<h2 id="받고-지문-맞추기">받고, 지문 맞추기</h2>
+<p><span class="nb">16.56GB짜리</span> 파일 하나를 받았습니다. 받다 끊겨도 이어 받을 수 있게 <code><span class="nb">-C</span> -</code>를 붙였습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> curl</span><span style="color:var(--astro-code-token-string)"> -L</span><span style="color:var(--astro-code-token-string)"> -C</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> -o</span><span style="color:var(--astro-code-token-string)"> Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">    https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q4_K_M.gguf</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> shasum</span><span style="color:var(--astro-code-token-string)"> -a</span><span style="color:var(--astro-code-token-constant)"> 256</span><span style="color:var(--astro-code-token-string)"> Qwen3.8-27B-UD-Q4_K_M.gguf</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">1bce504dfecd84153666928a41d8a66706f0158d3a317bc5196b72819d7dc529</span></span></code></pre></figure>
+<p>마지막 줄이 파일의 지문입니다. 올린 사람이 공개한 지문과 한 글자도 달라서는 안 됩니다. 그래야 받는 중에 깨지거나 바뀌지 않은 파일입니다. 이번에는 똑같았습니다.</p>
+<ol class="trail" aria-label="작업 기록, 2026-11-12"><li><time class="measured" datetime="2026-11-12T21:04+09:00"><span class="nb">21:04</span></time><span class="trail__what">서버의 GPU 메모리 한도를 읽었다</span><code class="trail__got"><span class="nb">19.07</span> GB</code></li><li><time class="measured" datetime="2026-11-12T21:07+09:00"><span class="nb">21:07</span></time><span class="trail__what">모델 파일 받기를 시작했다</span><code class="trail__got"><span class="nb">16.56</span> GB</code></li><li><time class="measured" datetime="2026-11-12T21:08+09:00"><span class="nb">21:08</span></time><span class="trail__what">파일을 읽을 도구 uv를 깔았다</span><code class="trail__got">uv <span class="nb">0.13.7</span></code></li><li><time class="measured" datetime="2026-11-12T21:08+09:00"><span class="nb">21:08</span></time><span class="trail__what">다 받기 전에 파일 맨 앞을 읽었다</span><code class="trail__got">GGUF v3</code></li><li><time class="measured" datetime="2026-11-12T21:16+09:00"><span class="nb">21:16</span></time><span class="trail__what">9분 만에 받기가 끝났다</span><code class="trail__got">29 <span class="nb">MB/s</span></code></li><li><time class="measured" datetime="2026-11-12T21:16+09:00"><span class="nb">21:16</span></time><span class="trail__what">지문을 맞췄다</span><code class="trail__got">일치</code></li><li><time class="measured" datetime="2026-11-12T21:17+09:00"><span class="nb">21:17</span></time><span class="trail__what">설명서와 숫자 덩어리를 셌다</span><code class="trail__got">866개</code></li></ol>
+<h2 id="파일-속-들여다보기">파일 속 들여다보기</h2>
+<p>받는 데 9분이 걸렸습니다. 그동안 기다리지 않고 파일 속을 들여다봤습니다. GGUF 파일은 맨 앞에 설명서가 있고, 그 뒤에 숫자 덩어리가 이어집니다. 그래서 다 받기 전에도 앞부분은 읽을 수 있습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> xxd</span><span style="color:var(--astro-code-token-string)"> -l</span><span style="color:var(--astro-code-token-constant)"> 24</span><span style="color:var(--astro-code-token-string)"> Qwen3.8-27B-UD-Q4_K_M.gguf</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">00000000:</span><span style="color:var(--astro-code-token-constant)"> 4747</span><span style="color:var(--astro-code-token-constant)"> 5546</span><span style="color:var(--astro-code-token-constant)"> 0300</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-constant)"> 6203</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-string)">  GGUF....b.......</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">00000010:</span><span style="color:var(--astro-code-token-constant)"> 3200</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-constant)"> 0000</span><span style="color:var(--astro-code-token-string)">                      2.......</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>바이트</th>
+<th>값</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">1~4</span></td>
+<td><code>GGUF</code></td>
+<td><span class="nb">llama.cpp</span> 계열 엔진이 읽는 모델 파일이라는 표시</td>
+</tr>
+<tr>
+<td><span class="nb">5~8</span></td>
+<td><code>3</code></td>
+<td>파일 형식의 판 번호</td>
+</tr>
+<tr>
+<td><span class="nb">9~16</span></td>
+<td><code>866</code></td>
+<td>숫자 <span class="nb">덩어리(텐서)</span> 개수</td>
+</tr>
+<tr>
+<td><span class="nb">17~24</span></td>
+<td><code>50</code></td>
+<td>설명서 항목 개수</td>
+</tr>
+</tbody>
+</table></div>
+<p>설명서 전체는 <code><span class="nb">gguf-dump</span></code>로 읽었습니다. 눈에 띄는 항목만 옮깁니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uvx</span><span style="color:var(--astro-code-token-string)"> --python</span><span style="color:var(--astro-code-token-constant)"> 3.12</span><span style="color:var(--astro-code-token-string)"> --from</span><span style="color:var(--astro-code-token-string)"> gguf</span><span style="color:var(--astro-code-token-string)"> gguf-dump</span><span style="color:var(--astro-code-token-string)"> --no-tensors</span><span style="color:var(--astro-code-token-string)"> Qwen3.8-27B-UD-Q4_K_M.gguf</span></span></code></pre></figure>
+<p>아래 표의 토큰은 모델이 글을 끊어 읽는 단위입니다. 단어 하나나 그 조각쯤 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>block_count</code></td>
+<td><code>65</code></td>
+<td>층 65개, 그중 1개는 다음 단어를 미리 짐작하는 보조 층</td>
+</tr>
+<tr>
+<td><code>context_length</code></td>
+<td><code>262144</code></td>
+<td>한 번에 읽을 수 있는 글 길이, 약 26만 토큰</td>
+</tr>
+<tr>
+<td><code>full_attention_interval</code></td>
+<td><code>4</code></td>
+<td>4층마다 1층만 앞의 글 전체를 다시 본다</td>
+</tr>
+<tr>
+<td><code>eos_token_id</code></td>
+<td><code>248046</code></td>
+<td>단어장이 약 24만 8천 개라 한글도 적은 토큰으로 끊긴다</td>
+</tr>
+<tr>
+<td><code><span class="nb">file_type</span></code></td>
+<td><code>15</code></td>
+<td>압축 방식 <span class="nb">Q4_K_M</span></td>
+</tr>
+<tr>
+<td><code>sampling.temp</code></td>
+<td><code><span class="nb">1.0</span></code></td>
+<td>만든 쪽이 권하는 답의 무작위성</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="4비트인데-평균-485비트">4비트인데 평균 <span class="nb">4.85비트</span></h2>
+<p>이름은 4비트입니다. 그런데 숫자 덩어리 866개를 하나씩 세어 보니, 모두 같은 비트로 줄이지는 않았습니다. 중요한 곳은 비트를 더 쓰고, 덜 중요한 곳은 더 줄였습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>숫자 개수</th>
+<th>크기</th>
+<th>숫자 하나에 쓴 비트</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>생각하는 층 <span class="nb">(FFN)</span></td>
+<td><code><span class="nb">17.38B</span></code></td>
+<td><code><span class="nb">10.16</span> GB</code></td>
+<td><code><span class="nb">4.68</span></code></td>
+</tr>
+<tr>
+<td>전체를 다시 보는 층</td>
+<td><code><span class="nb">4.30B</span></code></td>
+<td><code><span class="nb">2.65</span> GB</code></td>
+<td><code><span class="nb">4.93</span></code></td>
+</tr>
+<tr>
+<td>앞 글을 요약해 들고 가는 층</td>
+<td><code><span class="nb">3.05B</span></code></td>
+<td><code><span class="nb">1.94</span> GB</code></td>
+<td><code><span class="nb">5.10</span></code></td>
+</tr>
+<tr>
+<td>마지막 출력층</td>
+<td><code><span class="nb">1.27B</span></code></td>
+<td><code><span class="nb">1.04</span> GB</code></td>
+<td><code><span class="nb">6.56</span></code></td>
+</tr>
+<tr>
+<td>단어 입력층</td>
+<td><code><span class="nb">1.27B</span></code></td>
+<td><code><span class="nb">0.72</span> GB</code></td>
+<td><code><span class="nb">4.50</span></code></td>
+</tr>
+</tbody>
+</table></div>
+<p>전체는 숫자 273억 개에 <span class="nb">16.55GB이고,</span> <strong>평균 <span class="nb">4.85비트</span></strong>입니다. 어디가 중요한지는 압축한 쪽이 정했습니다. 글 조각 <span class="nb">1,251개를</span> 모델에 넣어 보며 골랐다고 설명서에 적혀 있습니다. 설명서의 <code><span class="nb">imatrix.chunks_count</span> = 1251</code>이 그 기록입니다.</p>
+<h2 id="대화를-기억할-자리">대화를 기억할 자리</h2>
+<p>앞에서 <span class="nb">Q4_K_M을</span> 고르며 대화를 기억할 자리가 빠듯해졌다고 했습니다. 설명서의 층 구조로 그 자리를 계산해 봤습니다. 대화가 길어질수록 앞의 글을 기억하는 데 메모리가 더 듭니다. 이 모델은 65층 가운데 16층만 글 전체를 다시 봅니다. 그래서 그 16층만 계산하면 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>계산</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>토큰 하나당 기억</td>
+<td>16층 × 2 × 4 × 256 × 2바이트 = <code>64 KB</code></td>
+</tr>
+<tr>
+<td>남는 자리</td>
+<td><span class="nb">19.07GB</span> − <span class="nb">16.56GB</span> = <code><span class="nb">2.51</span> GB</code></td>
+</tr>
+<tr>
+<td>기억할 수 있는 길이</td>
+<td>계산 공간을 빼면 약 <span class="nb">2~3만</span> 토큰으로 예상</td>
+</tr>
+</tbody>
+</table></div>
+<p>설명서에는 26만 토큰까지 읽는다고 적혀 있습니다. 하지만 이 서버에서는 메모리 때문에 그 10분의 1 정도가 한계일 것 같습니다. 정확한 값은 2단계에서 엔진을 돌리며 잽니다.</p>
+<h2 id="두-번째-기계-인텔-노트북">두 번째 기계, 인텔 노트북</h2>
+<p>같은 모델이 다른 기계에서는 어떻게 도는지 보고 싶었습니다. 그래서 다음 날 인텔 노트북에서도 같은 순서를 밟았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>서버</th>
+<th>노트북</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>칩</td>
+<td>Apple M4</td>
+<td>Intel Core Ultra 7 258V</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>M4 내장 GPU</td>
+<td>Intel Arc 140V 내장 GPU</td>
+</tr>
+<tr>
+<td>메모리</td>
+<td><code>24 GB</code></td>
+<td><code>32 GB</code></td>
+</tr>
+<tr>
+<td>메모리 읽는 속도</td>
+<td>초당 약 <code>120 GB</code></td>
+<td>초당 약 <code>136 GB</code></td>
+</tr>
+<tr>
+<td>운영체제</td>
+<td>macOS <span class="nb">27.0.1</span></td>
+<td>Windows 11</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="공유-gpu-메모리">공유 GPU 메모리</h2>
+<p>서버에서처럼 GPU가 쓸 수 있는 메모리부터 쟀습니다. 노트북 GPU는 CPU 칩 안에 함께 들어 있는 내장 GPU입니다. 그래서 자기 메모리가 거의 없고, 노트북 메모리 32GB에서 빌려 씁니다. 윈도우는 이렇게 빌릴 수 있는 몫을 <strong>공유 GPU 메모리</strong>라고 부릅니다. 서버도 구조가 같습니다. 서버에서는 macOS가 24GB 중 <span class="nb">19.07GB를</span> 내주었습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>명령 프롬프트, 노트북</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> llama-cli.exe --list-devices</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">Vulkan0:</span><span style="color:var(--astro-code-token-string)"> Intel</span><span style="color:var(--astro-code-foreground)">(</span><span style="color:var(--astro-code-token-function)">R</span><span style="color:var(--astro-code-foreground)">) </span><span style="color:var(--astro-code-token-string)">Arc</span><span style="color:var(--astro-code-foreground)">(</span><span style="color:var(--astro-code-token-function)">TM</span><span style="color:var(--astro-code-foreground)">) </span><span style="color:var(--astro-code-token-string)">140V</span><span style="color:var(--astro-code-token-string)"> GPU</span><span style="color:var(--astro-code-foreground)"> (16GB) (</span><span style="color:var(--astro-code-token-function)">18392</span><span style="color:var(--astro-code-token-string)"> MiB,</span><span style="color:var(--astro-code-token-constant)"> 17623</span><span style="color:var(--astro-code-token-string)"> MiB</span><span style="color:var(--astro-code-token-string)"> free</span><span style="color:var(--astro-code-foreground)">)</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> dxdiag /t dx.txt</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">Dedicated</span><span style="color:var(--astro-code-token-string)"> Memory:</span><span style="color:var(--astro-code-token-constant)"> 128</span><span style="color:var(--astro-code-token-string)"> MB</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">   Shared</span><span style="color:var(--astro-code-token-string)"> Memory:</span><span style="color:var(--astro-code-token-constant)"> 18392</span><span style="color:var(--astro-code-token-string)"> MB</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>표시</th>
+<th>값</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU 이름의 <code>16GB</code></td>
+<td><code>16 GB</code></td>
+<td>인텔이 붙인 이름표. GPU 전용 메모리가 아니라, 메모리 32GB 제품이라는 뜻</td>
+</tr>
+<tr>
+<td>공유 GPU 메모리</td>
+<td><code><span class="nb">18,392</span> MB</code></td>
+<td>윈도우가 GPU에 허용한 최대치</td>
+</tr>
+<tr>
+<td>전용 메모리</td>
+<td><code>128 MB</code></td>
+<td>GPU 혼자 쓰는 몫, 사실상 없음</td>
+</tr>
+</tbody>
+</table></div>
+<p>16GB와 18GB는 따로 더해지는 두 칸이 아닙니다. 같은 몫을 두 가지로 적었을 뿐입니다. 그리고 이 몫은 윈도우 화면 표시와 화면 공유 프로그램도 함께 빌려 씁니다.</p>
+<p>이 몫은 고정된 값도 아닙니다. 18GB는 처음에 메모리의 <span class="nb">57%로</span> 정해진 값입니다. 인텔 그래픽 설정 앱에서 늘릴 수 있습니다. 실제로 이 안에 모델을 얼마나 올릴 수 있었는지는 2단계에 적었습니다. 몫을 <span class="nb">23.9GB로</span> 늘리자 무엇이 달라졌는지도 거기에 있습니다.</p>
+<h2 id="노트북에-맞는-모델-고르기">노트북에 맞는 모델 고르기</h2>
+<p>남는 몫 <span class="nb">17.6GB를</span> 기준으로 후보를 다시 골랐습니다. 표의 속도는 이론상 최고치입니다. 메모리 읽는 속도 ÷ 토큰마다 읽는 양으로 냈고, 이 계산은 2단계에서 다룹니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>후보</th>
+<th>크기</th>
+<th>노트북에</th>
+<th>이론상 최고 속도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen <span class="nb">3.8</span> 27B <span class="nb">Q4_K_M</span></td>
+<td><code><span class="nb">16.56</span> GB</code></td>
+<td>빠듯함, 서버와 같은 파일</td>
+<td>초당 약 <code>8</code> 토큰</td>
+</tr>
+<tr>
+<td>Qwen <span class="nb">3.8</span> 27B <span class="nb">IQ4_XS</span></td>
+<td><code><span class="nb">14.35</span> GB</code></td>
+<td>들어감</td>
+<td>초당 약 <code>9</code> 토큰</td>
+</tr>
+<tr>
+<td>Gemma 4 <span class="nb">26B-A4B</span> <span class="nb">IQ4_XS</span></td>
+<td><code><span class="nb">13.60</span> GB</code></td>
+<td>들어감</td>
+<td>초당 약 <code>60</code> 토큰</td>
+</tr>
+<tr>
+<td>Gemma 4 12B</td>
+<td><code><span class="nb">6.98</span> GB</code></td>
+<td>넉넉함</td>
+<td>초당 약 <code>19</code> 토큰</td>
+</tr>
+</tbody>
+</table></div>
+<p>Gemma 4 <span class="nb">26B-A4B는</span> <strong>전문가 <span class="nb">혼합(MoE)</span></strong> 모델입니다. 숫자는 258억 개지만, 한 단어를 쓸 때는 그중 40억 개 정도만 꺼내 씁니다. 병원에 빗대면 이렇습니다. 의사는 수십 명인데, 환자마다 그 분야 전문의 몇 명만 진료합니다. 머릿수가 많아 똑똑하고, 한 번에 일하는 사람이 적어 빠릅니다.</p>
+<p>두 개를 골랐습니다. 서버와 <strong>같은 Qwen 파일</strong>로는 기계끼리 공정하게 비교합니다. 두 기계에 모두 들어가는 <strong>Gemma 4 <span class="nb">26B-A4B</span></strong>로는 모델끼리 비교합니다.</p>
+<h2 id="두-번째-모델-받기-노트북으로-옮기기">두 번째 모델 받기, 노트북으로 옮기기</h2>
+<p>Gemma는 서버에서 한 번 받았습니다. 그리고 두 모델 모두 같은 네트워크 안에서 노트북으로 옮겼습니다. 인터넷으로 받을 때는 초당 <span class="nb">20~30MB였는데,</span> 네트워크 안에서는 초당 87MB가 나왔습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 내 컴퓨터</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> scp</span><span style="color:var(--astro-code-token-string)"> -3</span><span style="color:var(--astro-code-token-string)"> server:models/Qwen3.8-27B-UD-Q4_K_M.gguf</span><span style="color:var(--astro-code-token-string)"> laptop:llm/models/</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> scp</span><span style="color:var(--astro-code-token-string)"> -3</span><span style="color:var(--astro-code-token-string)"> server:models/gemma-4-26B-A4B-it-UD-IQ4_XS.gguf</span><span style="color:var(--astro-code-token-string)"> laptop:llm/models/</span></span></code></pre></figure>
+<p><code><span class="nb">-3</span></code>은 두 기계 사이의 복사를 내 컴퓨터가 중간에서 이어 주라는 뜻입니다. 옮긴 뒤 노트북에서 지문을 다시 쟀습니다. 두 파일 모두 원본과 같았습니다.</p>
+<ol class="trail" aria-label="작업 기록, 2026-11-13"><li><time class="measured" datetime="2026-11-13T10:51+09:00"><span class="nb">10:51</span></time><span class="trail__what">노트북 GPU가 빌려 쓸 수 있는 메모리를 읽었다</span><code class="trail__got"><span class="nb">18,392</span> MB</code></li><li><time class="measured" datetime="2026-11-13T11:09+09:00"><span class="nb">11:09</span></time><span class="trail__what">서버의 Qwen 파일을 노트북으로 옮겼다</span><code class="trail__got">3분 41초</code></li><li><time class="measured" datetime="2026-11-13T11:10+09:00"><span class="nb">11:10</span></time><span class="trail__what">노트북에서 지문을 맞췄다</span><code class="trail__got">일치</code></li><li><time class="measured" datetime="2026-11-13T11:34+09:00"><span class="nb">11:34</span></time><span class="trail__what">서버에 Gemma 파일을 받았다</span><code class="trail__got"><span class="nb">13.60</span> GB</code></li><li><time class="measured" datetime="2026-11-13T11:38+09:00"><span class="nb">11:38</span></time><span class="trail__what">Gemma를 노트북으로 옮기고 지문을 맞췄다</span><code class="trail__got">일치</code></li></ol>
+<aside class="note" aria-labelledby="note-r09iyr"><h3 id="note-r09iyr">참고</h3><p>받은 파일은 서버의 <code><span class="nb">~/models</span></code>, 노트북의 <code><span class="nb">llm\models</span></code> 폴더에 있습니다. 원본인 BF16 파일은 <span class="nb">54.66GB라</span> 받지 않았습니다.</p></aside>
+<h2 id="배운-것">배운 것</h2>
+<ul>
+<li>모델 크기는 숫자 개수 × 비트다. 같은 모델도 압축에 따라 55GB에서 14GB까지 달라진다.</li>
+<li>메모리는 모델 파일만이 아니라 대화를 기억할 자리까지 따져야 한다.</li>
+<li><span class="nb">「4비트」는</span> 평균에 가까운 이름이다. 중요한 곳에는 비트를 더 쓴다.</li>
+<li>내장 GPU는 컴퓨터 메모리를 빌려 쓰고, 그 몫을 화면 표시와 나눠 쓴다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 서버와 노트북에 모델 파일이 있습니다. 하지만 파일은 숫자를 담고 있을 뿐, 혼자서는 답하지 않습니다. 그래서 2단계에서는 엔진 <span class="nb">llama.cpp를</span> 직접 빌드해 첫 질문을 하고, 예상만 해 둔 대화를 기억할 자리를 실제로 잽니다.</p></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/02-engine/" class="pager__next"><small>다음 글</small><strong>2단계 엔진 직접 돌리기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#고른-모델">고른 모델</a></li><li><a href="#서버가-모델에-내줄-수-있는-메모리">서버가 모델에 내줄 수 있는 메모리</a></li><li><a href="#같은-모델-압축-단계별-크기">같은 모델, 압축 단계별 크기</a></li><li><a href="#받고-지문-맞추기">받고, 지문 맞추기</a></li><li><a href="#파일-속-들여다보기">파일 속 들여다보기</a></li><li><a href="#4비트인데-평균-485비트">4비트인데 평균 <span class="nb">4.85비트</span></a></li><li><a href="#대화를-기억할-자리">대화를 기억할 자리</a></li><li><a href="#두-번째-기계-인텔-노트북">두 번째 기계, 인텔 노트북</a></li><li><a href="#공유-gpu-메모리">공유 GPU 메모리</a></li><li><a href="#노트북에-맞는-모델-고르기">노트북에 맞는 모델 고르기</a></li><li><a href="#두-번째-모델-받기-노트북으로-옮기기">두 번째 모델 받기, 노트북으로 옮기기</a></li><li><a href="#배운-것">배운 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

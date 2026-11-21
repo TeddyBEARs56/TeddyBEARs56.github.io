@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>국산 LLM에게 글 조각을 찾아 붙여 주고 물어보니 | Cyborg</title><meta name="description" content="국산 LLM 견주기 4편. 노트북의 Ollama에서 국산 모델 넷과 해외 모델 둘에게 지난 연재 10단계의 시험 문제 20개를 물었습니다. 문서 없이는 끝까지 답한 다섯 모델이 답할 수 있는 18개 가운데 0\~2개만 맞혔고, 웹 UI가 찾아 줄 글 조각 3개를 붙이자 EXAONE 4.5, Mi:dm 2.0, Gemma 4가 17개를 맞혔습니다. 글에 없는 질문 2개에는 여섯 모델 모두 없다고 답했습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/korean-llm-04-document-search/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="국산 LLM에게 글 조각을 찾아 붙여 주고 물어보니 | Cyborg"><meta property="og:description" content="국산 LLM 견주기 4편. 노트북의 Ollama에서 국산 모델 넷과 해외 모델 둘에게 지난 연재 10단계의 시험 문제 20개를 물었습니다. 문서 없이는 끝까지 답한 다섯 모델이 답할 수 있는 18개 가운데 0\~2개만 맞혔고, 웹 UI가 찾아 줄 글 조각 3개를 붙이자 EXAONE 4.5, Mi:dm 2.0, Gemma 4가 17개를 맞혔습니다. 글에 없는 질문 2개에는 여섯 모델 모두 없다고 답했습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/korean-llm-04-document-search/"><meta property="article:published_time" content="2026-11-20T16:05:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"국산 LLM에게 글 조각을 찾아 붙여 주고 물어보니","description":"국산 LLM 견주기 4편. 노트북의 Ollama에서 국산 모델 넷과 해외 모델 둘에게 지난 연재 10단계의 시험 문제 20개를 물었습니다. 문서 없이는 끝까지 답한 다섯 모델이 답할 수 있는 18개 가운데 0\\~2개만 맞혔고, 웹 UI가 찾아 줄 글 조각 3개를 붙이자 EXAONE 4.5, Mi:dm 2.0, Gemma 4가 17개를 맞혔습니다. 글에 없는 질문 2개에는 여섯 모델 모두 없다고 답했습니다.","datePublished":"2026-11-20T16:05:00.000Z","dateModified":"2026-11-20T16:05:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/korean-llm-04-document-search/","mainEntityOfPage":"https://teddybears56.github.io/posts/korean-llm-04-document-search/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-korean-llm">연재</a></li><li>4편</li></ol></nav><h1 id="post-title">국산 LLM에게 글 조각을 찾아 붙여 주고 물어보니</h1><p class="post__lead">3편에서는 국산 모델에게 요약과 커밋 메시지를 맡겼습니다. 이번에는 지난 연재 10단계의 시험을 그대로 다시 봅니다. 이 블로그의 글에 대한 질문을, 문서 없이 한 번, 웹 UI가 찾아 줄 글 조각을 붙여 한 번 물었습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-20"><span class="nb">2026-11-20</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>지난 연재 10단계의 시험 문제를 그대로 쓴다.</strong> 연재 글에서 답이 분명한 질문 18개와, 글에 답이 없는 질문 2개다.</li>
+<li><strong>두 번 묻는다.</strong> 문서 없이 한 번, 웹 UI의 문서 검색이 찾아 줄 글 조각 3개를 붙여 한 번이다.</li>
+<li><strong>모델 이름을 가리고 채점한다.</strong> 모델마다 <span class="nb">A~F</span> 글자 하나를 정해 이름을 가리고, 이 시험을 짜지 않은 새 대화의 Claude가 채점했다.</li>
+</ol>
+<h2 id="시험-방법">시험 방법</h2>
+<p>3편과 같은 <span class="nb">노트북(Arc</span> 140V 내장 GPU, 메모리 <span class="nb">32GB)의</span> Ollama <span class="nb">0.40.16에서,</span> 같은 모델 여섯으로 돌렸습니다. 국산은 <span class="nb">Mi:dm</span> <span class="nb">2.0</span> <span class="nb">Base(KT),</span> <span class="nb">Kanana-2</span> <span class="nb">30B(카카오),</span> EXAONE <span class="nb">4.5(LG),</span> <span class="nb">Tri-21B-Think(트릴리온랩스)이고,</span> 해외는 <span class="nb">Qwen3.6</span> <span class="nb">35B(알리바바),</span> Gemma 4 <span class="nb">26B(구글)입니다.</span> 요청은 Mac mini의 시험 스크립트가 같은 네트워크로 보냈습니다.</p>
+<ul>
+<li><strong>글 조각:</strong> 10단계에서 웹 UI의 지식에 넣은 연재 글 10편, 조각 170개를 그대로 썼다. 10단계에서 고른 임베딩 모델 <span class="nb">bge-m3로</span> 질문을 벡터로 바꾸고, 웹 UI 설정대로 가장 가까운 조각 3개를 골랐다.</li>
+<li><strong>붙이는 모양:</strong> 웹 UI가 모델에게 보내는 모양을 그대로 따랐다. 웹 UI의 문서 검색 지시문 틀에 조각을 넣고, 그 뒤에 질문을 붙여 한 메시지로 보냈다.</li>
+<li><strong>설정:</strong> 온도 0, 기억할 글 길이 <span class="nb">16,384토큰,</span> 답은 400토큰까지다. 생각은 끌 수 있는 모델이면 껐다.</li>
+<li><strong><span class="nb">Tri-21B-Think:</span></strong> 생각을 끌 수 없어 3편처럼 답 한도를 <span class="nb">4,096토큰으로</span> 늘리고, 마지막 <code><span class="nb">&lt;/think&gt;</span></code> 뒤만 답으로 쳤다. 문서 없이는 첫 질문에서 596초 동안 <span class="nb">4,096토큰을</span> 다 쓰고도 답을 내지 못해, 조각 3개 조건만 돌렸다.</li>
+</ul>
+<figure class="code"><figcaption class="code__bar"><span>웹 UI의 문서 검색 지시문 틀, 앞뒤만 옮김</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>### Task:</span></span>
+<span class="line"><span>Respond to the user query using the provided context, incorporating inline citations in the format [id] **only when the &lt;source&gt; tag includes an explicit id attribute** (e.g., &lt;source id=&quot;1&quot;&gt;).</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### Guidelines:</span></span>
+<span class="line"><span>- If you don&#39;t know the answer, clearly state that.</span></span>
+<span class="line"><span>...</span></span>
+<span class="line"><span>- If the answer isn&#39;t present in the context but you possess the knowledge, explain this to the user and provide the answer using your own understanding.</span></span>
+<span class="line"><span>...</span></span>
+<span class="line"><span>&lt;context&gt;</span></span>
+<span class="line"><span>&lt;source id=&quot;1&quot; name=&quot;(글 파일 이름)&quot;&gt;(조각)&lt;/source&gt;</span></span>
+<span class="line"><span>...</span></span>
+<span class="line"><span>&lt;/context&gt;</span></span>
+<span class="line"><span>(질문)</span></span></code></pre></figure>
+<p>지시문 틀은 조각에 답이 없으면 모델이 아는 대로 답해도 된다고 합니다. 다만 그때는 조각에 없다는 것도 밝히게 합니다. 같은 글에서 나온 조각은 같은 <span class="nb">번호(id)를</span> 받습니다.</p>
+<p>채점 기준은 이렇습니다.</p>
+<ul>
+<li><strong>답이 있는 18개:</strong> 글의 답을 맞히면 <span class="nb">○,</span> 핵심 값은 맞지만 틀리거나 지어낸 말이 붙었거나 스스로 흐리면 <span class="nb">△,</span> 틀렸거나 조각에 있는데 없다고 했거나 답 전에 끊겼으면 <span class="nb">✕다.</span></li>
+<li><strong>글에 없는 2개:</strong> 없다, 모른다고 하면 <span class="nb">○,</span> 글에서 나온 것처럼 값을 대면 <span class="nb">✕다.</span></li>
+<li><strong>지어낸 답:</strong> 조각에도 글에도 없는 구체적 <span class="nb">사실(값,</span> 설정 이름, 명령, 주소, 날짜, 만든 <span class="nb">곳)을</span> 사실처럼 단정한 답을 따로 셌다.</li>
+</ul>
+<h2 id="조각-3개를-붙이면">조각 3개를 붙이면</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>만든 곳</th>
+<th>○</th>
+<th>△</th>
+<th>✕</th>
+<th>답 하나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td>LG</td>
+<td>17</td>
+<td>1</td>
+<td>0</td>
+<td><span class="nb">25.6초</span></td>
+</tr>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span></td>
+<td>KT</td>
+<td>17</td>
+<td>1</td>
+<td>0</td>
+<td><span class="nb">7.2초</span></td>
+</tr>
+<tr>
+<td>Gemma 4</td>
+<td>구글</td>
+<td>17</td>
+<td>1</td>
+<td>0</td>
+<td><span class="nb">8.3초</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td>알리바바</td>
+<td>16</td>
+<td>2</td>
+<td>0</td>
+<td><span class="nb">8.6초</span></td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span></td>
+<td>카카오</td>
+<td>15</td>
+<td>2</td>
+<td>1</td>
+<td><span class="nb">8.8초</span></td>
+</tr>
+<tr>
+<td>Tri-21B-Think</td>
+<td>트릴리온랩스</td>
+<td>14</td>
+<td>2</td>
+<td>2</td>
+<td>185초</td>
+</tr>
+</tbody>
+</table></div>
+<p>답이 있는 18개를 매긴 것입니다. 답 하나는 20문항에서 걸린 시간의 중앙값이고, 조각을 읽는 시간이 들어 있습니다. 글에 없는 질문 2개에는 여섯 모델 모두 조각에 없다고 답했습니다.</p>
+<ul>
+<li><strong>국산 둘이 해외 모델과 같은 17개를 맞혔다.</strong> EXAONE <span class="nb">4.5와</span> <span class="nb">Mi:dm</span> <span class="nb">2.0이</span> Gemma 4와 같았다. 셋 다 틀린 답이 없었고, △ 하나는 모두 아래의 질문 5였다.</li>
+<li><strong>가장 빨리 답한 것은 <span class="nb">Mi:dm이었다.</span></strong> 답 하나에 <span class="nb">7.2초로,</span> Gemma <span class="nb">4(8.3초)보다</span> 1초쯤 빨랐다. 조각을 읽는 시간이 <span class="nb">2.7초로</span> 가장 짧았기 때문이고, 답을 쓰는 속도는 초당 <span class="nb">12.9토큰으로</span> Gemma <span class="nb">4(18.5)나</span> <span class="nb">Qwen3.6(21.9)보다</span> 느렸다. EXAONE <span class="nb">4.5는</span> 같은 17개를 맞히는 데 <span class="nb">3.6배</span> 오래 걸렸다. 노트북에서 답을 초당 <span class="nb">4.3토큰밖에</span> 쓰지 못했다.</li>
+<li><strong><span class="nb">Qwen3.6은</span> 하나를 지어냈다.</strong> 게이트웨이의 버전을 묻자 버전은 맞게 답하고, 조각의 <span class="nb">「10월</span> 28일에 <span class="nb">나온」에</span> 없는 해를 붙여 <span class="nb">「2024년</span> 10월 28일에 <span class="nb">출시」됐다고</span> 했다. 글은 2026년의 일이다.</li>
+<li><strong><span class="nb">Kanana-2는</span> 다른 조각의 문장을 옮겼다.</strong> 커밋 메시지 도구가 diff를 몇 자에서 자르는지 묻자, 셋째 조각의 <span class="nb">「16,000자가</span> 넘으면 뒤를 <span class="nb">자른다」</span> 대신 첫 조각의 <span class="nb">「diff가</span> <span class="nb">2,000~15,000자인</span> 것에서 … 7개를 <span class="nb">골랐습니다」를</span> 그대로 옮겼다.</li>
+<li><strong><span class="nb">Tri-21B-Think는</span> 둘을 생각하다 끊겼다.</strong> 답이 조각에 있었는데도 <span class="nb">4,096토큰을</span> 생각에 다 쓰고 답을 내지 못했다. 그중 하나는 첫 조각 둘째 줄의 <code><span class="nb">USE_SLIM_DOCKER</span></code>를 지나치고, 영어로 <span class="nb">「보통은</span> <code><span class="nb">WEBUI_GPU_MODE</span></code> 같은 것을 <span class="nb">쓴다」고</span> 생각을 이어 갔다. 핵심 값은 맞힌 답에도 조각의 시각 <span class="nb">19:01:51을</span> <span class="nb">「2019년</span> 9월 <span class="nb">19일」이라는</span> 날짜로 바꿔 적은 것이 있었다.</li>
+</ul>
+<h2 id="조각에-답이-반만-있던-질문">조각에 답이 반만 있던 질문</h2>
+<p>질문 5는 <span class="nb">「llama.cpp에서</span> 기억할 글 길이를 자동으로 두었을 때 무슨 문제가 있었고, 그래서 어떤 값으로 쓰기로 <span class="nb">했나?」입니다.</span> 글의 답은 <span class="nb">「엔진이</span> <span class="nb">31,232로</span> 정했다가 GPU 메모리를 거의 다 써서 오류가 났고, 그래서 <span class="nb">16,384로</span> <span class="nb">정했다」입니다.</span></p>
+<p>찾아 준 조각 3개에는 값 <span class="nb">16,384와</span> <span class="nb">「GPU</span> 메모리 때문에 <span class="nb">16,384로</span> <span class="nb">묶었다」는</span> 문장만 있었습니다. 자동으로 두었을 때 무슨 일이 있었는지는 어느 조각에도 없었습니다. 지난 연재 10단계에서 Mac mini의 모델이 놓친 것도 이 질문이었습니다.</p>
+<ul>
+<li><strong><span class="nb">Kanana-2만</span> <span class="nb">○였다.</span></strong> 조각의 문장에서 <span class="nb">「자동으로</span> 두면 메모리 한도를 초과해서 모델이 멈추거나 제대로 동작하지 <span class="nb">않는」</span> 문제를 무리 없이 짚고, <span class="nb">16,384로</span> 정했다고 답했다.</li>
+<li><strong>나머지 다섯은 <span class="nb">△였다.</span></strong> EXAONE <span class="nb">4.5와</span> <span class="nb">Tri-21B-Think는</span> 조각의 할 일 목록에 있던 노트북의 다른 <span class="nb">일(공유</span> GPU 메모리 한도보다 <span class="nb">3,000MB</span> 적은 양에서 멈춘 <span class="nb">일)을</span> 원인으로 엮었다. Gemma 4와 <span class="nb">Qwen3.6은</span> <span class="nb">16,384를</span> 들고도 최종 값은 본문에 없다고 흐렸다. <span class="nb">Mi:dm은</span> <span class="nb">16,384를</span> 문제로, 한도를 올린 것을 해결로 거꾸로 답했다.</li>
+</ul>
+<p>검색이 답이 든 조각을 놓치면, 모델이 아무리 좋아도 맞히기 어렵습니다. 나머지 17개는 세 조각 안에 답이 있었습니다.</p>
+<h2 id="문서-없이">문서 없이</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>○</th>
+<th>△</th>
+<th>지어낸 답</th>
+<th>답 하나</th>
+<th>한도까지 쓴 답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td>2</td>
+<td>1</td>
+<td>7</td>
+<td><span class="nb">93.7초</span></td>
+<td>15</td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span></td>
+<td>2</td>
+<td>0</td>
+<td>7</td>
+<td><span class="nb">12.6초</span></td>
+<td>6</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td><span class="nb">18.1초</span></td>
+<td>11</td>
+</tr>
+<tr>
+<td>Gemma 4</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td><span class="nb">21.0초</span></td>
+<td>16</td>
+</tr>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span></td>
+<td>0</td>
+<td>1</td>
+<td>9</td>
+<td><span class="nb">22.6초</span></td>
+<td>3</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">○와</span> <span class="nb">△는</span> 답이 있는 18개, 지어낸 답과 한도까지 쓴 답은 20개에서 센 것입니다. 한도까지 쓴 답은 400토큰을 다 써서 끊긴 답입니다.</p>
+<ul>
+<li><strong>아무 모델도 이 블로그를 모른다.</strong> 맞힌 것은 일반 지식으로 풀리는 질문이었다. <span class="nb">「API</span> 키 없이 보내면 <span class="nb">401」,</span> <span class="nb">「정전</span> 뒤 스스로 켜지는 <code>autorestart</code><span class="nb">」,</span> launchd의 <code>ThrottleInterval</code>, <span class="nb">「챗봇은</span> 앞의 대화를 매번 다시 <span class="nb">보낸다」</span> 같은 것이다.</li>
+<li><strong>모르면서 지어냈다.</strong> <span class="nb">Mi:dm이</span> 9개로 가장 많았다. 정전 뒤 켜지는 설정을 묻자 없는 <code>sudo pmset <span class="nb">-a</span> standbyWakeType network</code>를 확신 있게 답했고, launchd가 30초 기다렸다 다시 띄우게 하는 항목을 묻자 <code>ondemand</code>라고 했다. Qwen <span class="nb">3.8</span> 27B를 <span class="nb">「KT에서</span> 개발한 대규모 언어 <span class="nb">모델」이라고도</span> 했다. EXAONE <span class="nb">4.5는</span> 가짜 기록 줄을, <span class="nb">Kanana-2는</span> 가짜 <span class="nb">Apple·GitHub</span> 문서 주소를 붙였다.</li>
+<li><strong>글에 없는 질문 2개는 문서 없이도 다섯 모두 모른다고 했다.</strong> <span class="nb">「노트북</span> 서버의 API 키 <span class="nb">값」이나</span> <span class="nb">「10단계에서</span> 미세조정한 모델이 맞힌 <span class="nb">수」를</span> 지어낸 모델은 없었다.</li>
+</ul>
+<h2 id="자동-채점과-눈-가린-채점">자동 채점과 눈 가린 채점</h2>
+<p>10단계처럼 답에 핵심 값이 들어 있는지 기계로도 셌습니다. 조각 3개 조건에서 기계는 EXAONE <span class="nb">4.5,</span> <span class="nb">Mi:dm</span> <span class="nb">2.0,</span> <span class="nb">Qwen3.6에</span> 18개를 줬습니다. 눈 가린 채점과 갈린 답은 221개 가운데 14개였습니다. 답이 있는 18문항에서 12개, 글에 없는 질문에서 2개이고, 14개 가운데 11개는 기계가 더 후하게 매겼습니다.</p>
+<ul>
+<li><strong>값만 들어 있으면 기계는 맞다고 셌다.</strong> 질문 5에서 <span class="nb">16,384를</span> 거꾸로 말한 <span class="nb">Mi:dm의</span> 답도, 결론은 제시되지 않았다고 흐린 <span class="nb">Qwen3.6의</span> 답도 통과했다. 끝 문장이 <span class="nb">「포함되어</span> 있지 <span class="nb">않습니다」였던</span> Gemma 4의 답만 떨어졌다.</li>
+<li><strong>생각하는 모델은 끊겨도 통과할 수 있었다.</strong> <span class="nb">Tri-21B-Think가</span> 생각 단계에서 조각을 옮겨 적다 끊긴 답에는 정답 숫자가 들어 있었다.</li>
+<li><strong>반대로 맞는 답을 놓치기도 했다.</strong> <span class="nb">Tri-21B-Think의</span> <span class="nb">「이전</span> 대화 내용을 모두 모아서 새로운 질문과 함께 서버로 <span class="nb">보냅니다」는</span> 맞는 답인데, 기계가 찾던 글자 <code>다시 보내</code>, <code>통째로</code>, <code>매번</code>이 없었다.</li>
+</ul>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>문서를 찾아 붙여 주면 국산 모델 둘이 해외 모델만큼 맞혔다.</strong> EXAONE <span class="nb">4.5와</span> <span class="nb">Mi:dm</span> <span class="nb">2.0이</span> Gemma 4와 같은 17개였고, <span class="nb">Kanana-2는</span> 15개, <span class="nb">Tri-21B-Think는</span> 14개였다. 문서 없이는 답한 다섯 모두 <span class="nb">0~2개였다.</span></li>
+<li><strong>노트북에서 문서 검색에 먼저 붙여 볼 국산 모델은 <span class="nb">Mi:dm</span> <span class="nb">2.0이다.</span></strong> 이번 18문항에서 맞힌 수는 가장 많은 쪽과 같았고, 메모리를 가장 적게 쓰고, 조각을 붙인 답이 가장 빨리 끝났다. 다만 답 쓰는 속도는 Gemma 4보다 느렸고, 문서 없이는 가장 많이 지어냈다. EXAONE <span class="nb">4.5는</span> <span class="nb">3.6배</span> 느렸고, <span class="nb">Tri-21B-Think는</span> 한 답에 중앙값 3분, 평균 4분 가까이 걸리고 둘은 끊겼다.</li>
+<li><strong>문서 없이 물으면 이번에는 국산 셋이 해외 둘보다 많이 지어냈다.</strong> <span class="nb">Mi:dm</span> <span class="nb">2.0이</span> 9개, EXAONE <span class="nb">4.5와</span> <span class="nb">Kanana-2가</span> 7개, <span class="nb">Qwen3.6이</span> 4개, Gemma 4가 2개였다. <span class="nb">Tri-21B-Think는</span> 문서 없이 묻지 못했다. 조각을 붙이면 지어낸 답은 모델마다 <span class="nb">0~1개로</span> 줄었다.</li>
+<li><strong>글에 없는 것은 모두 없다고 했다.</strong> 조각 3개에서는 여섯 모두, 문서 없이는 답한 다섯 모두 API 키 값이나 없는 결과를 지어내지 않았다.</li>
+<li><strong>검색이 놓친 것은 모델이 메우기 어렵다.</strong> 조각에 답이 반만 있던 질문 5에서 여섯 가운데 다섯이 <span class="nb">△였고,</span> <span class="nb">Kanana-2만</span> 맞혔다. EXAONE <span class="nb">4.5,</span> <span class="nb">Mi:dm</span> <span class="nb">2.0,</span> Gemma 4는 이 하나만 놓쳤으니, 이 셋의 맞힌 수를 더 올리려면 모델보다 검색을 손봐야 한다.</li>
+<li><strong>값만 찾는 자동 채점은 후하다.</strong> 눈 가린 채점과 14개가 갈렸고, 11개는 기계가 더 후했다. 생각하는 모델은 생각과 답을 나눠 채점해야 한다.</li>
+<li><strong>이번 결과는 한 번씩, 노트북의 4비트 파일로 잰 것이다.</strong> 질문은 20개이고, 채점도 Claude 하나가 했다. 17개와 16개, 15개의 차이는 질문 하나둘이다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-20"><li><time class="measured" datetime="2026-11-20T11:58+09:00"><span class="nb">11:58</span></time><span class="trail__what">질문 20개마다 글 조각 3개를 찾음</span><code class="trail__got">18개 가운데 17개는 답이 다 들어 있음</code></li><li><time class="measured" datetime="2026-11-20T12:01+09:00"><span class="nb">12:01</span></time><span class="trail__what">노트북에서 <span class="nb">Mi:dm</span> <span class="nb">2.0부터</span> 묻기 시작</span><code class="trail__got">문서 없이, 조각 3개</code></li><li><time class="measured" datetime="2026-11-20T12:17+09:00"><span class="nb">12:17</span></time><span class="trail__what"><span class="nb">Kanana-2가</span> 한 질문에서 GPU 메모리 오류</span><code class="trail__got">HTTP 500, <span class="nb">13:28에</span> 다시 물어 맞힘</code></li><li><time class="measured" datetime="2026-11-20T13:16+09:00"><span class="nb">13:16</span></time><span class="trail__what"><span class="nb">Tri-21B-Think에게</span> 문서 없이 물음</span><code class="trail__got">596초, <span class="nb">4,096토큰을</span> 다 쓰고 답 없음</code></li><li><time class="measured" datetime="2026-11-20T13:29+09:00"><span class="nb">13:29</span></time><span class="trail__what"><span class="nb">Tri-21B-Think는</span> 조각 3개만 묻기로 함</span><code class="trail__got">한 답에 평균 233초</code></li><li><time class="measured" datetime="2026-11-20T13:58+09:00"><span class="nb">13:58</span></time><span class="trail__what">노트북 시험을 잠시 멈춤</span><code class="trail__got"><span class="nb">Tri-21B-Think</span> 5번까지</code></li><li><time class="measured" datetime="2026-11-20T16:25+09:00"><span class="nb">16:25</span></time><span class="trail__what">노트북 시험을 다시 시작</span><code class="trail__got">6번부터</code></li><li><time class="measured" datetime="2026-11-20T17:17+09:00"><span class="nb">17:17</span></time><span class="trail__what"><span class="nb">Tri-21B-Think</span> 20번까지 끝남</span><code class="trail__got">두 답은 <span class="nb">4,096토큰에서</span> 끊김</code></li><li><time class="measured" datetime="2026-11-20T18:23+09:00"><span class="nb">18:23</span></time><span class="trail__what">이름을 가리고 답 221개를 채점</span><code class="trail__got">조각 3개에서 17개가 가장 많음</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-korean-llm"><small>처음으로</small><strong>연재 목차</strong></a><div class="pager__next"><small>다음 글, 준비 중</small><strong>5편 코딩 맡기기</strong></div></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#조각-3개를-붙이면">조각 3개를 붙이면</a></li><li><a href="#조각에-답이-반만-있던-질문">조각에 답이 반만 있던 질문</a></li><li><a href="#문서-없이">문서 없이</a></li><li><a href="#자동-채점과-눈-가린-채점">자동 채점과 눈 가린 채점</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

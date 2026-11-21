@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>늘 켜져 있게 | Cyborg</title><meta name="description" content="로컬 LLM 연재 5단계. 서버가 켜지면 로그인하지 않아도 MLX 서버가 저절로 뜨게 만든 기록입니다. 죽으면 다시 뜨고, 질문 기록은 파일에 남습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/05-always-on/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="늘 켜져 있게 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 5단계. 서버가 켜지면 로그인하지 않아도 MLX 서버가 저절로 뜨게 만든 기록입니다. 죽으면 다시 뜨고, 질문 기록은 파일에 남습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/05-always-on/"><meta property="article:published_time" content="2026-11-13T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"늘 켜져 있게","description":"로컬 LLM 연재 5단계. 서버가 켜지면 로그인하지 않아도 MLX 서버가 저절로 뜨게 만든 기록입니다. 죽으면 다시 뜨고, 질문 기록은 파일에 남습니다.","datePublished":"2026-11-13T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/05-always-on/","mainEntityOfPage":"https://teddybears56.github.io/posts/05-always-on/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>5단계</li></ol></nav><h1 id="post-title">늘 켜져 있게</h1><p class="post__lead">4단계에서 띄운 서버는 터미널 창을 닫으면 사라졌습니다. 이번 단계에서는 서버를 macOS에 들어 있는 launchd에 맡겨, 켜지자마자 로그인 없이 뜨고 죽으면 다시 뜨게 합니다. 그리고 일부러 죽이고 껐다 켜 보며 정말 그런지 시험합니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-13"><span class="nb">2026-11-13</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 5분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>켜기 전에 서버 설정을 확인한다.</strong> FileVault가 켜져 있으면 다시 켤 때 아무것도 뜨지 않는다.</li>
+<li><strong>launchd에 맡길 파일을 만든다.</strong> 터미널 없이도 켜지자마자 뜨고, 죽으면 다시 뜨게 하려고.</li>
+<li><strong>관리자 암호로 설치한다.</strong> 데몬을 두는 폴더는 관리자만 쓸 수 있다.</li>
+<li><strong>세 가지로 시험한다.</strong> 혼자 뜬 서버가 GPU로 답하는지, 죽거나 껐다 켜도 다시 뜨는지 직접 봐야 맡길 수 있다.</li>
+</ol>
+<h2 id="무엇이-달라지나">무엇이 달라지나</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>4단계</th>
+<th>5단계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>서버를 띄우는 쪽</td>
+<td>내가 터미널에서</td>
+<td>macOS(launchd)가 알아서</td>
+</tr>
+<tr>
+<td>터미널 창을 닫으면</td>
+<td>꺼짐</td>
+<td>그대로</td>
+</tr>
+<tr>
+<td>서버가 죽으면</td>
+<td>그대로 꺼져 있음</td>
+<td>다시 뜸</td>
+</tr>
+<tr>
+<td>서버를 다시 켜면</td>
+<td>꺼져 있음</td>
+<td>로그인 없이 뜸</td>
+</tr>
+<tr>
+<td>GPU 몫 <span class="nb">22GB(2단계)</span></td>
+<td>다시 켜면 사라짐</td>
+<td>켜질 때마다 다시 적용</td>
+</tr>
+<tr>
+<td>질문 기록</td>
+<td>터미널 화면에만</td>
+<td>파일에 쌓임</td>
+</tr>
+</tbody>
+</table></div>
+<p>표의 GPU 몫은 macOS가 GPU에 쓰라고 내주는 메모리입니다.</p>
+<p>macOS에서 <span class="nb">「켜지면</span> 알아서 도는 <span class="nb">프로그램」은</span> launchd가 맡습니다. 정해진 폴더에 설정 파일인 plist를 두면, launchd가 그 내용대로 프로그램을 띄우고 지켜봅니다. 폴더는 두 가지입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>폴더</th>
+<th>이름</th>
+<th>언제 뜨나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/Library/LaunchAgents</code></td>
+<td>에이전트</td>
+<td>그 사용자가 로그인한 뒤</td>
+</tr>
+<tr>
+<td><code>/Library/LaunchDaemons</code></td>
+<td>데몬</td>
+<td>켜지자마자, 로그인과 상관없이</td>
+</tr>
+</tbody>
+</table></div>
+<p>목표가 <span class="nb">「로그인</span> <span class="nb">없이」라서</span> 데몬으로 했습니다. 데몬이라도 실제 프로그램은 제 사용자 이름으로 돌릴 수 있습니다.</p>
+<h2 id="켜기-전에-확인한-것">켜기 전에 확인한 것</h2>
+<p>데몬으로 만들어도, 켜지는 길에 막힌 곳이 있으면 뜨지 못합니다. 그래서 디스크 잠금과 잠자기 설정부터 확인했습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> fdesetup</span><span style="color:var(--astro-code-token-string)"> status</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">FileVault</span><span style="color:var(--astro-code-token-string)"> is</span><span style="color:var(--astro-code-token-string)"> Off.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> pmset</span><span style="color:var(--astro-code-token-string)"> -g</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)"> sleep</span><span style="color:var(--astro-code-token-constant)">                0</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)"> disksleep</span><span style="color:var(--astro-code-token-constant)">            0</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)"> autorestart</span><span style="color:var(--astro-code-token-constant)">          1</span></span></code></pre></figure>
+<ul>
+<li><strong>FileVault가 꺼져 있어야 한다.</strong> FileVault는 디스크를 암호로 잠그는 기능이다. 켜져 있으면 다시 켤 때 디스크가 잠긴 채 로그인 화면에서 멈춘다. 누군가 암호를 넣기 전까지는 데몬도 뜨지 않는다.</li>
+<li>잠자기는 0단계에서 이미 꺼 두었다. <code>autorestart 1</code>은 정전 뒤 전기가 들어오면 저절로 켜진다는 뜻이다.</li>
+</ul>
+<h2 id="launchd에-맡기기">launchd에 맡기기</h2>
+<p>서버의 <code><span class="nb">~/llm-service</span></code> 폴더에 파일 다섯 개를 만들었습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>파일</th>
+<th>하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>com.cyborg.mlx-server.plist</code></td>
+<td>MLX 서버를 띄우고 지켜본다</td>
+</tr>
+<tr>
+<td><code>com.cyborg.gpu-limit.plist</code></td>
+<td>켜질 때마다 GPU 몫을 22GB로 올린다</td>
+</tr>
+<tr>
+<td><code>start-mlx.sh</code></td>
+<td>22GB가 적용됐는지 확인한 뒤 서버를 시작한다</td>
+</tr>
+<tr>
+<td><code>install.sh</code> / <code>uninstall.sh</code></td>
+<td>설치 / 되돌리기</td>
+</tr>
+</tbody>
+</table></div>
+<figure class="code"><figcaption class="code__bar"><span>com.cyborg.mlx-server.plist, 중요한 줄만</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="xml"><code><span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;UserName&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;(내 사용자 이름)&lt;/</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;ProgramArguments&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">array</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;~/llm-service/start-mlx.sh&lt;/</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;&lt;/</span><span style="color:var(--astro-code-token-string-expression)">array</span><span style="color:var(--astro-code-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;RunAtLoad&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">true</span><span style="color:var(--astro-code-foreground)">/&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;KeepAlive&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">true</span><span style="color:var(--astro-code-foreground)">/&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;ThrottleInterval&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">integer</span><span style="color:var(--astro-code-foreground)">&gt;30&lt;/</span><span style="color:var(--astro-code-token-string-expression)">integer</span><span style="color:var(--astro-code-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;ProcessType&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;Interactive&lt;/</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">&lt;</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;StandardOutPath&lt;/</span><span style="color:var(--astro-code-token-string-expression)">key</span><span style="color:var(--astro-code-foreground)">&gt;&lt;</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;~/llm-logs/mlx-server.log&lt;/</span><span style="color:var(--astro-code-token-string-expression)">string</span><span style="color:var(--astro-code-foreground)">&gt;</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>설정</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserName</code></td>
+<td>관리자가 아니라 내 사용자 이름으로 돌린다</td>
+</tr>
+<tr>
+<td><code>RunAtLoad</code></td>
+<td>켜지자마자 띄운다</td>
+</tr>
+<tr>
+<td><code>KeepAlive</code></td>
+<td>꺼지면 다시 띄운다</td>
+</tr>
+<tr>
+<td><code>ThrottleInterval</code></td>
+<td>너무 자주 죽으면 30초를 기다렸다 다시 띄운다</td>
+</tr>
+<tr>
+<td><code>ProcessType</code></td>
+<td>뒷전 작업으로 낮춰 돌리지 말고 제 속도로 돌린다</td>
+</tr>
+<tr>
+<td><code>StandardOutPath</code></td>
+<td>서버가 찍는 줄을 이 파일에 쌓는다</td>
+</tr>
+</tbody>
+</table></div>
+<figure class="code"><figcaption class="code__bar"><span><span class="nb">start-mlx.sh</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">for</span><span style="color:var(--astro-code-foreground)"> i </span><span style="color:var(--astro-code-token-keyword)">in</span><span style="color:var(--astro-code-foreground)"> $(</span><span style="color:var(--astro-code-token-function)">seq</span><span style="color:var(--astro-code-token-constant)"> 1</span><span style="color:var(--astro-code-token-constant)"> 60</span><span style="color:var(--astro-code-foreground)">); </span><span style="color:var(--astro-code-token-keyword)">do</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">  [ </span><span style="color:var(--astro-code-token-string-expression)">&quot;$(</span><span style="color:var(--astro-code-token-function)">sysctl</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-string)"> iogpu.wired_limit_mb</span><span style="color:var(--astro-code-token-string-expression)">)&quot;</span><span style="color:var(--astro-code-token-keyword)"> =</span><span style="color:var(--astro-code-token-string-expression)"> &quot;22528&quot;</span><span style="color:var(--astro-code-foreground)"> ] </span><span style="color:var(--astro-code-token-punctuation)">&amp;&amp;</span><span style="color:var(--astro-code-token-keyword)"> break</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">  sleep</span><span style="color:var(--astro-code-token-constant)"> 1</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">done</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">echo</span><span style="color:var(--astro-code-token-string-expression)"> &quot;$(</span><span style="color:var(--astro-code-token-function)">date</span><span style="color:var(--astro-code-token-string-expression)"> &quot;+%Y-%m-%d %H:%M:%S&quot;) start: GPU limit $(</span><span style="color:var(--astro-code-token-function)">sysctl</span><span style="color:var(--astro-code-token-string)"> -n</span><span style="color:var(--astro-code-token-string)"> iogpu.wired_limit_mb</span><span style="color:var(--astro-code-token-string-expression)">) MB&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">exec</span><span style="color:var(--astro-code-token-string)"> mlx_lm.server</span><span style="color:var(--astro-code-token-string)"> --model</span><span style="color:var(--astro-code-token-string)"> ~/models/mlx/Qwen3.8-27B-4bit</span><span style="color:var(--astro-code-token-string)"> --host</span><span style="color:var(--astro-code-token-constant)"> 0.0.0.0</span><span style="color:var(--astro-code-token-string)"> --port</span><span style="color:var(--astro-code-token-constant)"> 8080</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  --chat-template-args</span><span style="color:var(--astro-code-token-string-expression)"> &#39;{&quot;enable_thinking&quot;:false}&#39;</span></span></code></pre></figure>
+<p>GPU 몫을 올리는 일과 서버를 띄우는 일은 따로 돌아서 어느 쪽이 먼저 뜰지 알 수 없습니다. MLX는 시작할 때 GPU 몫을 한 번 읽고, 그 뒤로는 계속 그 값을 씁니다. 그래서 22GB가 적용될 때까지 최대 60초 기다린 뒤 서버를 시작하게 했습니다.</p>
+<aside class="note" aria-labelledby="note-a83nxe"><h3 id="note-a83nxe">열어 둔 범위</h3><p>4단계처럼 같은 네트워크 전체에서 질문을 받게 두었습니다. 아직 API 키를 확인하지 않아서 같은 네트워크에 있으면 누구나 쓸 수 있습니다. 그런 상태로 늘 켜져 있게 됩니다. 서버 안에서만 받게 하는 쪽을 권했지만, 쓰기 편한 쪽을 골랐습니다. API 키 확인은 9단계에서 설정합니다.</p></aside>
+<h2 id="설치">설치</h2>
+<p><code><span class="nb">/Library/LaunchDaemons</span></code>는 관리자만 쓸 수 있는 폴더입니다. 그래서 설치에는 관리자 암호가 필요합니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sudo</span><span style="color:var(--astro-code-token-string)"> ~/llm-service/install.sh</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">installed</span><span style="color:var(--astro-code-token-string)"> com.cyborg.gpu-limit</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">installed</span><span style="color:var(--astro-code-token-string)"> com.cyborg.mlx-server</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> tail</span><span style="color:var(--astro-code-token-string)"> -2</span><span style="color:var(--astro-code-token-string)"> ~/llm-logs/mlx-server.log</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">2026-11-13</span><span style="color:var(--astro-code-token-string)"> 18:27:37</span><span style="color:var(--astro-code-token-string)"> start:</span><span style="color:var(--astro-code-token-string)"> GPU</span><span style="color:var(--astro-code-token-string)"> limit</span><span style="color:var(--astro-code-token-constant)"> 22528</span><span style="color:var(--astro-code-token-string)"> MB</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">INFO</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Starting</span><span style="color:var(--astro-code-token-string)"> httpd</span><span style="color:var(--astro-code-token-string)"> at</span><span style="color:var(--astro-code-token-constant)"> 0.0.0.0</span><span style="color:var(--astro-code-token-string)"> on</span><span style="color:var(--astro-code-token-string)"> port</span><span style="color:var(--astro-code-token-string)"> 8080...</span></span></code></pre></figure>
+<h2 id="세-가지-시험">세 가지 시험</h2>
+<p>설치하자 서버가 혼자 떴습니다. 그래도 목표대로 도는지는 직접 시험해 봐야 했습니다.</p>
+<p><strong>하나, 혼자 뜬 서버가 GPU로 답하나.</strong> launchd가 띄운 프로그램은 화면 없이 돕니다. 그래서 GPU를 못 쓸까 걱정했습니다. 그런데 <span class="nb">「한</span> 문장으로 자기소개해 <span class="nb">줘」에</span> 27토큰을 5초 만에 답했습니다. 토큰은 모델이 글을 끊어 쓰는 단위입니다.</p>
+<p><strong>둘, 죽이면 다시 뜨나.</strong> 서버 프로그램을 일부러 끝냈습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> kill</span><span style="color:var(--astro-code-foreground)"> (서버 </span><span style="color:var(--astro-code-token-string)">번호</span><span style="color:var(--astro-code-foreground)">)</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">killing</span><span style="color:var(--astro-code-token-constant)"> 69128</span><span style="color:var(--astro-code-token-string)"> at</span><span style="color:var(--astro-code-token-string)"> 18:28:33</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">restarted</span><span style="color:var(--astro-code-token-string)"> as</span><span style="color:var(--astro-code-token-constant)"> 70485</span><span style="color:var(--astro-code-token-string)"> at</span><span style="color:var(--astro-code-token-string)"> 18:28:36</span></span></code></pre></figure>
+<p>3초 만에 새 번호로 다시 떴습니다. <span class="nb">18:28:48에는</span> 다시 질문을 받았습니다.</p>
+<p><strong>셋, 껐다 켜도 로그인 없이 뜨나.</strong> <code>sudo reboot</code>로 다시 켠 뒤, 서버 앞에서 로그인하지 않고 두었습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uptime</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">18:31</span><span style="color:var(--astro-code-token-string)">  up</span><span style="color:var(--astro-code-token-constant)"> 2</span><span style="color:var(--astro-code-token-string)"> mins,</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-string)"> users</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sysctl</span><span style="color:var(--astro-code-token-string)"> kern.boottime</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">kern.boottime:</span><span style="color:var(--astro-code-token-string)"> {</span><span style="color:var(--astro-code-token-string)"> sec</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-string)"> 1794562185,</span><span style="color:var(--astro-code-token-string)"> usec</span><span style="color:var(--astro-code-token-string)"> =</span><span style="color:var(--astro-code-token-constant)"> 289672</span><span style="color:var(--astro-code-token-string)"> }</span><span style="color:var(--astro-code-token-string)"> Fri</span><span style="color:var(--astro-code-token-string)"> Nov</span><span style="color:var(--astro-code-token-constant)"> 13</span><span style="color:var(--astro-code-token-string)"> 18:29:45</span><span style="color:var(--astro-code-token-constant)"> 2026</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> grep</span><span style="color:var(--astro-code-token-string)"> -E</span><span style="color:var(--astro-code-token-string-expression)"> &quot;start|Starting&quot;</span><span style="color:var(--astro-code-token-string)"> ~/llm-logs/mlx-server.log</span><span style="color:var(--astro-code-token-keyword)"> |</span><span style="color:var(--astro-code-token-function)"> tail</span><span style="color:var(--astro-code-token-string)"> -2</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">2026-11-13</span><span style="color:var(--astro-code-token-string)"> 18:29:51</span><span style="color:var(--astro-code-token-string)"> start:</span><span style="color:var(--astro-code-token-string)"> GPU</span><span style="color:var(--astro-code-token-string)"> limit</span><span style="color:var(--astro-code-token-constant)"> 22528</span><span style="color:var(--astro-code-token-string)"> MB</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">INFO</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Starting</span><span style="color:var(--astro-code-token-string)"> httpd</span><span style="color:var(--astro-code-token-string)"> at</span><span style="color:var(--astro-code-token-constant)"> 0.0.0.0</span><span style="color:var(--astro-code-token-string)"> on</span><span style="color:var(--astro-code-token-string)"> port</span><span style="color:var(--astro-code-token-string)"> 8080...</span></span></code></pre></figure>
+<p><span class="nb">18:29:45에</span> 켜졌고, <strong>6초 뒤</strong> 서버가 시작했습니다. 로그인한 사용자는 0명이었습니다. <span class="nb">「방금</span> 다시 켜졌어. 한 문장으로 인사해 <span class="nb">줘」에는</span> <span class="nb">「다시</span> 만나서 반갑습니다, 오늘도 좋은 하루 <span class="nb">보내세요!」라고</span> 답했습니다.</p>
+<h2 id="되돌리는-법">되돌리는 법</h2>
+<p>늘 켜 두는 설정이라 끄는 길도 함께 만들어 두었습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sudo</span><span style="color:var(--astro-code-token-string)"> ~/llm-service/uninstall.sh</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">removed</span><span style="color:var(--astro-code-token-string)"> com.cyborg.mlx-server</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">removed</span><span style="color:var(--astro-code-token-string)"> com.cyborg.gpu-limit</span></span></code></pre></figure>
+<p>기록 파일에는 질문 하나에 몇 줄씩 쌓입니다. 하루 수백 건이어도 1MB 남짓이라 아직은 자르지 않았습니다. 많이 쓰게 되면 일정 크기마다 잘라 두게 하겠습니다.</p>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-13"><li><time class="measured" datetime="2026-11-13T18:24+09:00"><span class="nb">18:24</span></time><span class="trail__what">늘 켜 둘 동안 네트워크에 열어 두기로 했다</span><code class="trail__got">API 키 확인 없음</code></li><li><time class="measured" datetime="2026-11-13T18:26+09:00"><span class="nb">18:26</span></time><span class="trail__what">서비스 파일 다섯 개를 만들었다</span><code class="trail__got">plutil OK</code></li><li><time class="measured" datetime="2026-11-13T18:27+09:00"><span class="nb">18:27</span></time><span class="trail__what">관리자 암호로 서비스를 설치했다</span><code class="trail__got">2개</code></li><li><time class="measured" datetime="2026-11-13T18:27+09:00"><span class="nb">18:27</span></time><span class="trail__what">서버가 혼자 떴는지 봤다</span><code class="trail__got">8080</code></li><li><time class="measured" datetime="2026-11-13T18:28+09:00"><span class="nb">18:28</span></time><span class="trail__what">서버를 일부러 죽였다</span><code class="trail__got">3초 뒤 다시 뜸</code></li><li><time class="measured" datetime="2026-11-13T18:29+09:00"><span class="nb">18:29</span></time><span class="trail__what">서버를 다시 켰다</span><code class="trail__got">sudo reboot</code></li><li><time class="measured" datetime="2026-11-13T18:29+09:00"><span class="nb">18:29</span></time><span class="trail__what">로그인 없이 서버가 떴는지 봤다</span><code class="trail__got">켜진 뒤 6초</code></li><li><time class="measured" datetime="2026-11-13T18:31+09:00"><span class="nb">18:31</span></time><span class="trail__what">다시 켜진 서버에 질문했다</span><code class="trail__got">16토큰</code></li></ol>
+<h2 id="배운-것">배운 것</h2>
+<ul>
+<li>macOS에서 켜지자마자 도는 프로그램은 launchd의 데몬으로 만든다. 로그인 뒤에 도는 에이전트와 폴더가 다르다.</li>
+<li><span class="nb">「로그인</span> <span class="nb">없이」의</span> 조건은 FileVault다. 켜져 있으면 디스크가 잠겨서 아무것도 뜨지 않는다.</li>
+<li><code>KeepAlive</code> 한 줄이면 죽은 서버가 다시 뜬다.</li>
+<li>켜질 때 함께 도는 일은 순서가 정해져 있지 않다. GPU 몫처럼 먼저 필요한 값이 있으면 기다렸다 시작하게 한다.</li>
+<li>늘 켜 두면 늘 열려 있다. API 키 확인이 필요해졌다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 서버는 늘 켜져 있고, 같은 네트워크 어디서나 질문을 받습니다. 다만 쓰려면 아직 터미널이나 코드가 필요합니다. 다음 6단계에서는 이 서버 앞에 웹 UI를 붙여, 같은 네트워크의 누구나 브라우저로 쓰게 합니다. API 키 확인 없이 늘 열려 있는 상태라, 9단계의 API 키 설정을 일찍 해 둘 이유도 생겼습니다.</p></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/06-chat-web/" class="pager__next"><small>다음 글</small><strong>6단계 웹 UI 붙이기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#무엇이-달라지나">무엇이 달라지나</a></li><li><a href="#켜기-전에-확인한-것">켜기 전에 확인한 것</a></li><li><a href="#launchd에-맡기기">launchd에 맡기기</a></li><li><a href="#설치">설치</a></li><li><a href="#세-가지-시험">세 가지 시험</a></li><li><a href="#되돌리는-법">되돌리는 법</a></li><li><a href="#남긴-기록">남긴 기록</a></li><li><a href="#배운-것">배운 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

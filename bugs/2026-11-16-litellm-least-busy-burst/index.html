@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LiteLLM의 least-busy 라우팅이 한꺼번에 온 요청을 목록의 첫 서버로 몰아 보낸다 | Cyborg</title><meta name="description" content="LiteLLM 라우터의 least-busy는 처리 중인 요청이 가장 적은 서버를 고르는데, 수가 같으면 목록의 첫 서버를 고르고, 그 수는 서버로 보내는 순간에야 늘어납니다. 그래서 한꺼번에 온 요청 4개 중 3개가 느린 서버로 갔습니다. 빠른 서버를 먼저 적어 84.5초를 48.5초로 줄였습니다."><link rel="canonical" href="https://teddybears56.github.io/bugs/2026-11-16-litellm-least-busy-burst/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="LiteLLM의 least-busy 라우팅이 한꺼번에 온 요청을 목록의 첫 서버로 몰아 보낸다 | Cyborg"><meta property="og:description" content="LiteLLM 라우터의 least-busy는 처리 중인 요청이 가장 적은 서버를 고르는데, 수가 같으면 목록의 첫 서버를 고르고, 그 수는 서버로 보내는 순간에야 늘어납니다. 그래서 한꺼번에 온 요청 4개 중 3개가 느린 서버로 갔습니다. 빠른 서버를 먼저 적어 84.5초를 48.5초로 줄였습니다."><meta property="og:url" content="https://teddybears56.github.io/bugs/2026-11-16-litellm-least-busy-burst/"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"LiteLLM의 least-busy 라우팅이 한꺼번에 온 요청을 목록의 첫 서버로 몰아 보낸다","description":"LiteLLM 라우터의 least-busy는 처리 중인 요청이 가장 적은 서버를 고르는데, 수가 같으면 목록의 첫 서버를 고르고, 그 수는 서버로 보내는 순간에야 늘어납니다. 그래서 한꺼번에 온 요청 4개 중 3개가 느린 서버로 갔습니다. 빠른 서버를 먼저 적어 84.5초를 48.5초로 줄였습니다.","datePublished":"2026-11-16T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/bugs/2026-11-16-litellm-least-busy-burst/","mainEntityOfPage":"https://teddybears56.github.io/bugs/2026-11-16-litellm-least-busy-burst/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/" aria-current="page">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="bug-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/bugs/">Cybug</a></li><li><a href="/bugs/category/gateway/">게이트웨이</a></li></ol></nav><h1 id="bug-title">LiteLLM의 <span class="nb">least-busy</span> 라우팅이 한꺼번에 온 요청을 목록의 첫 서버로 몰아 보낸다</h1><p class="post__lead">두 서버로 나눠 보내라고 했는데, 한꺼번에 보낸 요청 4개 중 3개가 느린 쪽으로 갔습니다. 수가 같으면 목록의 첫 서버를 고르기 때문이었습니다.</p><dl class="bug-facts"><dt>상태</dt><dd><span class="chip chip--workaround">우회</span></dd><dt>대상</dt><dd>LiteLLM <span class="nb">1.106.6</span> 라우터 <span class="nb">(least-busy)</span></dd><dt>환경</dt><dd>LiteLLM <span class="nb">1.106.6</span> <span class="nb">(macOS</span> <span class="nb">27.0),</span> 모델 서버 둘 — Apple M4의 <span class="nb">mlx_lm.server와</span> Windows 노트북의 <span class="nb">llama.cpp</span> 서버</dd><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd><dt>읽는 시간</dt><dd>약 2분</dd></dl></header><div class="prose"><h2 id="증상">증상</h2>
+<p>빠르기가 다른 모델 서버 둘을 LiteLLM의 한 이름으로 묶고, 처리 중인 요청이 적은 쪽으로 <span class="nb">보내게(</span><code><span class="nb">least-busy</span></code>) 했습니다. 서로 다른 긴 질문 4개를 한꺼번에 보내자 <strong>3개가 느린 서버로</strong>, 1개만 빠른 서버로 갔습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>보낸 곳</th>
+<th>나뉜 결과</th>
+<th>4개가 모두 끝날 때까지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>느린 서버만</td>
+<td>4개</td>
+<td><span class="nb">99.0초</span></td>
+</tr>
+<tr>
+<td>빠른 서버만</td>
+<td>4개</td>
+<td><span class="nb">41.3초</span></td>
+</tr>
+<tr>
+<td>한 이름으로 묶음, 느린 서버를 먼저 적음</td>
+<td>느린 쪽 3개, 빠른 쪽 1개</td>
+<td><span class="nb">84.5초</span></td>
+</tr>
+<tr>
+<td>한 이름으로 묶음, 빠른 서버를 먼저 적음</td>
+<td>2개씩</td>
+<td><span class="nb">48.5초</span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="재현-순서">재현 순서</h2>
+<ol>
+<li>같은 <code><span class="nb">model_name</span></code>으로 서버 둘을 적고 <code><span class="nb">least-busy</span></code>를 고른다.</li>
+</ol>
+<figure class="code"><figcaption class="code__bar"><span class="measured"><span class="nb">config.yaml</span> <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">model_list</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> auto</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> {</span><span style="color:var(--astro-code-token-keyword)">model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string)"> openai/model-a</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;http://server-a:8080/v1&quot;</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string)"> none</span><span style="color:var(--astro-code-foreground)">}   </span><span style="color:var(--astro-code-token-comment)"># 느린 서버</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> auto</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> {</span><span style="color:var(--astro-code-token-keyword)">model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string)"> openai/model-b</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;http://server-b:8081/v1&quot;</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string)"> none</span><span style="color:var(--astro-code-foreground)">}   </span><span style="color:var(--astro-code-token-comment)"># 빠른 서버</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">router_settings</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  routing_strategy</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> least-busy</span></span></code></pre></figure>
+<ol start="2">
+<li>스레드 4개로 <code>auto</code>에 같은 순간 요청을 보낸다. 답이 몇 초 걸리는 긴 질문이어야 한다.</li>
+<li>응답 헤더 <code><span class="nb">x-litellm-model-api-base</span></code>로 어느 서버가 답했는지 본다. 첫 서버로 쏠린다.</li>
+</ol>
+<h2 id="원인">원인</h2>
+<p><strong>확인한 것</strong></p>
+<ul>
+<li>서버를 고르는 함수는 처리 중인 요청 수가 가장 적은 서버를 고르고, 수가 같으면 목록의 첫 서버를 <span class="nb">고른다(1.106.6의</span> <code>litellm/router_strategy/least_busy.py</code><span class="nb">).</span></li>
+<li>그 수는 서버를 고른 뒤, 요청을 실제로 보내기 <span class="nb">직전(</span><code><span class="nb">log_pre_api_call</span></code><span class="nb">)에</span> 늘어난다.</li>
+<li>이 방식은 서버가 얼마나 빠른지는 보지 않는다.</li>
+</ul>
+<p><strong>추정한 것</strong></p>
+<ul>
+<li>한꺼번에 온 요청은 앞선 요청의 수가 늘기 전에 서버를 골라서 같은 수로 보고, 첫 서버로 쏠린 것으로 본다. 다시 해 보니 빠른 서버를 먼저 적었을 때 2개씩 나뉘었다. 늘 같은 비율로 쏠리지는 않는다.</li>
+</ul>
+<h2 id="해결">해결</h2>
+<p>빠른 서버를 목록 앞에 적었습니다. 수가 같으면 빠른 쪽으로 가니, 한꺼번에 오는 요청도 한가할 때 오는 요청도 빠른 서버가 먼저 받습니다. 4개가 모두 끝나는 시간이 <span class="nb">84.5초에서</span> <span class="nb">48.5초가</span> 됐습니다. 빠른 서버 하나에 다 보낸 <span class="nb">41.3초보다는</span> 여전히 느립니다. 빠르기를 따지려면 <code><span class="nb">latency-based-routing</span></code> 같은 다른 방식을 봐야 하는데, 이번에는 시험하지 않았습니다.</p>
+<aside class="note" aria-labelledby="note-7rzbpk"><h3 id="note-7rzbpk">빠른 서버가 꺼져 있을 때</h3><p>빠른 쪽은 잠들 수 있는 노트북이었습니다. 그런데 LiteLLM은 연결이 안 되는 <span class="nb">오류(</span><code>APIConnectionError</code><span class="nb">)가</span> 나도 그 서버를 잠시 쉬게 하지 <span class="nb">않습니다(</span><code>litellm/router_utils/cooldown_handlers.py</code><span class="nb">).</span> 앞에 적은 서버가 꺼지면 요청이 계속 그쪽으로 갈 수 있습니다. 그래서 세 가지를 더했습니다.</p><ul>
+<li><code><span class="nb">background_health_checks</span></code>와 <code><span class="nb">health_check_interval:</span> 60</code>: 노트북만 1분마다 확인한다. 늘 켜진 쪽은 <code>disable_background_health_check: true</code>로 뺐다.</li>
+<li><code>enable_health_check_routing: true</code>: 확인에서 떨어진 서버로는 보내지 않는다.</li>
+<li><code>fallbacks</code>: 그래도 실패하면 늘 켜진 서버의 이름으로 넘긴다.</li>
+</ul><p>연결을 거절하는 가짜 서버를 앞에 적어 시험했습니다. 3번 모두 뒤의 서버가 답했고, 넘기기만 걸어 둔 이름은 <span class="nb">0.9초</span> 만에 다른 서버가 대신 답했습니다.</p></aside>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-16"><li><time class="measured" datetime="2026-11-16T20:04+09:00"><span class="nb">20:04</span></time><span class="trail__what">느린 서버를 먼저 적고 4개를 한꺼번에</span><code class="trail__got">느린 쪽 3개, <span class="nb">84.5초</span></code></li><li><time class="measured" datetime="2026-11-16T20:08+09:00"><span class="nb">20:08</span></time><span class="trail__what">LiteLLM 코드에서 고르는 방식 확인</span><code class="trail__got">수가 같으면 첫 서버</code></li><li><time class="measured" datetime="2026-11-16T20:09+09:00"><span class="nb">20:09</span></time><span class="trail__what">빠른 서버를 먼저 적고 다시</span><code class="trail__got">2개씩, <span class="nb">48.5초</span></code></li><li><time class="measured" datetime="2026-11-16T20:11+09:00"><span class="nb">20:11</span></time><span class="trail__what">연결을 거절하는 서버를 앞에 두고 시험</span><code class="trail__got">3번 모두 뒤의 서버</code></li><li><time class="measured" datetime="2026-11-16T20:29+09:00"><span class="nb">20:29</span></time><span class="trail__what">실패하면 넘기는지 시험</span><code class="trail__got"><span class="nb">0.9초</span> 만에 대신 답함</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/bugs/"><small>처음으로</small><strong>버그 목록</strong></a><a href="/bugs/category/gateway/" class="pager__next"><small>같은 분류</small><strong>게이트웨이</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 기록에서</h2><ol><li><a href="#증상">증상</a></li><li><a href="#재현-순서">재현 순서</a></li><li><a href="#원인">원인</a></li><li><a href="#해결">해결</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html>

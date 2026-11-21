@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ollama 기본값 손보기 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 6편. Ollama의 기본값을 소스에서 확인하고, Mac mini에서 하나씩 바꿔 가며 쟀습니다. 이 Mac mini의 기본 기억할 글 길이는 4,096토큰이었고, llama.cpp 엔진은 이보다 긴 글의 앞을 잘라 2,051토큰만 읽은 채 오류 없이 엉뚱하게 답했습니다. MLX 엔진은 2만 4천 토큰까지 자르지 않고 다 읽었고, 대화 기억 압축과 동시 요청 설정은 llama.cpp 엔진에만 들었습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-06-defaults/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="Ollama 기본값 손보기 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 6편. Ollama의 기본값을 소스에서 확인하고, Mac mini에서 하나씩 바꿔 가며 쟀습니다. 이 Mac mini의 기본 기억할 글 길이는 4,096토큰이었고, llama.cpp 엔진은 이보다 긴 글의 앞을 잘라 2,051토큰만 읽은 채 오류 없이 엉뚱하게 답했습니다. MLX 엔진은 2만 4천 토큰까지 자르지 않고 다 읽었고, 대화 기억 압축과 동시 요청 설정은 llama.cpp 엔진에만 들었습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-06-defaults/"><meta property="article:published_time" content="2026-11-20T04:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Ollama 기본값 손보기","description":"Ollama로 다시 돌려 보기 6편. Ollama의 기본값을 소스에서 확인하고, Mac mini에서 하나씩 바꿔 가며 쟀습니다. 이 Mac mini의 기본 기억할 글 길이는 4,096토큰이었고, llama.cpp 엔진은 이보다 긴 글의 앞을 잘라 2,051토큰만 읽은 채 오류 없이 엉뚱하게 답했습니다. MLX 엔진은 2만 4천 토큰까지 자르지 않고 다 읽었고, 대화 기억 압축과 동시 요청 설정은 llama.cpp 엔진에만 들었습니다.","datePublished":"2026-11-20T04:00:00.000Z","dateModified":"2026-11-20T04:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-06-defaults/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-06-defaults/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script>(function(){const gaId = "G-8W7XDWBK2X";
+const gaHost = "teddybears56.github.io";
+
+				// Counts visits only on the real address, so local previews never reach Google Analytics. A browser can
+				// opt out: open any page with ?notrack=1 once (?notrack=0 undoes it); the choice is kept in localStorage.
+				(function () {
+					var KEY = 'cyborg-notrack';
+					var off = false;
+					try {
+						var q = new URLSearchParams(location.search).get('notrack');
+						if (q === '1') localStorage.setItem(KEY, '1');
+						if (q === '0') localStorage.removeItem(KEY);
+						off = localStorage.getItem(KEY) === '1';
+					} catch (e) {}
+					if (off || location.hostname !== gaHost) {
+						window['ga-disable-' + gaId] = true;
+						return;
+					}
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					window.gtag = function () { dataLayer.push(arguments); };
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();
+			})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>6편</li></ol></nav><h1 id="post-title">Ollama 기본값 손보기</h1><p class="post__lead">2편부터 5편까지는 Ollama를 기억할 글 길이 <span class="nb">49,152토큰,</span> 요청 하나, 모델 하나, 모델 붙잡아 두기 30분, 대화 기억 f16으로 정해 띄웠습니다. 이번에는 그 설정을 모두 빼고, Ollama의 기본값이 무엇인지와 그대로 두면 무슨 일이 생기는지를 Mac mini에서 하나씩 쟀습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-20"><span class="nb">2026-11-20</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>기본값이 무엇인지 본다.</strong> Ollama <span class="nb">0.40.16의</span> 소스와 실행 기록에서 확인한다.</li>
+<li><strong>기본값 그대로 긴 글을 읽힌다.</strong> 엔진마다 글을 다 읽는지 본다.</li>
+<li><strong>네 가지를 하나씩 바꿔 본다.</strong> 기억할 글 길이, 대화 기억 압축, 모델 내리기, 동시 요청이다. 바꿀 때마다 Ollama를 그 단계의 설정만 주고 다시 띄웠다.</li>
+</ol>
+<h2 id="ollama의-기본값">Ollama의 기본값</h2>
+<p>설정은 Ollama를 띄울 때 환경 변수로 줍니다. 아무것도 주지 않으면 이렇게 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>하는 일</th>
+<th>설정</th>
+<th>기본값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기억할 글 길이</td>
+<td><code>OLLAMA_CONTEXT_LENGTH</code></td>
+<td>GPU 메모리에 따라 <span class="nb">4,096,</span> <span class="nb">32,768,</span> <span class="nb">262,144토큰</span></td>
+</tr>
+<tr>
+<td>대화 기억 정밀도</td>
+<td><code>OLLAMA_KV_CACHE_TYPE</code></td>
+<td>f16</td>
+</tr>
+<tr>
+<td>모델 붙잡아 두기</td>
+<td><code>OLLAMA_KEEP_ALIVE</code></td>
+<td>마지막 요청 뒤 5분</td>
+</tr>
+<tr>
+<td>동시 요청</td>
+<td><code>OLLAMA_NUM_PARALLEL</code></td>
+<td>한 모델에 1개</td>
+</tr>
+<tr>
+<td>함께 올릴 모델</td>
+<td><code>OLLAMA_MAX_LOADED_MODELS</code></td>
+<td>GPU 하나에 3개</td>
+</tr>
+</tbody>
+</table></div>
+<p>대화 기억은 KV 캐시라고도 부릅니다. 모델이 이미 읽은 글을 다시 계산하지 않으려고 메모리에 담아 두는 중간 결과입니다.</p>
+<p>기억할 글 길이의 기본값은 GPU가 쓸 수 있는 메모리로 정합니다. 23GiB보다 적으면 <span class="nb">4,096,</span> 23GiB 이상이면 <span class="nb">32,768,</span> 47GiB 이상이면 <span class="nb">262,144토큰입니다(</span><code><span class="nb">server/routes.go</span></code><span class="nb">).</span> Mac mini는 <a href="/posts/02-engine/">지난 연재 2단계</a>에서 GPU가 쓸 몫을 22GB로 올려 두었습니다. Ollama는 이것을 <span class="nb">22.0GiB로</span> 읽어 <span class="nb">4,096을</span> 골랐습니다. 노트북의 Ollama는 GPU 메모리를 <span class="nb">23.9GiB로</span> 읽어 <span class="nb">32,768을</span> 골랐습니다. 같은 Ollama라도 기계에 따라 기본값이 달랐습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, Ollama 기록, 설정 없이 띄웠을 때</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>level=INFO source=routes.go:2586 msg=&quot;vram-based default context&quot; total_vram=&quot;22.0 GiB&quot; default_num_ctx=4096</span></span></code></pre></figure>
+<h2 id="기본값에서-llamacpp-엔진은-글의-앞을-잘랐다">기본값에서 <span class="nb">llama.cpp</span> 엔진은 글의 앞을 잘랐다</h2>
+<p>글 첫머리에 <span class="nb">「이</span> 글의 암호 낱말은 <span class="nb">「은행나무」입니다」를</span> 적고, 그 뒤에 지난 연재의 글을 붙인 다음, 맨 끝에서 암호 낱말을 물었습니다. 붙인 글은 4천 자, 1만 2천 자, 4만 5천 자입니다. 모델은 Gemma 4 26B와 <span class="nb">Qwen3.8</span> 27B를 MLX 엔진 태그와 <span class="nb">llama.cpp</span> 엔진 <span class="nb">태그(GGUF)로</span> 썼습니다. GGUF Gemma는 5편처럼 초안 모델을 끄고 본 모델만 쟀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>4천 자</th>
+<th>1만 2천 자</th>
+<th>4만 5천 자</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 MLX</td>
+<td><span class="nb">2,133토큰,</span> 맞음</td>
+<td><span class="nb">6,574토큰,</span> 맞음</td>
+<td><span class="nb">24,432토큰,</span> 맞음</td>
+</tr>
+<tr>
+<td>Gemma 4 GGUF</td>
+<td><span class="nb">2,133토큰,</span> 맞음</td>
+<td><span class="nb">2,051토큰,</span> 틀림</td>
+<td><span class="nb">2,051토큰,</span> 틀림</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> MLX</td>
+<td><span class="nb">2,021토큰,</span> 맞음</td>
+<td><span class="nb">6,270토큰,</span> 맞음</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> GGUF</td>
+<td><span class="nb">2,020토큰,</span> 맞음</td>
+<td><span class="nb">2,050토큰,</span> 틀림</td>
+<td>-</td>
+</tr>
+</tbody>
+</table></div>
+<p>토큰 수는 모델이 실제로 읽은 수입니다. <span class="nb">Qwen3.8은</span> 읽기가 느려 4만 5천 자는 건너뛰었습니다.</p>
+<ul>
+<li><strong>Ollama는 <span class="nb">llama.cpp</span> 엔진에 보내기 전에 <span class="nb">4,095토큰을</span> 넘는 글을 <span class="nb">2,051토큰으로</span> 잘랐다.</strong> <span class="nb">Qwen3.8은</span> <span class="nb">2,050토큰이었다.</span> 맨 앞의 몇 <span class="nb">토큰(</span><code><span class="nb">num_keep</span></code> 4, 시작 토큰을 붙이는 Gemma는 <span class="nb">5)을</span> 남기고, 나머지는 끝에서부터 남겼다. 기억할 글 길이의 절반쯤을 답 쓸 자리로 비워 두는 <span class="nb">계산이다(</span><code><span class="nb">llm/llama_server.go</span></code><span class="nb">).</span> 그래서 <span class="nb">4,095토큰까지는</span> 다 읽지만, 조금만 넘어도 절반만 읽는다.</li>
+<li><strong>오류는 없었다.</strong> 기록에 경고 한 줄만 남았고, 모델은 남은 글에서 낱말을 골라 <span class="nb">「악보」,</span> <span class="nb">「실」,</span> <span class="nb">「llama.cpp」라고</span> 답했다. <a href="/posts/ollama-04-direct/">4편</a>에서 Claude Code의 첫 요청이 <span class="nb">2,050토큰으로</span> 잘린 것도 같은 까닭이다.</li>
+<li><strong>MLX 엔진은 자르지 않았다.</strong> Ollama는 MLX 모델에는 자르기를 <span class="nb">끈다(</span><code><span class="nb">server/routes.go</span></code><span class="nb">).</span> MLX 실행기에게 기억할 글 길이는 보고용 값일 뿐이고, 대화 기억은 글이 들어오는 대로 256토큰 단위로 <span class="nb">늘린다(</span><code><span class="nb">mlxrunner/client.go</span></code>, <code>mlxrunner/cache/kvcache.go</code><span class="nb">).</span></li>
+<li><strong>대신 MLX 엔진은 읽은 만큼 메모리를 더 썼다.</strong> Ollama가 보고한 크기는 Gemma가 <span class="nb">15.0GiB에서</span> <span class="nb">24,432토큰을</span> 읽은 뒤 <span class="nb">17.2GiB,</span> <span class="nb">Qwen3.8이</span> <span class="nb">17.2GiB에서</span> <span class="nb">6,270토큰</span> 뒤 <span class="nb">18.6GiB였다.</span> <span class="nb">Qwen3.8은</span> 올릴 때부터 스왑이 <span class="nb">0.5GB에서</span> <span class="nb">0.6GB로</span> 늘었고, <span class="nb">6,270토큰을</span> 읽자 1GB를 넘었다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, Ollama 기록, 기본값에서 GGUF Gemma에 긴 글을 보냈을 때</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>level=WARN source=llama_server.go:344 msg=&quot;truncating input prompt&quot; limit=2051 prompt=6575 keep=5 new=2051</span></span>
+<span class="line"><span>level=WARN source=llama_server.go:344 msg=&quot;truncating input prompt&quot; limit=2051 prompt=24430 keep=5 new=2051</span></span></code></pre></figure>
+<h2 id="기억할-글-길이를-늘리면">기억할 글 길이를 늘리면</h2>
+<p><code><span class="nb">OLLAMA_CONTEXT_LENGTH</span></code>를 <span class="nb">32,768과</span> <span class="nb">65,536으로</span> 주고 GGUF 모델을 다시 올렸습니다. <span class="nb">llama.cpp</span> 엔진은 정한 길이만큼 대화 기억 자리를 처음부터 잡습니다. 크기는 <span class="nb">llama.cpp가</span> 기록에 남긴 값입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>길이</th>
+<th>Gemma 4 GGUF 대화 기억</th>
+<th><span class="nb">24,432토큰</span> 읽기</th>
+<th><span class="nb">Qwen3.8</span> GGUF 대화 기억</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">4,096</span></td>
+<td>80 + 300MiB</td>
+<td>잘림</td>
+<td>256MiB</td>
+</tr>
+<tr>
+<td><span class="nb">32,768</span></td>
+<td>640 + 300MiB</td>
+<td>맞음, 초당 256토큰</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class="nb">65,536</span></td>
+<td><span class="nb">1,280</span> + 300MiB</td>
+<td>맞음, 초당 257토큰</td>
+<td><span class="nb">4,096MiB</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>길이를 늘리자 끝까지 읽고 맞혔다.</strong> <span class="nb">32,768에서</span> Gemma는 세 길이 모두 맞혔다.</li>
+<li><strong>Gemma의 대화 기억은 두 덩어리였다.</strong> <span class="nb">하나(300MiB)는</span> 길이와 상관없이 같았고, 다른 하나만 길이에 비례해 늘었다.</li>
+<li><strong><span class="nb">Qwen3.8은</span> <span class="nb">65,536에서</span> GPU에 다 올라가지 못했다.</strong> 대화 기억이 4GiB가 되자 층 66개 가운데 64개만 GPU에 올라갔다. 남은 메모리는 <span class="nb">3~6%,</span> 스왑은 <span class="nb">1.0GB</span> 가까이 됐고, 짧은 글을 읽는 속도도 초당 <span class="nb">57.7에서</span> <span class="nb">53.4토큰으로</span> 떨어졌다.</li>
+<li><strong>긴 글일수록 읽는 속도는 느렸다.</strong> <span class="nb">32,768에서</span> Gemma GGUF는 <span class="nb">2,134토큰을</span> 초당 374, <span class="nb">6,574토큰을</span> 340, <span class="nb">24,432토큰을</span> 256토큰씩 읽었다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, Ollama 기록, <span class="nb">65,536토큰에서</span> <span class="nb">Qwen3.8</span> GGUF</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>load_tensors: offloaded 64/66 layers to GPU</span></span>
+<span class="line"><span>llama_kv_cache:       MTL0 KV buffer size =  4096.00 MiB</span></span></code></pre></figure>
+<h2 id="대화-기억-압축은-llamacpp-엔진에만-들었다">대화 기억 압축은 <span class="nb">llama.cpp</span> 엔진에만 들었다</h2>
+<p><code><span class="nb">OLLAMA_KV_CACHE_TYPE</span></code>을 f16, <span class="nb">q8_0,</span> <span class="nb">q4_0으로</span> 바꿨습니다. 기억할 글 길이는 <span class="nb">32,768로</span> 두고, 1만 2천 <span class="nb">자(6,600토큰쯤)</span> 글을 읽힌 뒤 짧은 질문 <span class="nb">셋(코드,</span> 한국어, <span class="nb">영어)에</span> 답하게 했습니다. <span class="nb">q8_0은</span> 숫자 하나를 8비트, <span class="nb">q4_0은</span> 4비트로 담고, 숫자 32개마다 배율을 하나씩 더 담습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>정밀도</th>
+<th>대화 기억</th>
+<th>읽기</th>
+<th>답 쓰기</th>
+<th>짧은 답 셋</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>f16</td>
+<td>640 + 300MiB</td>
+<td>339</td>
+<td><span class="nb">26.6~27.0</span></td>
+<td>기준</td>
+</tr>
+<tr>
+<td><span class="nb">q8_0</span></td>
+<td>340 + 159MiB</td>
+<td>322</td>
+<td><span class="nb">26.0~26.4</span></td>
+<td>f16과 같음</td>
+</tr>
+<tr>
+<td><span class="nb">q4_0</span></td>
+<td>180 + 84MiB</td>
+<td>325</td>
+<td><span class="nb">25.9~26.2</span></td>
+<td>달라짐</td>
+</tr>
+</tbody>
+</table></div>
+<p>모델은 Gemma 4 GGUF이고, 속도는 초당 토큰입니다.</p>
+<ul>
+<li><strong><span class="nb">q8_0은</span> 대화 기억을 절반 가까이 줄였고, 짧은 답 셋은 f16과 글자까지 같았다.</strong> 긴 글의 암호 낱말도 맞혔다. 읽기와 답 쓰기 속도는 거의 <span class="nb">같았다(한</span> 번씩만 <span class="nb">쟀다).</span> 긴 대화에서 답이 그대로인지는 따로 보지 않았다.</li>
+<li><strong><span class="nb">q4_0은</span> 4분의 1 남짓으로 줄었지만 답이 바뀌었다.</strong> 세 답이 17번째, 23번째, 178번째 글자부터 갈렸다. 낱말과 문장만 달랐고 틀린 답은 없었다.</li>
+<li><strong>flash attention은 따로 켜지 않아도 됐다.</strong> <span class="nb">기본값(auto)에서</span> 이미 켜져 있었고, <span class="nb">q8_0과</span> <span class="nb">q4_0에서는</span> <span class="nb">llama.cpp가</span> <span class="nb">「양자화한</span> V 캐시에는 flash attention이 <span class="nb">필요하다」며</span> 켜기로 정했다.</li>
+<li><strong>MLX 엔진은 이 설정을 쓰지 않았다.</strong> <span class="nb">q8_0을</span> 줘도 Ollama가 보고한 크기가 f16과 <span class="nb">같았다(6,574토큰</span> 뒤 <span class="nb">15.6GiB).</span> Ollama 소스에서도 이 값은 <span class="nb">llama.cpp</span> 엔진을 띄울 때만 쓰인다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, Ollama 기록, <span class="nb">q8_0에서</span> GGUF Gemma</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>llama_init_from_model: enabling flash_attn since it is required for quantized V cache</span></span>
+<span class="line"><span>llama_kv_cache:       MTL0 KV buffer size =   340.00 MiB</span></span>
+<span class="line"><span>llama_kv_cache:       MTL0 KV buffer size =   159.38 MiB</span></span></code></pre></figure>
+<h2 id="모델은-5분-뒤에-내려갔다">모델은 5분 뒤에 내려갔다</h2>
+<p>요청을 하나 보낸 뒤 15초마다 Ollama에 올라 있는 모델을 물었습니다.</p>
+<ul>
+<li><strong>두 엔진 모두 5분 뒤에 내렸다.</strong> Ollama가 알려 준 내릴 시각도 요청에서 정확히 5분 뒤였다.</li>
+<li><strong>내려간 뒤 다시 부르면 올리는 시간만큼 더 기다렸다.</strong> 그사이 다른 모델을 쓰지 않았을 때 <span class="nb">Qwen3.8</span> MLX는 <span class="nb">7.2초,</span> Gemma GGUF는 <span class="nb">1.6초였다.</span> 다른 모델을 쓴 뒤라면 GGUF Gemma는 <span class="nb">9.9~11.7초</span> 걸렸다. 방금 읽은 파일이 운영체제의 파일 캐시에 남아 있으면 빨라지는 것으로 보인다. Ollama만 다시 띄우고 같은 파일을 곧바로 올렸을 때도 <span class="nb">2.1~2.3초였다.</span></li>
+<li><strong>요청에 <code><span class="nb">keep_alive:</span> 0</code>을 넣으면 답한 뒤 바로 내렸다.</strong> 3초 뒤에는 이미 없었다.</li>
+<li><strong>기본값으로도 모델 여럿을 올려 두지만, 메모리가 모자라면 앞의 것을 내렸다.</strong> <span class="nb">Qwen3.8</span> <span class="nb">MLX(17.2GiB)를</span> 올린 뒤 Gemma <span class="nb">MLX(15.0GiB)를</span> 부르자 <span class="nb">Qwen3.8을</span> 내리고 Gemma만 올렸다. 이어서 작은 <span class="nb">qwen3:0.6b(0.8GiB)를</span> 부르자 Gemma와 함께 올렸다.</li>
+</ul>
+<h2 id="동시-요청은-llamacpp-엔진에만-들었다">동시 요청은 <span class="nb">llama.cpp</span> 엔진에만 들었다</h2>
+<p>서로 다른 짧은 질문 넷을 한꺼번에 보냈습니다. 답은 120토큰까지로 막았고, 실제로는 <span class="nb">87~112토큰이었습니다.</span> 모델은 Gemma 4이고, GGUF는 앞에서처럼 초안 모델을 끄고 MLX는 기본 태그 그대로 썼습니다. 그래서 두 엔진의 시간을 서로 견주는 표는 아닙니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>동시 요청</th>
+<th>엔진</th>
+<th>첫 글자까지</th>
+<th>다 끝남</th>
+<th>대화 기억</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>MLX</td>
+<td><span class="nb">0.4,</span> <span class="nb">3.5,</span> <span class="nb">6.3,</span> <span class="nb">8.7</span></td>
+<td><span class="nb">12.3</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>1</td>
+<td><span class="nb">llama.cpp</span></td>
+<td><span class="nb">0.3,</span> <span class="nb">3.6,</span> <span class="nb">7.7,</span> <span class="nb">11.4</span></td>
+<td><span class="nb">16.0</span></td>
+<td>380MiB</td>
+</tr>
+<tr>
+<td>4</td>
+<td>MLX</td>
+<td><span class="nb">0.4,</span> <span class="nb">3.2,</span> <span class="nb">5.9,</span> <span class="nb">8.3</span></td>
+<td><span class="nb">11.8</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="nb">llama.cpp</span></td>
+<td><span class="nb">0.3~0.8</span></td>
+<td><span class="nb">7.8</span></td>
+<td><span class="nb">1,520MiB</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>동시 요청 1이 기본값입니다. 시간은 넷을 보낸 때부터 잰 초이고, 대화 기억은 앞 절의 두 덩어리를 더한 값입니다.</p>
+<ul>
+<li><strong>기본값 1에서는 한 요청이 끝나야 다음 요청이 시작됐다.</strong> 마지막 요청은 첫 글자를 보기까지 <span class="nb">9~11초를</span> 기다렸다.</li>
+<li><strong>4로 올리자 <span class="nb">llama.cpp</span> 엔진은 넷을 함께 돌렸다.</strong> 다 끝나는 시간이 <span class="nb">16.0초에서</span> <span class="nb">7.8초로</span> 줄었다. 대신 요청 하나의 답 쓰기는 초당 <span class="nb">26.7토큰에서</span> <span class="nb">14.0~15.6토큰으로</span> 느려졌고, 요청마다 <span class="nb">4,096토큰씩</span> 자리를 잡아 대화 기억이 네 배가 됐다.</li>
+<li><strong>MLX 엔진은 4로 올려도 하나씩 답했다.</strong> MLX 실행기는 요청 하나를 끝내야 다음 요청을 <span class="nb">꺼낸다(</span><code><span class="nb">mlxrunner/runner.go</span></code><span class="nb">).</span> Ollama도 실행기에 동시 요청 수를 넘기지 <span class="nb">않는다(</span><code><span class="nb">server/sched.go</span></code><span class="nb">).</span></li>
+</ul>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>이 Mac mini의 기본 기억할 글 길이는 <span class="nb">4,096토큰이다.</span></strong> GPU 몫 22GiB가 Ollama의 기준 23GiB에 조금 못 미쳤다. 노트북은 <span class="nb">32,768이었다.</span></li>
+<li><strong>GGUF 모델을 쓴다면 기억할 글 길이를 꼭 정해야 한다.</strong> 기본값에서는 <span class="nb">4,095토큰을</span> 넘는 글의 앞을 잘라 읽고, 오류 대신 엉뚱한 답을 낸다.</li>
+<li><strong>MLX 엔진은 길이를 정하지 않아도 자르지 않는다.</strong> 2만 4천 토큰까지 다 읽었다. 대신 읽은 만큼 메모리를 더 써서, 24GB Mac mini에서 <span class="nb">Qwen3.8은</span> 6천 토큰을 읽자 스왑이 1GB를 넘었다.</li>
+<li><strong><span class="nb">llama.cpp</span> 엔진에서는 대화 기억을 <span class="nb">q8_0으로</span> 줄여도 짧은 답이 글자까지 같았다.</strong> 길이를 늘리면서 메모리를 아끼는 데 쓸 만하다. 다만 긴 대화에서는 보지 않았다. <span class="nb">q4_0은</span> 낱말이 바뀌었다.</li>
+<li><strong>대화 기억 압축과 동시 요청은 <span class="nb">llama.cpp</span> 엔진에만 듣는다.</strong> Mac의 기본 태그가 쓰는 MLX 엔진에는 두 설정 모두 아무 일도 하지 않았다.</li>
+<li><strong>모델은 5분 뒤에 내려갔고, 다시 부르면 올리는 데만 <span class="nb">1.6~11.7초를</span> 더 기다렸다.</strong> 늘 켜 둘 서버라면 붙잡아 두는 시간을 늘리거나, 첫 요청이 늦는 것을 받아들여야 한다. 7편에서 정한다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-20"><li><time class="measured" datetime="2026-11-20T12:01+09:00"><span class="nb">12:01</span></time><span class="trail__what">Ollama <span class="nb">0.40.16</span> 소스에서 기본값을 읽음</span><code class="trail__got">길이는 GPU 메모리로 정함</code></li><li><time class="measured" datetime="2026-11-20T12:05+09:00"><span class="nb">12:05</span></time><span class="trail__what">설정 없이 Ollama를 띄움</span><code class="trail__got"><span class="nb">22.0GiB,</span> 기본 길이 <span class="nb">4,096</span></code></li><li><time class="measured" datetime="2026-11-20T12:08+09:00"><span class="nb">12:08</span></time><span class="trail__what">기본값에서 GGUF Gemma에 긴 글을 보냄</span><code class="trail__got"><span class="nb">2,051토큰으로</span> 잘림</code></li><li><time class="measured" datetime="2026-11-20T12:12+09:00"><span class="nb">12:12</span></time><span class="trail__what">기억할 글 길이를 <span class="nb">32,768로</span> 줌</span><code class="trail__got"><span class="nb">24,432토큰</span> 다 읽고 맞힘</code></li><li><time class="measured" datetime="2026-11-20T12:16+09:00"><span class="nb">12:16</span></time><span class="trail__what"><span class="nb">65,536에서</span> <span class="nb">Qwen3.8</span> GGUF를 올림</span><code class="trail__got">층 66개 가운데 64개만 GPU</code></li><li><time class="measured" datetime="2026-11-20T12:18+09:00"><span class="nb">12:18</span></time><span class="trail__what">대화 기억을 <span class="nb">q8_0,</span> <span class="nb">q4_0으로</span> 바꿈</span><code class="trail__got"><span class="nb">q8_0은</span> 짧은 답이 같음</code></li><li><time class="measured" datetime="2026-11-20T12:21+09:00"><span class="nb">12:21</span></time><span class="trail__what">요청 뒤 모델이 내려가기를 기다림</span><code class="trail__got">300초 뒤 내려감</code></li><li><time class="measured" datetime="2026-11-20T12:32+09:00"><span class="nb">12:32</span></time><span class="trail__what">질문 넷을 한꺼번에 보냄</span><code class="trail__got">동시 요청 4는 <span class="nb">llama.cpp에서만</span> 들음</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-07-always-on/" class="pager__next"><small>다음 글</small><strong>7편 늘 켜 두기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#ollama의-기본값">Ollama의 기본값</a></li><li><a href="#기본값에서-llamacpp-엔진은-글의-앞을-잘랐다">기본값에서 <span class="nb">llama.cpp</span> 엔진은 글의 앞을 잘랐다</a></li><li><a href="#기억할-글-길이를-늘리면">기억할 글 길이를 늘리면</a></li><li><a href="#대화-기억-압축은-llamacpp-엔진에만-들었다">대화 기억 압축은 <span class="nb">llama.cpp</span> 엔진에만 들었다</a></li><li><a href="#모델은-5분-뒤에-내려갔다">모델은 5분 뒤에 내려갔다</a></li><li><a href="#동시-요청은-llamacpp-엔진에만-들었다">동시 요청은 <span class="nb">llama.cpp</span> 엔진에만 들었다</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">2</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-21T11:22:53.205Z"><span class="nb">11-21</span> <span class="nb">20:22</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>
