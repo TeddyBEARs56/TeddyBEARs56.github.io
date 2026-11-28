@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LLM을 올릴 서버 준비하기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 0단계. LLM을 올리기 전에 서버를 준비한 기록입니다. 잠들지 않게 하고, 암호 없이 들어가게 하고, 설치 도구를 깔았습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/00-server/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="LLM을 올릴 서버 준비하기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 0단계. LLM을 올리기 전에 서버를 준비한 기록입니다. 잠들지 않게 하고, 암호 없이 들어가게 하고, 설치 도구를 깔았습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/00-server/"><meta property="article:published_time" content="2026-11-12T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"LLM을 올릴 서버 준비하기","description":"로컬 LLM 연재 0단계. LLM을 올리기 전에 서버를 준비한 기록입니다. 잠들지 않게 하고, 암호 없이 들어가게 하고, 설치 도구를 깔았습니다.","datePublished":"2026-11-12T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/00-server/","mainEntityOfPage":"https://teddybears56.github.io/posts/00-server/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>0단계</li></ol></nav><h1 id="post-title">LLM을 올릴 서버 준비하기</h1><p class="post__lead">LLM 서버는 질문이 언제 올지 모릅니다. 그래서 모델보다 먼저, 늘 켜져 있고 원격으로 들어갈 수 있는 컴퓨터가 필요합니다. 이번 단계에서는 암호 대신 SSH 키로 들어가게 하고, 잠자기를 끄고, 설치 도구를 깝니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-12"><span class="nb">2026-11-12</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 3분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>SSH 키를 등록한다.</strong> 암호 없이 들어가야 Claude가 혼자 일할 수 있다.</li>
+<li><strong>잠자기를 끈다.</strong> 질문이 언제 올지 모른다.</li>
+<li><strong>설치 도구를 깐다.</strong> 엔진을 직접 빌드하려면 Homebrew가 필요하다.</li>
+<li><strong>설정을 점검한다.</strong> 뒤 단계에서 손볼 곳을 미리 적어 둔다.</li>
+</ol>
+<h2 id="설치-환경">설치 환경</h2>
+<p>막 초기화한 Apple M4 컴퓨터입니다. 앞으로 모델을 고를 때 가장 중요한 숫자는 <strong>메모리 24GB</strong>입니다. 모델은 이 안에 들어가야 돌아갑니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>칩</td>
+<td>Apple M4, 성능 코어 4개와 효율 코어 6개</td>
+</tr>
+<tr>
+<td>메모리</td>
+<td><code>24 GB</code>, CPU와 GPU가 함께 쓰는 통합 메모리</td>
+</tr>
+<tr>
+<td>운영체제</td>
+<td><code>macOS <span class="nb">27.0.1</span></code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="서버가-남긴-기록">서버가 남긴 기록</h2>
+<p>아래 시각은 서버가 파일에 남긴 그대로입니다.</p>
+<ol class="trail" aria-label="작업 기록, 2026-11-12"><li><time class="measured" datetime="2026-11-12T18:58+09:00"><span class="nb">18:58</span></time><span class="trail__what">내 컴퓨터에서 SSH 키 한 쌍을 만들었다</span><code class="trail__got"><span class="nb">id_ed25519</span></code></li><li><time class="measured" datetime="2026-11-12T18:59+09:00"><span class="nb">18:59</span></time><span class="trail__what">서버에 공개 키를 등록하고 암호를 쳤다</span><code class="trail__got"><span class="nb">authorized_keys</span></code></li><li><time class="measured" datetime="2026-11-12T18:59+09:00"><span class="nb">18:59</span></time><span class="trail__what">서버의 상태를 읽었다</span><code class="trail__got">sleep 1</code></li><li><time class="measured" datetime="2026-11-12T19:01+09:00"><span class="nb">19:01</span></time><span class="trail__what">잠자기를 끄고 관리자 암호를 쳤다</span><code class="trail__got">sleep 0</code></li><li><time class="measured" datetime="2026-11-12T19:02+09:00"><span class="nb">19:02</span></time><span class="trail__what">애플 개발 도구가 깔렸다</span><code class="trail__got">CommandLineTools</code></li><li><time class="measured" datetime="2026-11-12T19:03+09:00"><span class="nb">19:03</span></time><span class="trail__what">Homebrew 설치가 끝났다</span><code class="trail__got">Homebrew <span class="nb">7.0.13</span></code></li><li><time class="measured" datetime="2026-11-12T19:07+09:00"><span class="nb">19:07</span></time><span class="trail__what">brew를 어디서나 찾도록 경로를 등록했다</span><code class="trail__got"><span class="nb">.zprofile</span></code></li></ol>
+<h2 id="1-암호-없이-들어가는-ssh-키">1. 암호 없이 들어가는 SSH 키</h2>
+<p>암호로 들어가면 그때마다 사람이 있어야 합니다. 그래서 SSH 키를 씁니다. SSH 키는 암호 대신 접속하는 사람을 확인하는 데 쓰는 파일 두 개, 공개 키와 개인 키입니다. 공개 키는 서버에 등록해 두고, 개인 키는 내 컴퓨터에만 두고 남에게 주지 않습니다. 서버는 접속하는 쪽이 등록된 공개 키와 짝이 맞는 개인 키를 가졌는지 확인하고 들여보냅니다. 이렇게 해 두면 <strong>Claude가 혼자서도 서버에 들어가 일할 수 있습니다</strong>.</p>
+<aside class="note" aria-labelledby="note-urn5dy"><h3 id="note-urn5dy">주의</h3><p>터미널은 명령을 글자로 쳐서 컴퓨터를 다루는 창입니다. 여기서 암호를 칠 때는 영문 입력 상태인지 먼저 확인하세요. 한글 상태로 치면 다른 글자가 들어가 암호가 맞지 않습니다. 암호를 치는 동안 화면에 아무것도 나타나지 않아도 정상입니다.</p></aside>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 내 컴퓨터</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-comment)"># SSH 키 한 쌍(공개 키, 개인 키) 만들기</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ssh-keygen</span><span style="color:var(--astro-code-token-string)"> -t</span><span style="color:var(--astro-code-token-string)"> ed25519</span></span>
+<span class="line"><span style="color:var(--astro-code-token-comment)"># 서버에 공개 키 등록, 암호는 이때 한 번</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ssh-copy-id</span><span style="color:var(--astro-code-token-string)"> mini2</span></span>
+<span class="line"><span style="color:var(--astro-code-token-comment)"># 이제 암호 없이 들어간다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ssh</span><span style="color:var(--astro-code-token-string)"> mini2</span></span></code></pre></figure>
+<p><code>mini2</code>는 서버 주소 대신 부르는 이름입니다. 설정 파일에 한 번 적어 두면 주소를 외우지 않아도 됩니다.</p>
+<figure class="code"><figcaption class="code__bar"><span class="measured"><span class="nb">~/.ssh/config</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>Host mini2</span></span>
+<span class="line"><span>  HostName 192.168.x.x</span></span>
+<span class="line"><span>  User me</span></span>
+<span class="line"><span>  IdentityFile ~/.ssh/id_ed25519</span></span></code></pre></figure>
+<h2 id="2-잠들지-않게">2. 잠들지 않게</h2>
+<p>컴퓨터는 아무도 만지지 않으면 잠듭니다. 사람이 쓰는 컴퓨터라면 맞는 동작입니다. 하지만 질문이 언제 올지 모르는 LLM 서버에는 맞지 않습니다. 이 명령은 관리자 암호가 필요합니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sudo</span><span style="color:var(--astro-code-token-string)"> pmset</span><span style="color:var(--astro-code-token-string)"> -a</span><span style="color:var(--astro-code-token-string)"> sleep</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-string)"> disksleep</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-string)"> autorestart</span><span style="color:var(--astro-code-token-constant)"> 1</span></span></code></pre></figure>
+<figure class="diff"><ol class="diff__rows" aria-label="pmset 설정, 바꾸기 전과 후"><li class="minus"><span class="g"><span aria-hidden="true">−</span><span class="visually-hidden">바꾸기 전</span></span><span>sleep</span><span>1</span></li><li class="plus"><span class="g"><span aria-hidden="true">+</span><span class="visually-hidden">바꾼 뒤</span></span><span>sleep</span><span>0</span><span class="diff__mean">컴퓨터가 잠들지 않음</span></li><li class="minus"><span class="g"><span aria-hidden="true">−</span><span class="visually-hidden">바꾸기 전</span></span><span>disksleep</span><span>10</span></li><li class="plus"><span class="g"><span aria-hidden="true">+</span><span class="visually-hidden">바꾼 뒤</span></span><span>disksleep</span><span>0</span><span class="diff__mean">디스크도 멈추지 않음</span></li><li class="minus"><span class="g"><span aria-hidden="true">−</span><span class="visually-hidden">바꾸기 전</span></span><span>autorestart</span><span>0</span></li><li class="plus"><span class="g"><span aria-hidden="true">+</span><span class="visually-hidden">바꾼 뒤</span></span><span>autorestart</span><span>1</span><span class="diff__mean">정전 뒤 전기가 들어오면 스스로 켜짐</span></li></ol><figcaption><span><span class="measured">pmset <span class="nb">-g</span> custom</span>으로 읽은 바꾸기 전과 후, <span class="nb">19:01:51에</span> 기록됨</span><span class="why">이유: 질문이 언제 올지 모르니 잠들면 안 된다.</span></figcaption></figure>
+<h2 id="3-설치-도구">3. 설치 도구</h2>
+<p>LLM 엔진은 모델을 돌리는 프로그램입니다. 이 엔진을 소스 코드에서 직접 빌드하려면 Homebrew가 필요합니다. Homebrew는 macOS용 설치 도구입니다. 설치하는 동안 애플 개발 도구가 먼저 깔렸고, 1분 뒤 Homebrew 설치가 끝났습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> /bin/bash</span><span style="color:var(--astro-code-token-string)"> -c</span><span style="color:var(--astro-code-token-string-expression)"> &quot;$(</span><span style="color:var(--astro-code-token-function)">curl</span><span style="color:var(--astro-code-token-string)"> -fsSL</span><span style="color:var(--astro-code-token-string)"> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh</span><span style="color:var(--astro-code-token-string-expression)">)&quot;</span></span></code></pre></figure>
+<p>마지막으로 brew를 어디서나 찾도록 경로를 등록했습니다. SSH로 원격에서 명령 한 줄만 보낼 때도 찾아야 합니다. 그래서 두 파일에 같은 줄을 넣었습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span class="measured"><span class="nb">~/.zprofile,</span> <span class="nb">~/.zshenv</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">eval</span><span style="color:var(--astro-code-token-string-expression)"> &quot;$(</span><span style="color:var(--astro-code-token-function)">/opt/homebrew/bin/brew</span><span style="color:var(--astro-code-token-string)"> shellenv</span><span style="color:var(--astro-code-token-string-expression)">)&quot;</span></span></code></pre></figure>
+<h2 id="점검하다-알게-된-것">점검하다 알게 된 것</h2>
+<p>지금 고치지 않고 뒤 단계로 넘긴 것도 있습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>상태</th>
+<th>그래서</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>디스크 잠금 꺼짐</td>
+<td>정전 뒤에도 암호 화면에서 멈추지 않고 켜진다</td>
+</tr>
+<tr>
+<td>자동 로그인 없음</td>
+<td>5단계에서 서버 프로그램을 로그인 없이 도는 서비스로 만든다</td>
+</tr>
+<tr>
+<td>원격 접속 모두 허용</td>
+<td>9단계에서 다른 사람을 받을 때 좁힌다</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="배운-것">배운 것</h2>
+<ul>
+<li>LLM 서버는 성능보다 먼저, 늘 켜져 있고 원격으로 들어갈 수 있어야 한다.</li>
+<li>SSH 키로 로그인하게 해 두면 Claude가 혼자 서버에 들어가 일할 수 있다.</li>
+<li>관리자 암호가 필요한 명령은 사람이 직접 쳐야 한다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>서버는 이제 늘 켜져 있고, Claude가 혼자 들어가 일할 수 있습니다. 남은 질문은 메모리 24GB에 어떤 모델이 들어가느냐입니다. 1단계에서는 GPU가 쓸 수 있는 몫을 재고, 그 안에 들어갈 모델 파일을 고릅니다.</p></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/01-model-file/" class="pager__next"><small>다음 글</small><strong>1단계 모델은 파일 하나</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#설치-환경">설치 환경</a></li><li><a href="#서버가-남긴-기록">서버가 남긴 기록</a></li><li><a href="#1-암호-없이-들어가는-ssh-키">1. 암호 없이 들어가는 SSH 키</a></li><li><a href="#2-잠들지-않게">2. 잠들지 않게</a></li><li><a href="#3-설치-도구">3. 설치 도구</a></li><li><a href="#점검하다-알게-된-것">점검하다 알게 된 것</a></li><li><a href="#배운-것">배운 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

@@ -1,0 +1,221 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>노트북에서 Ollama로 코딩 맡기기 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 3편. 지난 연재에서 노트북의 llama-server로 돌린 GGUF 파일 네 개를 Ollama에 그대로 들여와, 같은 코딩 과제를 다시 맡겼습니다. 답을 쓰는 속도는 거의 같았지만, 질문을 읽는 속도는 Ollama가 1.3~1.7배 느렸습니다. Qwen 둘은 6/6을 통과했고, Gemma 4는 9/9에서 4/6이 됐습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-03-laptop/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="노트북에서 Ollama로 코딩 맡기기 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 3편. 지난 연재에서 노트북의 llama-server로 돌린 GGUF 파일 네 개를 Ollama에 그대로 들여와, 같은 코딩 과제를 다시 맡겼습니다. 답을 쓰는 속도는 거의 같았지만, 질문을 읽는 속도는 Ollama가 1.3~1.7배 느렸습니다. Qwen 둘은 6/6을 통과했고, Gemma 4는 9/9에서 4/6이 됐습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-03-laptop/"><meta property="article:published_time" content="2026-11-19T02:28:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"노트북에서 Ollama로 코딩 맡기기","description":"Ollama로 다시 돌려 보기 3편. 지난 연재에서 노트북의 llama-server로 돌린 GGUF 파일 네 개를 Ollama에 그대로 들여와, 같은 코딩 과제를 다시 맡겼습니다. 답을 쓰는 속도는 거의 같았지만, 질문을 읽는 속도는 Ollama가 1.3~1.7배 느렸습니다. Qwen 둘은 6/6을 통과했고, Gemma 4는 9/9에서 4/6이 됐습니다.","datePublished":"2026-11-19T02:28:00.000Z","dateModified":"2026-11-20T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-03-laptop/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-03-laptop/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>3편</li></ol></nav><h1 id="post-title">노트북에서 Ollama로 코딩 맡기기</h1><p class="post__lead">지난 연재 11단계에서 노트북은 <span class="nb">llama-server로</span> 코딩 과제를 맡았습니다. 같은 GGUF 파일을 Ollama에 들여와 같은 과제를 다시 맡겼습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-19"><span class="nb">2026-11-19</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-20"><span class="nb">2026-11-20</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 8분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>노트북의 GGUF 파일을 Ollama에 들여온다.</strong> 지난 연재에서 <span class="nb">llama-server로</span> 돌린 파일 네 개를 그대로 쓴다.</li>
+<li><strong>같은 과제를 맡기고 <span class="nb">llama-server</span> 때와 견준다.</strong> 통과 수와 걸린 시간을 본다.</li>
+<li><strong>두 엔진이 남긴 기록에서 속도를 뽑는다.</strong> 질문을 읽는 속도와 답을 쓰는 속도를 따로 본다.</li>
+</ol>
+<h2 id="같은-파일을-ollama로">같은 파일을 Ollama로</h2>
+<p>노트북에는 Windows용 Ollama <span class="nb">0.40.16</span> 압축 파일을 풀어 썼습니다. 이미 받은 GGUF 파일을 Ollama에 들이려면 Modelfile이라는 짧은 설정 파일을 쓰고 <code>ollama create</code>를 돌립니다.</p>
+<p>이때 정할 것이 하나 있습니다. GGUF 파일 안에는 대화 <span class="nb">형식(chat</span> <span class="nb">template)이</span> 들어 있습니다. 주고받은 메시지를 모델이 배운 모양의 글로 바꾸는 틀입니다. 그런데 Ollama 라이브러리의 Qwen과 Gemma는 이 틀을 쓰지 않습니다. Ollama가 Go로 짠 <span class="nb">렌더러(renderer)로</span> 글을 만들고, <span class="nb">파서(parser)로</span> 답을 나눕니다. 라이브러리 모델과 똑같이 돌도록, 라이브러리 모델의 Modelfile을 받아 FROM 줄의 파일 경로만 노트북의 GGUF 파일로 바꿨습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>노트북, Gemma 4 26B의 Modelfile 일부</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>FROM C:/Users/&lt;사용자&gt;/llm/models/gemma-4-26B-A4B-it-UD-IQ4_XS.gguf</span></span>
+<span class="line"><span>TEMPLATE {{ .Prompt }}</span></span>
+<span class="line"><span>RENDERER gemma4</span></span>
+<span class="line"><span>PARSER gemma4</span></span>
+<span class="line"><span>PARAMETER top_p 0.95</span></span>
+<span class="line"><span>PARAMETER temperature 1</span></span>
+<span class="line"><span>PARAMETER top_k 64</span></span></code></pre></figure>
+<p><code>ollama create</code>는 모델 하나에 <span class="nb">44~59초</span> 걸렸습니다. <span class="nb">llama-server</span> 때와 달라진 것은 셋입니다.</p>
+<ul>
+<li><strong>대화 형식:</strong> Qwen과 Gemma는 Ollama의 렌더러로, Devstral은 라이브러리의 Go 템플릿으로 대화를 만들었다. <span class="nb">llama-server는</span> GGUF 안의 대화 형식을 썼고, Devstral만 고친 사본을 줬다.</li>
+<li><strong>기본값:</strong> temperature 같은 샘플링 기본값도 라이브러리 Modelfile의 것이다. 요청에 값이 없으면 이 값을 쓴다.</li>
+<li><strong>생각:</strong> <span class="nb">llama-server</span> 때는 Claude Code가 생각을 요청했지만, 서버를 <code><span class="nb">--reasoning-budget</span> 0</code>으로 띄워 생각을 끄게 했다. Ollama는 요청을 따르므로, 2편처럼 Claude Code가 생각을 요청하지 않게 <span class="nb">했다(</span><a href="/bugs/2026-11-18-litellm-thinking-override/">Cybug</a><span class="nb">).</span> 그런데 <span class="nb">llama-server의</span> Gemma는 실행마다 생각을 1천 자에서 1만 자 가까이 썼고, Ollama의 Gemma는 한 자도 쓰지 않았다. Qwen 둘과 Devstral은 두 엔진 모두 생각을 쓰지 않았다.</li>
+</ul>
+<p>Ollama는 이렇게 띄웠습니다. 기억할 글 길이 <span class="nb">49,152토큰,</span> 동시 요청 하나, 대화 기억 f16은 <span class="nb">llama-server</span> 때와 같습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>노트북, PowerShell, 일부</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="powershell"><code><span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_IGPU_ENABLE </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;1&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_HOST </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;0.0.0.0:11434&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_CONTEXT_LENGTH </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;49152&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_NUM_PARALLEL </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;1&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_MAX_LOADED_MODELS </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;1&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_KEEP_ALIVE </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;30m&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-foreground)">OLLAMA_KV_CACHE_TYPE </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &quot;f16&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">&amp;</span><span style="color:var(--astro-code-token-string-expression)"> &quot;$</span><span style="color:var(--astro-code-token-constant)">env:</span><span style="color:var(--astro-code-token-string-expression)">USERPROFILE\llm\ollama\ollama.exe&quot;</span><span style="color:var(--astro-code-foreground)"> serve</span></span></code></pre></figure>
+<ul>
+<li><strong><code><span class="nb">OLLAMA_IGPU_ENABLE=1</span></code>:</strong> 이 값이 없으면 Ollama는 노트북의 Arc 140V 내장 GPU를 건너뛰고 CPU로만 돈다. 처음에 이것을 놓쳐, 시험 전에 올려 본 Gemma 4가 통째로 CPU에 있었다. <a href="/bugs/2026-11-18-ollama-igpu-skipped/">Cybug에 따로 남겼다</a>.</li>
+<li><strong><code><span class="nb">OLLAMA_HOST</span></code>:</strong> Ollama는 기본으로 같은 기계 안에서 오는 요청만 받는다. Mac mini의 게이트웨이가 붙을 수 있게 모든 주소에서 받게 하고, 노트북 방화벽에는 Mac mini에서 11434 포트로 오는 요청만 받는 규칙을 더했다.</li>
+</ul>
+<p>시험은 2편의 Mac mini 시험과 같은 시간에 돌렸습니다. Claude Code는 Mac mini에서 돌고, Mac mini의 게이트웨이를 거쳐 노트북의 Ollama에 요청을 보냈습니다. 모델마다 과제 셋을 2회씩, 모두 24번 돌렸습니다.</p>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>Ollama</th>
+<th>llama-server</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td><span class="nb">6/6</span></td>
+<td><span class="nb">9/9</span></td>
+<td><span class="nb">19.1GB</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td><span class="nb">6/6</span></td>
+<td><span class="nb">9/9</span></td>
+<td><span class="nb">18.4GB</span></td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td><span class="nb">4/6</span></td>
+<td><span class="nb">9/9</span></td>
+<td><span class="nb">14.3GB</span></td>
+</tr>
+<tr>
+<td>Devstral 24B</td>
+<td><span class="nb">3/6</span></td>
+<td><span class="nb">7/9</span></td>
+<td><span class="nb">22.3GB</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Ollama로는 2회씩, 지난 연재의 <span class="nb">llama-server로는</span> 3회씩 돌렸습니다. Devstral의 <span class="nb">llama-server</span> 칸은 대화 형식을 고친 사본으로 돌린 결과입니다. 크기는 모델을 올린 뒤 <code>ollama ps</code>가 보고한 크기로, 대화 기억 자리까지 들어 있습니다.</p>
+<p>Qwen 둘은 Ollama에서도 모두 통과했습니다. 걸린 시간에는 Mac mini의 사정도 섞입니다. 2편에 적었듯이 이번에는 두 기계의 시험을 함께 돌려, Mac mini가 Claude Code와 빌드를 두 몫 돌렸습니다. 그래서 차이가 분명한 것만 적습니다.</p>
+<ul>
+<li><strong><span class="nb">Qwen3.8:</span></strong> 고치기는 두 엔진 모두 <span class="nb">8~11분</span> 걸린 실행과 <span class="nb">24~25분</span> 걸린 실행이 섞여, 비슷했다.</li>
+<li><strong>Gemma:</strong> 고치기가 3분 30초에서 13분 48초로 늘었다.</li>
+<li><strong>Devstral:</strong> 고치기를 통과한 한 번이 33분 30초 걸려, <span class="nb">llama-server의</span> 세 <span class="nb">번(12~27분)보다</span> 길었다. 찾기도 2분에서 4분으로 늘었다.</li>
+</ul>
+<p>Ollama가 스스로 멈춘 적은 없었고, 과제 중에 Ollama 기록의 <span class="nb">오류(ERROR)</span> 줄도 늘지 않았습니다. 네 모델 모두 GPU에 다 올라갔고, 과제 앞뒤로 잰 크기는 24번 모두 같았습니다.</p>
+<h2 id="답-쓰기는-거의-같았고-읽기는-느렸다">답 쓰기는 거의 같았고, 읽기는 느렸다</h2>
+<p>노트북에 남은 엔진의 기록으로는 Mac mini와 상관없이 속도만 볼 수 있습니다. 두 엔진 모두 <span class="nb">llama.cpp</span> 계열이라, 요청마다 읽은 토큰 수와 시간, 쓴 토큰 수와 시간을 같은 형식으로 남깁니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>답 쓰기</th>
+<th>첫 요청 읽기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 26B</td>
+<td><span class="nb">16.0</span> / <span class="nb">17.7</span></td>
+<td>242 / 413</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td><span class="nb">20.4</span> / <span class="nb">20.5</span></td>
+<td>347 / 480</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td><span class="nb">4.3</span> / <span class="nb">4.3</span></td>
+<td>129 / 171</td>
+</tr>
+<tr>
+<td>Devstral 24B</td>
+<td><span class="nb">5.1</span> / <span class="nb">5.0</span></td>
+<td>149 / 248</td>
+</tr>
+</tbody>
+</table></div>
+<p>칸은 <span class="nb">「Ollama</span> / <span class="nb">llama-server」이고,</span> 초당 토큰의 중앙값입니다. 답 쓰기는 50토큰 넘게 쓴 답만 셌습니다. 첫 요청은 과제마다 Claude Code가 처음 보내는 7천 토큰 안팎의 요청입니다. 빈 대화에서 거의 같은 크기를 읽으니 견주기에 알맞습니다.</p>
+<ul>
+<li><strong>답 쓰기는 거의 같았다.</strong> Gemma만 <span class="nb">10%쯤</span> 느렸다. 답을 한 토큰씩 쓰는 일은 메모리를 읽는 속도에 달려 있어, 같은 기계에서는 엔진이 달라도 비슷하다.</li>
+<li><strong>읽기는 Ollama가 <span class="nb">1.3~1.7배</span> 느렸다.</strong></li>
+<li><strong>대화가 길어지면 차이가 더 컸다.</strong> 대화 중간에 4천 토큰 안팎을 읽은 <span class="nb">요청(엔진과</span> 모델마다 <span class="nb">2~6번)에서</span> <span class="nb">llama-server와</span> Ollama는 <span class="nb">Qwen3.6이</span> 초당 401토큰과 148토큰, Devstral이 139토큰과 34토큰이었다. Devstral은 과제 하나에서 읽기에만 평균 7분 55초를 썼다. <span class="nb">llama-server는</span> 2분 21초였다.</li>
+</ul>
+<p>원인은 가리지 못했습니다. 한 번에 계산하는 <span class="nb">묶음(ubatch)은</span> <span class="nb">llama-server가</span> 512토큰이었고, Ollama도 Gemma만 빼면 512토큰이었습니다. 엔진의 빌드도 다릅니다. 노트북의 <span class="nb">llama-server는</span> <span class="nb">llama.cpp</span> 빌드 12340이고, Ollama는 안에 품은 <span class="nb">llama.cpp를</span> 따로 빌드해 씁니다. 한 번에 넘기는 <span class="nb">양(n_batch),</span> flash attention, 앞서 읽은 대화를 다시 쓰는 방식 같은 나머지 설정은 다 견주지 못했습니다.</p>
+<h2 id="같은-gemma가-헤맸다">같은 Gemma가 헤맸다</h2>
+<p>Gemma는 Ollama에서 두 번 40번 주고받기 한도에 걸렸습니다. 기록을 보니 같은 파일을 처음부터 끝까지 다시 읽기를 되풀이했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>실행</th>
+<th>llama-server</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>고치기 1회</td>
+<td>읽기 2</td>
+<td>읽기 30</td>
+</tr>
+<tr>
+<td>고치기 2회</td>
+<td>읽기 6</td>
+<td>읽기 31, 한도</td>
+</tr>
+<tr>
+<td>더하기 1회</td>
+<td>읽기 3</td>
+<td>읽기 2</td>
+</tr>
+<tr>
+<td>더하기 2회</td>
+<td>읽기 3</td>
+<td>읽기 17, 거절 <span class="nb">17/18,</span> 한도</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">「읽기</span> <span class="nb">30」은</span> 파일 읽기 도구를 30번 불렀다는 뜻이고, <span class="nb">「거절</span> <span class="nb">17/18」은</span> 고치기 도구를 18번 불러 17번 거절당했다는 뜻입니다. <span class="nb">llama-server</span> 칸은 3회 가운데 <span class="nb">1·2회이고,</span> 3회도 읽기가 고치기 4번, 더하기 3번이었습니다. 고치기 1회에서 Ollama의 Gemma는 Cybug 목록 페이지를 16번, 글과 버그 목록을 모으는 코드를 8번 읽었습니다. 더하기 2회에서는 RSS 코드를 16번 읽었고, 바꿀 부분을 파일과 다르게 적어 17번 거절당했습니다.</p>
+<p><span class="nb">llama-server의</span> Gemma는 실행마다 생각을 1천 자에서 1만 자 가까이 썼고, 고치기와 더하기 여섯 번 가운데 다섯 번은 고치기 도구를 한 번만 불렀습니다. Ollama의 Gemma는 생각을 쓰지 않았습니다. 다만 생각이 없어서 헤맸다고 단정할 수는 없습니다. Claude Code가 생각을 요청했는지와 대화 형식, 기본값도 달랐기 때문입니다. 2편의 Mac mini에서는 Ollama의 Gemma가 생각 없이도 <span class="nb">6/6을</span> 통과했습니다. 그때는 파일 <span class="nb">형식(NVFP4)과</span> <span class="nb">엔진(MLX)이</span> 달랐습니다.</p>
+<p><strong><span class="nb">덧붙임(11월</span> <span class="nb">20일).</span></strong> 같은 노트북, 같은 Ollama에서 생각만 켜고 Gemma를 다시 돌렸습니다. 게이트웨이를 거쳐 생각을 켠 것과, <a href="/posts/ollama-04-direct/">4편</a>처럼 Claude Code를 Ollama에 바로 붙인 것입니다. 바로 붙이면 생각이 늘 켜집니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>실행</th>
+<th>생각 끔</th>
+<th>생각 켬, 게이트웨이</th>
+<th>생각 켬, 바로</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>고치기 1회</td>
+<td>읽기 30</td>
+<td>읽기 5</td>
+<td>읽기 3</td>
+</tr>
+<tr>
+<td>고치기 2회</td>
+<td>읽기 31, 한도</td>
+<td>읽기 6</td>
+<td>읽기 5</td>
+</tr>
+<tr>
+<td>더하기 1회</td>
+<td>읽기 2</td>
+<td>읽기 4</td>
+<td>읽기 4</td>
+</tr>
+<tr>
+<td>더하기 2회</td>
+<td>읽기 17, 거절 <span class="nb">17/18,</span> 한도</td>
+<td>읽기 10, 거절 <span class="nb">3/3</span></td>
+<td>읽기 4</td>
+</tr>
+</tbody>
+</table></div>
+<p>생각을 켜자 같은 파일을 수십 번 다시 읽는 일이 없어졌고, 40번 한도에 걸린 실행도 없었습니다. 통과는 <span class="nb">4/6에서</span> <span class="nb">5/6(게이트웨이),</span> <span class="nb">6/6(바로)이</span> 됐습니다. 게이트웨이 쪽의 실패 하나는 찾기 1회차입니다. 읽기 시간을 보여 주는 파일만 열고, 계산하는 파일은 짐작만 해서 계산식을 답하지 못했습니다. 생각은 과제마다 <span class="nb">1천~2만</span> 2천 자를 썼습니다. 두 번씩 돌린 결과라 단정할 수는 없지만, 이 노트북의 Gemma가 헤맨 데에는 생각을 끈 것이 컸던 것으로 보입니다.</p>
+<h2 id="devstral은-대화-형식을-고치지-않고-돌았다">Devstral은 대화 형식을 고치지 않고 돌았다</h2>
+<p>지난 연재에서 Devstral은 GGUF 안의 대화 형식으로는 돌지 않았습니다. 이 형식은 사용자와 모델이 번갈아 말하는지 검사합니다. 그런데 Claude Code가 붙이는 시스템 메시지를 게이트웨이가 사용자 메시지로 바꿔 넘겨, 사용자 메시지가 연달아 갔습니다. 그래서 검사 한 줄을 뺀 사본을 줘야 <span class="nb">했습니다(</span><a href="/posts/agent-02-setup/">지난 연재 12단계</a>, <a href="/bugs/2026-11-19-devstral-template-alternation/">Cybug</a><span class="nb">).</span> Ollama 라이브러리의 Devstral은 Go로 쓴 템플릿을 쓰고, 이 검사가 없습니다. 그래서 손대지 않고 돌았습니다.</p>
+<p>결과는 <span class="nb">3/6이었습니다.</span></p>
+<ul>
+<li><strong>찾기 <span class="nb">2/2.</span></strong></li>
+<li><strong>고치기 <span class="nb">1/2.</span></strong> 한 번은 39번 주고받고 33분 30초 만에 고쳤고, 다른 한 번은 파일을 하나도 고치지 않은 채 13번 만에 끝냈다.</li>
+<li><strong>더하기 <span class="nb">0/2.</span></strong> 두 번 모두 파일은 맞게 고쳤다. 한 번은 게이트웨이의 429 오류로 끝났고, 한 번은 40번 한도에 걸렸다. 429는 2편의 Mac mini와 같은 오류다. 답을 기다리던 Claude Code가 요청을 다시 보내자, 동시 요청을 하나만 받는 시험용 API 키가 앞 요청이 아직 처리 중이라며 거절했다. 이 뒤에 시험 스크립트가 Ollama를 한 번 다시 띄웠고, 그때 처리 중이던 앞 요청은 끊겼다.</li>
+</ul>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>같은 GGUF 파일이라도 Ollama에 들이면 대화 형식이 바뀐다.</strong> 라이브러리 모델의 Modelfile을 빌려 쓰면 Ollama의 렌더러와 기본값이 함께 온다.</li>
+<li><strong>답 쓰기는 거의 같았고, 읽기는 Ollama가 느렸다.</strong> 대화가 길어질수록 차이가 커졌다. Devstral은 과제 하나에서 읽기에만 <span class="nb">llama-server의</span> 세 배 넘게 썼다.</li>
+<li><strong>내장 GPU는 따로 켜야 한다.</strong> <code><span class="nb">OLLAMA_IGPU_ENABLE=1</span></code>이 없으면 CPU로만 돈다.</li>
+<li><strong>대화 형식이 까다로운 모델은 Ollama가 손이 덜 갔다.</strong> Devstral은 고친 사본 없이 돌았다.</li>
+<li><strong>같은 모델도 엔진에 따라 헤매는 정도가 달랐다.</strong> Gemma는 Mac mini에서는 Ollama가, 노트북에서는 <span class="nb">llama-server가</span> 나았다. 노트북의 Ollama에서 생각을 켜고 다시 돌리자 헤매지 <span class="nb">않았다(덧붙임).</span></li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-18"><li><time class="measured" datetime="2026-11-18T13:48+09:00"><span class="nb">13:48</span></time><span class="trail__what">노트북에서도 Ollama로 함께 시험하기로 함</span><code class="trail__got">병렬로 돌리기</code></li><li><time class="measured" datetime="2026-11-18T13:54+09:00"><span class="nb">13:54</span></time><span class="trail__what">노트북 방화벽 규칙을 더하기로 함</span><code class="trail__got">Mac mini만, 11434 포트</code></li><li><time class="measured" datetime="2026-11-18T14:11+09:00"><span class="nb">14:11</span></time><span class="trail__what">노트북에서 Ollama를 띄움</span><code class="trail__got">내장 GPU를 건너뜀</code></li><li><time class="measured" datetime="2026-11-18T14:16+09:00"><span class="nb">14:16</span></time><span class="trail__what">GGUF 파일 네 개를 Ollama에 들여옴</span><code class="trail__got">하나에 <span class="nb">44~59초</span></code></li><li><time class="measured" datetime="2026-11-18T14:41+09:00"><span class="nb">14:41</span></time><span class="trail__what">내장 GPU를 켜고 다시 띄움</span><code class="trail__got">GPU 메모리 <span class="nb">23.9GiB</span></code></li><li><time class="measured" datetime="2026-11-18T14:42+09:00"><span class="nb">14:42</span></time><span class="trail__what">1회차 시작, Gemma 찾기</span><code class="trail__got">7번 주고받고 통과</code></li><li><time class="measured" datetime="2026-11-18T16:24+09:00"><span class="nb">16:24</span></time><span class="trail__what">Devstral 더하기 1회</span><code class="trail__got">파일은 맞고 429로 끝남</code></li><li><time class="measured" datetime="2026-11-18T17:16+09:00"><span class="nb">17:16</span></time><span class="trail__what">Gemma 더하기 2회</span><code class="trail__got">거절 <span class="nb">17/18,</span> 40번 한도</code></li><li><time class="measured" datetime="2026-11-18T18:30+09:00"><span class="nb">18:30</span></time><span class="trail__what">2회차 끝, <span class="nb">Qwen3.8</span> 더하기</span><code class="trail__got">통과</code></li><li><time class="measured" datetime="2026-11-18T18:31+09:00"><span class="nb">18:31</span></time><span class="trail__what">Ollama를 끄고 웹 UI 서버를 다시 켬</span><code class="trail__got">정상</code></li></ol>
+<ol class="trail" aria-label="작업 기록, 2026-11-19"><li><time class="measured" datetime="2026-11-19T10:47+09:00"><span class="nb">10:47</span></time><span class="trail__what">두 엔진의 대화 기록에서 도구 쓰임을 셈</span><code class="trail__got">Gemma 읽기 30번</code></li><li><time class="measured" datetime="2026-11-19T10:54+09:00"><span class="nb">10:54</span></time><span class="trail__what">두 엔진의 기록에서 첫 요청 읽기 속도를 뽑음</span><code class="trail__got">Ollama가 <span class="nb">1.3~1.7배</span> 느림</code></li><li><time class="measured" datetime="2026-11-19T16:17+09:00"><span class="nb">16:17</span></time><span class="trail__what">바로 붙여 생각을 켠 Gemma 2회차 끝</span><code class="trail__got"><span class="nb">6/6,</span> 한도 없음</code></li><li><time class="measured" datetime="2026-11-19T19:34+09:00"><span class="nb">19:34</span></time><span class="trail__what">게이트웨이로 생각을 켠 Gemma 2회차 끝</span><code class="trail__got"><span class="nb">5/6,</span> 한도 없음</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-04-direct/" class="pager__next"><small>다음 글</small><strong>4편 Claude Code를 Ollama에 바로 붙이기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#같은-파일을-ollama로">같은 파일을 Ollama로</a></li><li><a href="#결과">결과</a></li><li><a href="#답-쓰기는-거의-같았고-읽기는-느렸다">답 쓰기는 거의 같았고, 읽기는 느렸다</a></li><li><a href="#같은-gemma가-헤맸다">같은 Gemma가 헤맸다</a></li><li><a href="#devstral은-대화-형식을-고치지-않고-돌았다">Devstral은 대화 형식을 고치지 않고 돌았다</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

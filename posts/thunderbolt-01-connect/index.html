@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>썬더볼트 케이블 하나로 Mac mini 두 대 잇기 | Cyborg</title><meta name="description" content="썬더볼트 활용기 1편. 썬더볼트 케이블 하나로 Mac mini 두 대를 이어, 따로 설정하지 않아도 Thunderbolt Bridge 네트워크가 잡히는 것을 확인하고 유선 LAN과 속도를 견줬습니다. TCP 전송은 초당 37.6Gb로 유선 LAN(0.94Gb)의 40배였고, 5.7GB 모델 파일을 SSH로 받는 데(디스크에 쓰지 않고) 48.6초 걸리던 것이 3.0초로 줄었습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/thunderbolt-01-connect/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="썬더볼트 케이블 하나로 Mac mini 두 대 잇기 | Cyborg"><meta property="og:description" content="썬더볼트 활용기 1편. 썬더볼트 케이블 하나로 Mac mini 두 대를 이어, 따로 설정하지 않아도 Thunderbolt Bridge 네트워크가 잡히는 것을 확인하고 유선 LAN과 속도를 견줬습니다. TCP 전송은 초당 37.6Gb로 유선 LAN(0.94Gb)의 40배였고, 5.7GB 모델 파일을 SSH로 받는 데(디스크에 쓰지 않고) 48.6초 걸리던 것이 3.0초로 줄었습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/thunderbolt-01-connect/"><meta property="article:published_time" content="2026-11-25T02:25:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"썬더볼트 케이블 하나로 Mac mini 두 대 잇기","description":"썬더볼트 활용기 1편. 썬더볼트 케이블 하나로 Mac mini 두 대를 이어, 따로 설정하지 않아도 Thunderbolt Bridge 네트워크가 잡히는 것을 확인하고 유선 LAN과 속도를 견줬습니다. TCP 전송은 초당 37.6Gb로 유선 LAN(0.94Gb)의 40배였고, 5.7GB 모델 파일을 SSH로 받는 데(디스크에 쓰지 않고) 48.6초 걸리던 것이 3.0초로 줄었습니다.","datePublished":"2026-11-25T02:25:00.000Z","dateModified":"2026-11-25T02:25:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/thunderbolt-01-connect/","mainEntityOfPage":"https://teddybears56.github.io/posts/thunderbolt-01-connect/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"><style>.pair[data-astro-cid-62jseu6t]{margin-inline:0;border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-card);background:var(--color-paper-3);margin-bottom:0;overflow:hidden}.pair__title[data-astro-cid-62jseu6t]{min-height:48px;padding-inline:var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule);font-size:var(--text-sm);color:var(--color-muted);align-items:center;display:flex}.pair__row[data-astro-cid-62jseu6t]{align-items:stretch;gap:var(--space-sm);padding:var(--space-lg);grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);display:grid}.pair__box[data-astro-cid-62jseu6t]{padding:var(--space-md);border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-card);background:var(--color-paper-2)}.pair__box[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t],.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin:0}.pair__name[data-astro-cid-62jseu6t]{color:var(--color-ink);font-weight:600}.pair__spec[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-muted)}.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin-top:var(--space-xs);font-size:var(--text-sm);color:var(--color-ink-2);padding-left:1.1em}.pair__link[data-astro-cid-62jseu6t]{justify-content:center;align-items:center;gap:var(--space-2xs);text-align:center;flex-direction:column;display:flex}.pair__link[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t]{margin:0}.pair__line[data-astro-cid-62jseu6t]{min-height:var(--space-sm);background:var(--color-accent);border-radius:1px;flex:1 1 0;width:2px}.pair__label[data-astro-cid-62jseu6t]{color:var(--color-accent);font-weight:600}.pair__flow[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-ink-2)}.pair__below[data-astro-cid-62jseu6t]{padding:0 var(--space-lg) var(--space-lg);font-size:var(--text-sm);color:var(--color-muted);margin:0}@media (width>=720px){.pair__link[data-astro-cid-62jseu6t]{flex-flow:wrap;align-content:center}.pair__line[data-astro-cid-62jseu6t]{flex:1 0 100%;width:auto;height:2px;min-height:2px}.pair__label[data-astro-cid-62jseu6t],.pair__flow[data-astro-cid-62jseu6t]{flex:1 0 100%}}@media (width<=719px){.pair__row[data-astro-cid-62jseu6t]{grid-template-columns:minmax(0,1fr)}}
+</style></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-thunderbolt">연재</a></li><li>1편</li></ol></nav><h1 id="post-title">썬더볼트 케이블 하나로 Mac mini 두 대 잇기</h1><p class="post__lead">썬더볼트 케이블이 하나 생겼습니다. 이 연재는 그 케이블로 기계를 이어 로컬 LLM에 쓸 만한 길을 찾습니다. 첫 편은 Mac mini 두 대를 잇고, 네트워크를 잡고, 속도를 재는 데까지입니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-25"><span class="nb">2026-11-25</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 4분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>어느 포트에 꽂는지 확인한다.</strong> Mac mini의 <span class="nb">USB-C</span> 포트가 모두 썬더볼트는 아니다.</li>
+<li><strong>케이블을 꽂고 네트워크가 잡히는지 본다.</strong></li>
+<li><strong>유선 LAN과 속도를 견준다.</strong> 응답 시간, TCP 전송, 실제 모델 파일 복사를 잰다.</li>
+</ol>
+<h2 id="두-기계">두 기계</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>기계</th>
+<th>칩</th>
+<th>메모리</th>
+<th>썬더볼트</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>마스터 Mac mini</td>
+<td>M4</td>
+<td>24GB</td>
+<td><span class="nb">40Gb/s</span></td>
+</tr>
+<tr>
+<td>워커 Mac mini</td>
+<td>M5 Pro</td>
+<td>48GB</td>
+<td><span class="nb">120Gb/s</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>이 연재에서는 두 기계를 이렇게 부릅니다. 마스터 Mac mini는 이 블로그의 LLM 서버이고, 워커 Mac mini는 이번에 새로 잇는 기계입니다. <span class="nb">노트북(Windows)도</span> USB4 포트가 있지만, 이번에는 두 Mac만 이었습니다.</p>
+<h2 id="어느-포트에-꽂나">어느 포트에 꽂나</h2>
+<p>M4 Mac mini에는 <span class="nb">USB-C</span> 포트가 다섯 개 있습니다. 그중 썬더볼트는 뒷면의 셋뿐입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini: 썬더볼트 포트 확인</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ system_profiler SPThunderboltDataType | grep -E &quot;Bus|Speed|Receptacle&quot;   (줄을 줄여 옮김)</span></span>
+<span class="line"><span>    Thunderbolt/USB4 Bus 3:   Speed: Up to 40 Gb/s   Receptacle: 4</span></span>
+<span class="line"><span>    Thunderbolt/USB4 Bus 1:   Speed: Up to 40 Gb/s   Receptacle: 2</span></span>
+<span class="line"><span>    Thunderbolt/USB4 Bus 0:   Speed: Up to 40 Gb/s   Receptacle: 1</span></span></code></pre></figure>
+<p>앞면의 두 포트는 썬더볼트가 아닌 USB <span class="nb">3(10Gb/s)입니다.</span> 앞면에 꽂아 보지는 않았지만, 썬더볼트 네트워크는 뒷면 포트끼리 잇는 것이 맞습니다. 케이블은 두 Mac의 <strong>뒷면</strong> 포트끼리 이었습니다. 한쪽은 <span class="nb">120Gb/s까지</span> 되지만, 연결 속도는 느린 쪽에 맞춰 <span class="nb">40Gb/s로</span> 잡혔습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>꽂은 뒤 마스터 Mac mini에서</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>    Thunderbolt/USB4 Bus 1:</span></span>
+<span class="line"><span>          Link Status: 0x2</span></span>
+<span class="line"><span>          Speed: 40 Gb/s</span></span>
+<span class="line"><span>          Device Name: Mac17,16</span></span></code></pre></figure>
+<h2 id="네트워크는-저절로-잡혔다">네트워크는 저절로 잡혔다</h2>
+<p>macOS에는 썬더볼트 포트들을 묶은 <span class="nb">「Thunderbolt</span> <span class="nb">Bridge」라는</span> 네트워크 장치가 있습니다. 케이블을 꽂은 뒤 보니 두 Mac 모두 이 장치가 켜져 있었고, 따로 설정하지 않았는데 <code><span class="nb">169.254</span></code>로 시작하는 주소가 잡혔습니다. 다른 주소를 나눠 줄 장비가 없을 때 스스로 정하는 주소입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini의 Thunderbolt Bridge</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ ifconfig bridge0</span></span>
+<span class="line"><span>	inet 169.254.180.72 netmask 0xffff0000</span></span>
+<span class="line"><span>	member: en2 member: en3 member: en4</span></span>
+<span class="line"><span>	status: active</span></span></code></pre></figure>
+<p>처음 접속할 때 이 주소의 호스트 키를 받을지 묻는 단계 말고는 이 주소로 바로 SSH가 됐습니다. 다만 이 주소는 다시 켜거나 케이블을 다시 꽂으면 바뀔 수 있습니다. 두 기계를 계속 묶어 쓰려면 고정 주소를 주는 편이 낫습니다.</p>
+<h2 id="고정-주소-주기">고정 주소 주기</h2>
+<p>시스템 설정 › 네트워크 › Thunderbolt 브리지 › 세부사항 › <span class="nb">TCP/IP에서</span> <span class="nb">「IPv4</span> <span class="nb">구성」을</span> 수동으로 바꾸고 주소를 넣으면 됩니다. 화면 없이 쓰는 마스터 Mac mini는 SSH로 들어가 명령으로 바꿨습니다. 관리자 암호가 필요해서, 암호를 물을 수 있는 터미널 창에서 실행해야 합니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>두 Mac에 고정 주소 주기</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span># 마스터 Mac mini (SSH로)</span></span>
+<span class="line"><span>$ ssh -t mini2 &#39;sudo networksetup -setmanual &quot;Thunderbolt Bridge&quot; 10.10.10.1 255.255.255.0&#39;</span></span>
+<span class="line"><span># 워커 Mac mini</span></span>
+<span class="line"><span>$ sudo networksetup -setmanual &quot;Thunderbolt Bridge&quot; 10.10.10.2 255.255.255.0</span></span></code></pre></figure>
+<p>라우터와 DNS는 비워 뒀습니다. 두 Mac끼리만 쓰는 선이라 필요 없습니다. 그러자 시스템 설정에는 Thunderbolt 브리지가 노란 점과 함께 <span class="nb">「알</span> 수 없는 <span class="nb">상태」로</span> 보였습니다. 인터넷까지 가는 길을 확인할 수 없다는 표시로 보입니다. 두 Mac 사이의 ping과 SSH는 문제없었고, 인터넷은 그대로 유선 LAN으로 나갔습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>고정 주소 확인</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ networksetup -getinfo &quot;Thunderbolt Bridge&quot;</span></span>
+<span class="line"><span>Manual Configuration</span></span>
+<span class="line"><span>IP address: 10.10.10.2</span></span>
+<span class="line"><span>Subnet mask: 255.255.255.0</span></span>
+<span class="line"><span>Router: (null)</span></span>
+<span class="line"><span>$ ping -c 10 10.10.10.1</span></span>
+<span class="line"><span>round-trip min/avg/max/stddev = 0.308/0.365/0.472/0.049 ms</span></span></code></pre></figure>
+<h2 id="속도">속도</h2>
+<p>같은 두 기계 사이를 썬더볼트와 유선 <span class="nb">LAN(1Gb/s)으로</span> 각각 쟀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>잰 것</th>
+<th>썬더볼트</th>
+<th>유선 LAN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>응답 <span class="nb">시간(ping)</span></td>
+<td><span class="nb">0.41ms</span></td>
+<td><span class="nb">0.66ms</span></td>
+</tr>
+<tr>
+<td>TCP 전송</td>
+<td><span class="nb">37.6Gb/s</span></td>
+<td><span class="nb">0.94Gb/s</span></td>
+</tr>
+<tr>
+<td><span class="nb">5.7GB</span> 파일 SSH로 받기</td>
+<td><span class="nb">3.0초</span></td>
+<td><span class="nb">48.6초</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>응답 시간</strong>은 ping 20번의 평균이다.</li>
+<li><strong>TCP 전송</strong>은 8GiB를 한 연결로 보내는 작은 파이썬 스크립트로, 두 방향의 <span class="nb">평균이다(37.4,</span> <span class="nb">37.8Gb/s).</span> 썬더볼트 4의 <span class="nb">40Gb/s에</span> 거의 닿았다.</li>
+<li><strong>SSH로 받기</strong>는 <span class="nb">Qwen3.5</span> 9B <span class="nb">Q4_K_M(5.68GB)을</span> <code>ssh … cat</code>으로 받아 디스크에 쓰지 않고 버린 시간이다. 썬더볼트로는 초당 15Gb 안팎으로 TCP 전송보다 느렸다. 재지는 않았지만, SSH의 암호화나 연결 준비 시간 때문일 수 있다.</li>
+<li><strong>디스크에 받는 복사</strong>는 2편에서 <code>scp</code>로 같은 파일을 받을 때 8초, <span class="nb">17.9GB</span> 파일이 26초였다. 유선 LAN으로는 디스크에 쓰지 않고도 <span class="nb">48.6초였으니</span> 6배 넘게 빠르다.</li>
+</ul>
+<h2 id="앞으로-할-것">앞으로 할 것</h2>
+<p>이 선으로 하려는 것은 두 Mac의 GPU를 묶어 모델 하나를 돌리는 일입니다. <span class="nb">llama.cpp에는</span> 다른 기계의 GPU를 네트워크 너머로 빌려 쓰는 RPC 기능이 있습니다.</p>
+<figure class="pair" aria-label="구성" data-astro-cid-62jseu6t><figcaption class="pair__title" data-astro-cid-62jseu6t>구성</figcaption><div class="pair__row" data-astro-cid-62jseu6t><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>마스터 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M4, 24GB</p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">llama-server</span></li><li data-astro-cid-62jseu6t>모델 파일</li><li data-astro-cid-62jseu6t>앞쪽 층</li></ul></div><div class="pair__link" data-astro-cid-62jseu6t><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span><p class="pair__label" data-astro-cid-62jseu6t>썬더볼트 <span class="nb">40Gb/s</span></p><p class="pair__flow" data-astro-cid-62jseu6t><span class="nb">10.10.10.1</span> ↔ <span class="nb">10.10.10.2</span></p><p class="pair__flow" data-astro-cid-62jseu6t>계산 요청과 중간 결과</p><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span></div><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>워커 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M5 Pro, 48GB</p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">rpc-server</span></li><li data-astro-cid-62jseu6t>GPU만 빌려줌</li><li data-astro-cid-62jseu6t>뒤쪽 층</li></ul></div></div><p class="pair__below" data-astro-cid-62jseu6t>마스터 Mac mini는 유선 <span class="nb">LAN(1Gb/s)으로</span> 웹 UI와 시험 스크립트를 받는다.</p></figure>
+<ul>
+<li><strong>2편:</strong> 같은 모델을 마스터 Mac mini 혼자, 워커 Mac mini <span class="nb">혼자(RPC로),</span> 두 대에 나눠 돌려 속도를 견준다.</li>
+<li><strong>3편:</strong> 마스터 Mac mini 혼자서는 들어가지 않는 큰 모델을 두 대로 돌린다.</li>
+<li><strong>나중에:</strong> Windows 노트북의 USB4 포트로도 같은 연결이 되는지 본다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-25"><li><time class="measured" datetime="2026-11-25T10:11+09:00"><span class="nb">10:11</span></time><span class="trail__what">케이블을 두 Mac의 뒷면 포트에 꽂음</span><code class="trail__got"><span class="nb">40Gb/s로</span> 연결, <span class="nb">169.254</span> 주소가 저절로 잡힘</code></li><li><time class="measured" datetime="2026-11-25T10:29+09:00"><span class="nb">10:29</span></time><span class="trail__what">ping을 썬더볼트와 유선 LAN으로 잼</span><code class="trail__got"><span class="nb">0.41ms</span> 대 <span class="nb">0.66ms</span></code></li><li><time class="measured" datetime="2026-11-25T10:30+09:00"><span class="nb">10:30</span></time><span class="trail__what">TCP 전송 8GiB를 양방향으로 잼</span><code class="trail__got"><span class="nb">37.6Gb/s</span> 대 <span class="nb">0.94Gb/s</span></code></li><li><time class="measured" datetime="2026-11-25T10:33+09:00"><span class="nb">10:33</span></time><span class="trail__what"><span class="nb">5.7GB</span> 모델 파일을 SSH로 받아 봄</span><code class="trail__got"><span class="nb">3.0초</span> 대 <span class="nb">48.6초</span></code></li><li><time class="measured" datetime="2026-11-25T10:37+09:00"><span class="nb">10:37</span></time><span class="trail__what">두 Mac에 준 고정 주소를 확인</span><code class="trail__got"><span class="nb">10.10.10.1</span> ↔ <span class="nb">10.10.10.2,</span> ping <span class="nb">0.37ms</span></code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-thunderbolt"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/thunderbolt-02-split/" class="pager__next"><small>다음 글</small><strong>2편 모델 하나를 두 Mac에 나눠 올리면</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#두-기계">두 기계</a></li><li><a href="#어느-포트에-꽂나">어느 포트에 꽂나</a></li><li><a href="#네트워크는-저절로-잡혔다">네트워크는 저절로 잡혔다</a></li><li><a href="#고정-주소-주기">고정 주소 주기</a></li><li><a href="#속도">속도</a></li><li><a href="#앞으로-할-것">앞으로 할 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

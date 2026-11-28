@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>모델 하나를 두 Mac에 나눠 올리면 | Cyborg</title><meta name="description" content="썬더볼트 활용기 2편. llama.cpp의 RPC로 마스터 Mac mini(M4)가 썬더볼트 너머 워커 Mac mini(M5 Pro)의 GPU를 빌려 쓰게 하고, Qwen3.5 9B 세 크기를 네 가지 배치로 돌렸습니다. 두 대에 나눠 올리면 느린 쪽에 끌려 M5 Pro 혼자보다 느렸고, M5 Pro 혼자 RPC로 돌리면 그 기계에서 바로 돌릴 때보다 답 쓰기가 많아야 7%쯤 느렸습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/thunderbolt-02-split/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="모델 하나를 두 Mac에 나눠 올리면 | Cyborg"><meta property="og:description" content="썬더볼트 활용기 2편. llama.cpp의 RPC로 마스터 Mac mini(M4)가 썬더볼트 너머 워커 Mac mini(M5 Pro)의 GPU를 빌려 쓰게 하고, Qwen3.5 9B 세 크기를 네 가지 배치로 돌렸습니다. 두 대에 나눠 올리면 느린 쪽에 끌려 M5 Pro 혼자보다 느렸고, M5 Pro 혼자 RPC로 돌리면 그 기계에서 바로 돌릴 때보다 답 쓰기가 많아야 7%쯤 느렸습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/thunderbolt-02-split/"><meta property="article:published_time" content="2026-11-25T02:26:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"모델 하나를 두 Mac에 나눠 올리면","description":"썬더볼트 활용기 2편. llama.cpp의 RPC로 마스터 Mac mini(M4)가 썬더볼트 너머 워커 Mac mini(M5 Pro)의 GPU를 빌려 쓰게 하고, Qwen3.5 9B 세 크기를 네 가지 배치로 돌렸습니다. 두 대에 나눠 올리면 느린 쪽에 끌려 M5 Pro 혼자보다 느렸고, M5 Pro 혼자 RPC로 돌리면 그 기계에서 바로 돌릴 때보다 답 쓰기가 많아야 7%쯤 느렸습니다.","datePublished":"2026-11-25T02:26:00.000Z","dateModified":"2026-11-25T02:26:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/thunderbolt-02-split/","mainEntityOfPage":"https://teddybears56.github.io/posts/thunderbolt-02-split/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"><style>.pair[data-astro-cid-62jseu6t]{margin-inline:0;border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-card);background:var(--color-paper-3);margin-bottom:0;overflow:hidden}.pair__title[data-astro-cid-62jseu6t]{min-height:48px;padding-inline:var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule);font-size:var(--text-sm);color:var(--color-muted);align-items:center;display:flex}.pair__row[data-astro-cid-62jseu6t]{align-items:stretch;gap:var(--space-sm);padding:var(--space-lg);grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);display:grid}.pair__box[data-astro-cid-62jseu6t]{padding:var(--space-md);border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-card);background:var(--color-paper-2)}.pair__box[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t],.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin:0}.pair__name[data-astro-cid-62jseu6t]{color:var(--color-ink);font-weight:600}.pair__spec[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-muted)}.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin-top:var(--space-xs);font-size:var(--text-sm);color:var(--color-ink-2);padding-left:1.1em}.pair__link[data-astro-cid-62jseu6t]{justify-content:center;align-items:center;gap:var(--space-2xs);text-align:center;flex-direction:column;display:flex}.pair__link[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t]{margin:0}.pair__line[data-astro-cid-62jseu6t]{min-height:var(--space-sm);background:var(--color-accent);border-radius:1px;flex:1 1 0;width:2px}.pair__label[data-astro-cid-62jseu6t]{color:var(--color-accent);font-weight:600}.pair__flow[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-ink-2)}.pair__below[data-astro-cid-62jseu6t]{padding:0 var(--space-lg) var(--space-lg);font-size:var(--text-sm);color:var(--color-muted);margin:0}@media (width>=720px){.pair__link[data-astro-cid-62jseu6t]{flex-flow:wrap;align-content:center}.pair__line[data-astro-cid-62jseu6t]{flex:1 0 100%;width:auto;height:2px;min-height:2px}.pair__label[data-astro-cid-62jseu6t],.pair__flow[data-astro-cid-62jseu6t]{flex:1 0 100%}}@media (width<=719px){.pair__row[data-astro-cid-62jseu6t]{grid-template-columns:minmax(0,1fr)}}
+</style></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-thunderbolt">연재</a></li><li>2편</li></ol></nav><h1 id="post-title">모델 하나를 두 Mac에 나눠 올리면</h1><p class="post__lead">1편에서 Mac mini 두 대를 썬더볼트로 이었습니다. 이번에는 <span class="nb">llama.cpp의</span> RPC 기능으로 한 Mac이 다른 Mac의 GPU를 빌려 쓰게 하고, 같은 모델을 혼자, 빌려서, 나눠서 돌려 속도를 견줬습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-25"><span class="nb">2026-11-25</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 5분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>RPC를 켠 <span class="nb">llama.cpp를</span> 만든다.</strong> 마스터 Mac mini에서 빌드하고, <code><span class="nb">rpc-server</span></code> 하나만 워커 Mac mini로 옮긴다.</li>
+<li><strong>워커 Mac mini에 <code><span class="nb">rpc-server</span></code>를 띄운다.</strong> 썬더볼트 주소에만 묶는다.</li>
+<li><strong>같은 모델을 네 가지로 돌린다.</strong> 마스터 Mac mini 혼자, 워커 Mac mini <span class="nb">혼자(RPC로),</span> 두 대에 나눠서 두 가지.</li>
+</ol>
+<h2 id="rpc는-어떻게-도나">RPC는 어떻게 도나</h2>
+<p><span class="nb">llama.cpp의</span> RPC는 다른 기계의 GPU를 장치 하나처럼 보이게 합니다. 모델 파일은 마스터 Mac mini에만 있고, 모델을 올릴 때 워커 Mac mini가 맡을 층의 가중치를 네트워크로 보냅니다. 답을 쓰는 동안에는 층 사이를 오가는 중간 결과만 주고받습니다.</p>
+<figure class="pair" aria-label="구성" data-astro-cid-62jseu6t><figcaption class="pair__title" data-astro-cid-62jseu6t>구성</figcaption><div class="pair__row" data-astro-cid-62jseu6t><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>마스터 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M4, GPU <span class="nb">22.0GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">llama-bench,</span> <span class="nb">llama-server</span></li><li data-astro-cid-62jseu6t>모델 파일</li><li data-astro-cid-62jseu6t>장치 MTL0</li></ul></div><div class="pair__link" data-astro-cid-62jseu6t><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span><p class="pair__label" data-astro-cid-62jseu6t>썬더볼트 <span class="nb">40Gb/s</span></p><p class="pair__flow" data-astro-cid-62jseu6t><span class="nb">가중치(처음</span> 한 <span class="nb">번)</span></p><p class="pair__flow" data-astro-cid-62jseu6t>계산 요청과 중간 결과</p><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span></div><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>워커 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M5 Pro, GPU <span class="nb">37.4GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">rpc-server</span></li><li data-astro-cid-62jseu6t><span class="nb">10.10.10.2:50052</span></li><li data-astro-cid-62jseu6t>장치 RPC0</li></ul></div></div></figure>
+<h2 id="rpc를-켠-빌드">RPC를 켠 빌드</h2>
+<p>마스터 Mac mini에 있던 <span class="nb">llama.cpp</span> 빌드에는 RPC가 빠져 있었습니다. 기존 빌드를 건드리지 않게 새 폴더에 다시 빌드했습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini에서 빌드</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span># 고친 뒤의 명령</span></span>
+<span class="line"><span>$ cmake -B build-rpc -DGGML_RPC=ON -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DBUILD_SHARED_LIBS=OFF</span></span>
+<span class="line"><span>$ cmake --build build-rpc --config Release -j 8 --target ggml-rpc-server llama-server llama-bench</span></span></code></pre></figure>
+<p>두 군데에서 걸렸습니다.</p>
+<ul>
+<li><strong>대상 이름이 바뀌어 있었다.</strong> 이 <span class="nb">판(빌드</span> <span class="nb">12341)에서</span> RPC 서버의 대상 이름은 <code><span class="nb">rpc-server</span></code>가 아니라 <code><span class="nb">ggml-rpc-server</span></code>였다.</li>
+<li><strong><code><span class="nb">llama-server</span></code>가 웹 UI 묶음에서 멈췄다.</strong> 이 판에 맞는 웹 UI 묶음의 체크섬 파일을 받지 못하고 최신 묶음을 대신 받았는데, 필요한 <span class="nb">파일(</span><code><span class="nb">bundle[hash].js</span></code> <span class="nb">등)이</span> 없다며 빌드가 멈췄다. 기존 빌드 폴더에 받아 둔 <span class="nb">묶음(</span><code><span class="nb">tools/ui/dist</span></code><span class="nb">)을</span> 새 폴더로 복사하자 내려받기를 건너뛰고 지나갔다.</li>
+</ul>
+<p><code><span class="nb">BUILD_SHARED_LIBS=OFF</span></code>로 묶어 만들어서, <code><span class="nb">ggml-rpc-server</span></code><span class="nb">(7.4MB)는</span> 파일 하나만 워커 Mac mini로 복사하면 바로 돌았습니다.</p>
+<h2 id="rpc-server-띄우기"><span class="nb">rpc-server</span> 띄우기</h2>
+<figure class="code"><figcaption class="code__bar"><span>워커 Mac mini</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ ./ggml-rpc-server -H 10.10.10.2 -p 50052 -c</span></span>
+<span class="line"><span>WARNING: Host (&#39;10.10.10.2&#39;) is != &#39;127.0.0.1&#39;</span></span>
+<span class="line"><span>         Never expose the RPC server to an open network!</span></span>
+<span class="line"><span>         This is an experimental feature and is not secure!</span></span></code></pre></figure>
+<p><span class="nb">llama.cpp는</span> RPC 서버를 열린 네트워크에 내놓지 말라고, 실험 기능이라 안전하지 않다고 경고합니다. RPC 서버에는 접속을 가리는 인증이 없습니다. 그래서 두 Mac끼리만 닿는 썬더볼트 주소에만 묶었습니다. 같은 까닭으로 유선 LAN 주소로 열어 견주는 시험은 하지 않았습니다.</p>
+<p><code><span class="nb">-c</span></code>는 받은 가중치를 워커 Mac mini의 <span class="nb">디스크(</span><code>~/Library/Caches/llama.cpp/rpc</code><span class="nb">)에</span> 남겨, 같은 모델을 다시 올릴 때 네트워크로 보내지 않게 합니다. 이번 시험으로 27GB가 쌓였습니다.</p>
+<p>마스터 Mac mini에서 보면 장치가 하나 늘었습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ llama-server --rpc 10.10.10.2:50052 --list-devices</span></span>
+<span class="line"><span>  MTL0: Apple M4 (22528 MiB, 22527 MiB free)</span></span>
+<span class="line"><span>  BLAS: Accelerate (0 MiB, 0 MiB free)</span></span>
+<span class="line"><span>  RPC0: 10.10.10.2:50052 (38338 MiB, 38337 MiB free)</span></span></code></pre></figure>
+<h2 id="시험-방법">시험 방법</h2>
+<p>모델은 로컬 LLM 연재 <a href="/posts/14-quantization/">14단계</a>에서 받은 <span class="nb">Qwen3.5</span> 9B의 <span class="nb">Q4_K_M(5.7GB),</span> <span class="nb">Q8_0(9.5GB),</span> <span class="nb">BF16(17.9GB)입니다.</span> 마스터 Mac mini에서 <code><span class="nb">llama-bench</span></code>로 글 <span class="nb">읽기(512토큰)와</span> 답 <span class="nb">쓰기(128토큰)를</span> 세 번씩 재고, 장치 배치를 네 가지로 바꿨습니다.</p>
+<ul>
+<li><strong>마스터 Mac mini 혼자:</strong> <code><span class="nb">-dev</span> MTL0</code></li>
+<li><strong>워커 Mac mini <span class="nb">혼자(RPC):</span></strong> <code><span class="nb">--rpc</span> <span class="nb">10.10.10.2:50052</span> <span class="nb">-dev</span> RPC0</code></li>
+<li><strong>메모리 비율로 나눔:</strong> <code><span class="nb">--rpc</span> … <span class="nb">-dev</span> <span class="nb">MTL0/RPC0</span></code></li>
+<li><strong>반반 나눔:</strong> <code><span class="nb">--rpc</span> … <span class="nb">-dev</span> <span class="nb">MTL0/RPC0</span> <span class="nb">-ts</span> <span class="nb">1/1</span></code></li>
+</ul>
+<p>견주려고 워커 Mac mini에서도 같은 모델을 RPC 없이 바로 돌렸습니다. 모델 파일을 썬더볼트로 디스크에 옮기는 <span class="nb">데(</span><code>scp</code>) <span class="nb">Q4_K_M은</span> 8초, BF16은 26초가 걸렸습니다.</p>
+<h2 id="결과">결과</h2>
+<p>답 쓰기, 초당 토큰입니다. <span class="nb">「마스터</span> <span class="nb">혼자」는</span> 마스터 Mac mini 혼자, <span class="nb">「워커</span> <span class="nb">혼자」는</span> 워커 Mac mini <span class="nb">혼자(RPC),</span> <span class="nb">「비율로」와</span> <span class="nb">「반반」은</span> 두 대에 나눈 것입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>배치</th>
+<th><span class="nb">Q4_K_M</span></th>
+<th><span class="nb">Q8_0</span></th>
+<th>BF16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>마스터 혼자</td>
+<td><span class="nb">18.3</span></td>
+<td><span class="nb">11.8</span></td>
+<td><span class="nb">6.4</span></td>
+</tr>
+<tr>
+<td>워커 혼자</td>
+<td><span class="nb">42.5</span></td>
+<td><span class="nb">29.6</span></td>
+<td><span class="nb">17.1</span></td>
+</tr>
+<tr>
+<td>비율로</td>
+<td><span class="nb">24.4</span></td>
+<td><span class="nb">18.2</span></td>
+<td><span class="nb">10.4</span></td>
+</tr>
+<tr>
+<td>반반</td>
+<td><span class="nb">21.3</span></td>
+<td><span class="nb">15.6</span></td>
+<td><span class="nb">9.3</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>글 읽기, 초당 토큰입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>배치</th>
+<th><span class="nb">Q4_K_M</span></th>
+<th><span class="nb">Q8_0</span></th>
+<th>BF16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>마스터 혼자</td>
+<td>217</td>
+<td>228</td>
+<td>222</td>
+</tr>
+<tr>
+<td>워커 혼자</td>
+<td>999</td>
+<td><span class="nb">1,057</span></td>
+<td><span class="nb">1,053</span></td>
+</tr>
+<tr>
+<td>비율로</td>
+<td>393</td>
+<td>418</td>
+<td>405</td>
+</tr>
+<tr>
+<td>반반</td>
+<td>334</td>
+<td>352</td>
+<td>348</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>나누면 느린 쪽에 끌렸다.</strong> 층으로 나누면 두 기계가 맡은 층을 차례로 계산하므로, 두 대의 속도가 더해지지 않고 느린 마스터 Mac mini가 맡은 몫만큼 늦어지는 것으로 보인다. BF16은 이렇게 셈한 값과 잰 값이 거의 같았다. <span class="nb">Q4_K_M은</span> 잰 값이 셈보다 토큰당 <span class="nb">6~8ms</span> 더 느려, 작은 모델일수록 두 기계 사이를 오가는 데 드는 시간이 따로 보였다. 옵션 없이 나누면 남은 메모리 <span class="nb">비율(약</span> 37 대 <span class="nb">63)대로</span> 나뉘어 반반보다 워커 Mac mini가 더 많이 맡았을 것이고, 실제로 조금 빨랐다. 층이 몇 개씩 갔는지는 확인하지 않았다.</li>
+<li><strong>빌려 쓰는 손해는 작았다.</strong> 워커 Mac mini에서 바로 돌린 값과 견주면 아래와 같다.</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>워커 Mac mini</th>
+<th>바로</th>
+<th>RPC로</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Q4_K_M</span> 답 쓰기</td>
+<td><span class="nb">45.3~45.8</span></td>
+<td><span class="nb">42.5</span></td>
+</tr>
+<tr>
+<td><span class="nb">Q4_K_M</span> 글 읽기</td>
+<td><span class="nb">966~1,041</span></td>
+<td>999</td>
+</tr>
+<tr>
+<td>BF16 답 쓰기</td>
+<td><span class="nb">16.5~17.1</span></td>
+<td><span class="nb">17.1</span></td>
+</tr>
+<tr>
+<td>BF16 글 읽기</td>
+<td><span class="nb">887~1,008</span></td>
+<td><span class="nb">1,053</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>바로 돌린 값은 두 번 잰 범위입니다. 답 쓰기는 <span class="nb">Q4_K_M에서</span> <span class="nb">6~7%</span> 줄었고, BF16에서는 차이가 없었습니다. 글 읽기는 두 번 잰 값끼리도 <span class="nb">8~14%</span> 흔들려 차이를 가를 수 없었습니다. 워커 Mac mini에서는 다른 프로그램도 돌고 있었습니다.</p>
+<aside class="note" aria-labelledby="note-wiya2p"><h3 id="note-wiya2p">썬더볼트로 오가는 양</h3><p>이번 시험에서 오간 양을 따로 재지는 않았습니다. 셈으로 보면, 답을 쓸 때 층 사이로 넘기는 값은 토큰 하나마다 숫자 <span class="nb">4,096개입니다.</span> 출력층이 워커 Mac mini에 있으면 낱말 확률 24만 8천여 개가 돌아올 수 있어, 합쳐도 토큰당 1MB 안팎입니다. 초당 40토큰이면 수십 <span class="nb">MB/s로,</span> 1편에서 잰 <span class="nb">37.6Gb/s의</span> 길에는 한참 못 미칩니다. 가중치를 처음 보낼 때만 큰 양이 오가는데, <code><span class="nb">-c</span></code>로 남겨 두면 두 번째부터는 그것도 없습니다.</p></aside>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>나눠 올리기는 속도를 위한 것이 아니다.</strong> 두 대에 나누면 빠른 쪽 혼자보다 느렸다. 나누는 쓸모는 한 대에 안 들어가는 모델을 올리는 데 있다. 3편에서 시험한다.</li>
+<li><strong>썬더볼트 너머의 GPU는 거의 제 속도로 쓸 수 있다.</strong> 워커 Mac mini를 RPC로 빌려 쓰면, 바로 돌릴 때보다 답 쓰기가 많아야 <span class="nb">7%쯤</span> 느렸다.</li>
+<li><strong>빠른 GPU를 빌리는 길로도 쓸 수 있다.</strong> 마스터 Mac mini 혼자보다 워커 Mac mini를 빌려 쓰는 쪽이 답 쓰기 <span class="nb">2.3~2.6배,</span> 글 읽기 <span class="nb">4.6~4.8배</span> 빨랐다. 모델 파일과 웹 UI는 마스터 Mac mini에 두고 계산만 넘기는 구성도 될 것이다. 다만 이번에는 <code><span class="nb">llama-bench</span></code>로만 쟀다.</li>
+<li><strong>RPC는 닫힌 선에서만 쓴다.</strong> 인증이 없어서, 썬더볼트 주소처럼 두 기계끼리만 닿는 곳에 묶어야 한다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-25"><li><time class="measured" datetime="2026-11-25T10:35+09:00"><span class="nb">10:35</span></time><span class="trail__what">마스터 Mac mini에서 RPC를 켠 <span class="nb">llama.cpp</span> 빌드를 시작</span><code class="trail__got">대상 이름, 웹 UI 묶음에서 두 번 멈춤</code></li><li><time class="measured" datetime="2026-11-25T10:39+09:00"><span class="nb">10:39</span></time><span class="trail__what">워커 Mac mini에 <span class="nb">ggml-rpc-server를</span> 띄움</span><code class="trail__got"><span class="nb">10.10.10.2:50052</span></code></li><li><time class="measured" datetime="2026-11-25T10:40+09:00"><span class="nb">10:40</span></time><span class="trail__what">두 대에 나눠 <span class="nb">Q4_K_M을</span> 시험 삼아 돌림</span><code class="trail__got">답 쓰기 <span class="nb">21.8토큰/초</span></code></li><li><time class="measured" datetime="2026-11-25T10:49+09:00"><span class="nb">10:49</span></time><span class="trail__what">세 크기 × 네 배치를 다 잼</span><code class="trail__got">나누면 느린 쪽에 끌림</code></li><li><time class="measured" datetime="2026-11-25T10:52+09:00"><span class="nb">10:52</span></time><span class="trail__what">워커 Mac mini에서 바로 돌린 값을 두 번씩 잼</span><code class="trail__got">RPC로는 답 쓰기 <span class="nb">6~7%</span> 느림</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-thunderbolt"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/thunderbolt-03-bigger/" class="pager__next"><small>다음 글</small><strong>3편 혼자서는 안 들어가는 판을 두 Mac으로 올리면</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#rpc는-어떻게-도나">RPC는 어떻게 도나</a></li><li><a href="#rpc를-켠-빌드">RPC를 켠 빌드</a></li><li><a href="#rpc-server-띄우기"><span class="nb">rpc-server</span> 띄우기</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#결과">결과</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

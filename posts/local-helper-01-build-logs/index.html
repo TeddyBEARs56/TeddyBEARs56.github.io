@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>빌드 로그를 로컬 모델에게 대신 읽히면 | Cyborg</title><meta name="description" content="로컬 모델을 코딩 도우미로 1편. 이 블로그에 고장 여섯 가지를 심어 받은 빌드 로그(짧은 로그, 실제 배포 로그에 끼운 긴 로그)와 실제 배포 실패 하나, 모두 13개를 Qwen3.6, Qwen3.8, Gemma 4에게 세 줄로 줄이게 하고 모델 이름을 가려 채점했습니다. 쓸 만한 답은 10~11개였고, 빌드 결과물 안에서 난 실행 오류는 세 모델 모두 원인을 짚지 못했습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/local-helper-01-build-logs/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="빌드 로그를 로컬 모델에게 대신 읽히면 | Cyborg"><meta property="og:description" content="로컬 모델을 코딩 도우미로 1편. 이 블로그에 고장 여섯 가지를 심어 받은 빌드 로그(짧은 로그, 실제 배포 로그에 끼운 긴 로그)와 실제 배포 실패 하나, 모두 13개를 Qwen3.6, Qwen3.8, Gemma 4에게 세 줄로 줄이게 하고 모델 이름을 가려 채점했습니다. 쓸 만한 답은 10~11개였고, 빌드 결과물 안에서 난 실행 오류는 세 모델 모두 원인을 짚지 못했습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/local-helper-01-build-logs/"><meta property="article:published_time" content="2026-11-24T14:02:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"빌드 로그를 로컬 모델에게 대신 읽히면","description":"로컬 모델을 코딩 도우미로 1편. 이 블로그에 고장 여섯 가지를 심어 받은 빌드 로그(짧은 로그, 실제 배포 로그에 끼운 긴 로그)와 실제 배포 실패 하나, 모두 13개를 Qwen3.6, Qwen3.8, Gemma 4에게 세 줄로 줄이게 하고 모델 이름을 가려 채점했습니다. 쓸 만한 답은 10~11개였고, 빌드 결과물 안에서 난 실행 오류는 세 모델 모두 원인을 짚지 못했습니다.","datePublished":"2026-11-24T14:02:00.000Z","dateModified":"2026-11-24T14:02:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/local-helper-01-build-logs/","mainEntityOfPage":"https://teddybears56.github.io/posts/local-helper-01-build-logs/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-helper">연재</a></li><li>1편</li></ol></nav><h1 id="post-title">빌드 로그를 로컬 모델에게 대신 읽히면</h1><p class="post__lead">클라우드 코딩 에이전트에게 실패한 빌드 로그를 통째로 넘기면, 그 로그는 대화에 남아 매번 다시 읽힙니다. 이 연재는 그런 단순하지만 토큰이 많이 드는 일을 집에 있는 로컬 모델에게 떼어 줄 수 있는지 봅니다. 첫 편은 빌드 로그를 세 줄로 줄여 원인을 짚게 하는 일입니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-24"><span class="nb">2026-11-24</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 6분</dd></div></dl></header><div class="prose"><h2 id="이-연재에서-할-일">이 연재에서 할 일</h2>
+<p>Claude Code 같은 클라우드 코딩 에이전트는 똑똑하지만, 쓴 만큼 토큰이 듭니다. 그런데 에이전트가 하는 일 가운데에는 머리보다 손이 많이 드는 일이 있습니다. 긴 로그 읽기, 파일 찾기, 정해진 대로 몇 줄 고치기 같은 일입니다. <a href="/posts/agent-01-seven-models/">로컬 LLM 처음부터 11단계</a>에서는 에이전트의 모델을 통째로 로컬 모델로 바꿨습니다. 이번에는 클라우드 에이전트는 그대로 두고, 옆에서 로컬 모델이 일부를 맡게 합니다.</p>
+<p>네 가지 일을 시험했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>편</th>
+<th>일</th>
+<th>문항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1편</td>
+<td>실패한 빌드 로그 읽기</td>
+<td>13</td>
+</tr>
+<tr>
+<td>2편</td>
+<td>도구로 코드 찾기</td>
+<td>8</td>
+</tr>
+<tr>
+<td>2편</td>
+<td>지시서대로 몇 줄 고치기</td>
+<td>6</td>
+</tr>
+<tr>
+<td>3편</td>
+<td>diff 먼저 훑기</td>
+<td>8</td>
+</tr>
+</tbody>
+</table></div>
+<p>모두 이 블로그의 <span class="nb">저장소(Astro)에서</span> 냈고, 정답은 시험 전에 적어 두었습니다.</p>
+<h2 id="시험-방법">시험 방법</h2>
+<h3 id="모델">모델</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>기계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td>Mac mini</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>Mac mini</td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td>노트북</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B</span></strong><span class="nb">(UD-IQ4_XS</span> <span class="nb">GGUF)는</span> 한 번에 <span class="nb">일부(3B)만</span> 계산하는 MoE 모델이라, Mac mini에서 답을 초당 28토큰쯤으로 빠르게 쓴다.</li>
+<li><strong><span class="nb">Qwen3.8</span> 27B</strong><span class="nb">(Ollama의</span> <code><span class="nb">qwen3.8:27b</span></code><span class="nb">)는</span> Mac mini의 웹 UI가 늘 쓰는 모델이고, Ollama가 MLX 엔진으로 돌린다.</li>
+<li><strong>Gemma 4 <span class="nb">26B-A4B</span></strong><span class="nb">(UD-IQ4_XS</span> <span class="nb">GGUF)는</span> 웹 UI에서 고를 수 있는 <span class="nb">노트북(Arc</span> 140V 내장 GPU, 메모리 <span class="nb">32GB)</span> 모델이다. 이번에는 같은 파일을 노트북의 Ollama로 돌렸다.</li>
+</ul>
+<p>세 모델 모두 Ollama <span class="nb">0.40.16에서</span> 온도 0, 기억할 글 길이 <span class="nb">32,768토큰으로</span> 돌렸고 생각은 껐습니다. 문항마다 한 번씩 돌렸습니다.</p>
+<h3 id="빌드-로그-13개">빌드 로그 13개</h3>
+<p>이 블로그에 고장 여섯 가지를 하나씩 심고 <code>npm run build</code>를 돌려 로그를 받았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>번호</th>
+<th>심은 고장</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>국산 7편 글의 <code><span class="nb">&lt;Code&gt;</span></code>를 닫지 않음</td>
+</tr>
+<tr>
+<td>2</td>
+<td>국산 6편 머리말의 필수 칸을 뺌</td>
+</tr>
+<tr>
+<td>3</td>
+<td>국산 5편이 없는 컴포넌트를 import</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code><span class="nb">series.ts</span></code> 항목의 <code>}</code>를 뺌</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code><span class="nb">posts.ts</span></code>가 없는 칸을 읽음</td>
+</tr>
+<tr>
+<td>6</td>
+<td>버그 글의 분류 값에 오타</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">「국산」은</span> <a href="/#series-korean-llm">국산 LLM 견주기</a>의 글입니다.</p>
+<ul>
+<li><strong>짧은 로그 6개</strong>는 빌드 출력 그대로로, <span class="nb">760~1,570자다.</span></li>
+<li><strong>긴 로그 6개</strong>는 이 블로그의 실제 GitHub Actions 배포 <span class="nb">로그(321줄)에서</span> 빌드 단계의 출력을 같은 고장 출력으로 바꿔 끼운 것이다. 클라우드 에이전트가 <code>gh run view <span class="nb">--log</span></code>로 받는 모양으로, <span class="nb">222~240줄,</span> 2만 3천 자쯤이고, 지시문까지 모델에게는 1만 <span class="nb">1천~1만</span> 3천 토큰이었다.</li>
+<li><span class="nb">**실제</span> 실패 <span class="nb">하나(7번)**는</span> <span class="nb">11-17에</span> 이 블로그의 배포가 실패한 GitHub Actions 로그다. GitHub Pages 배포가 404로 실패했다.</li>
+</ul>
+<p>모델에게는 이렇게 지시했습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>빌드 로그 지시문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>너는 빌드 로그를 읽고 실패 원인을 짚는 도우미다. 로그에 있는 것만 근거로 쓴다. 세 줄로만 답한다.</span></span>
+<span class="line"><span>파일: &lt;원인이 있는 파일 경로와 줄 번호. 로그로 알 수 없으면 &#39;모름&#39;&gt;</span></span>
+<span class="line"><span>원인: &lt;한 문장&gt;</span></span>
+<span class="line"><span>고칠 것: &lt;한 문장&gt;</span></span></code></pre></figure>
+<h3 id="채점">채점</h3>
+<p>모델 이름을 가리고 새 대화의 Claude가 채점했습니다. 답마다 파일, 원인, 고칠 것을 ○ △ <span class="nb">✕로</span> 매기고, <strong>파일과 원인이 <span class="nb">○이고</span> 고칠 것이 <span class="nb">✕가</span> 아니면 쓸 만한 답</strong>으로 셌습니다. 이 답만 보고 고치러 갈 수 있다는 뜻입니다. 채점 묶음에는 긴 로그의 가운데를 줄여 실었고, 긴 로그의 고장 출력은 같은 번호의 짧은 로그와 글자까지 같아 그것을 보고 매겼습니다.</p>
+<p><span class="nb">11-23에</span> 한 번 채점했는데, 채점 노트가 담긴 임시 폴더가 지워졌습니다. 그래서 <span class="nb">11-24에</span> 같은 답 묶음을 새로 쓴 기준표로 다시 채점했고, 아래는 두 번째 채점입니다. 첫 채점은 합계만 남아 있어 견줄 수 있는 것은 합계뿐인데, <span class="nb">Qwen3.6의</span> 긴 로그 쪽이 첫 채점보다 하나 <span class="nb">적었습니다(5개</span> → <span class="nb">4개).</span></p>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>짧은 <span class="nb">로그·7번</span></th>
+<th>긴 로그</th>
+<th>합</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span></td>
+<td><span class="nb">6/7</span></td>
+<td><span class="nb">5/6</span></td>
+<td>11</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td><span class="nb">6/7</span></td>
+<td><span class="nb">4/6</span></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Gemma 4</td>
+<td><span class="nb">6/7</span></td>
+<td><span class="nb">4/6</span></td>
+<td>10</td>
+</tr>
+</tbody>
+</table></div>
+<p>열세 문항 가운데 열 문항은 세 모델이 모두 쓸 만하게 답했습니다. 1, 2, 3, 6번은 짧은 로그와 긴 로그 모두, 4번은 짧은 로그, 그리고 7번입니다. 셋 다 쓸 만하지 않았던 것은 5번의 두 로그, 갈린 것은 4번 긴 로그입니다.</p>
+<ul>
+<li><strong>5번은 셋 다 못 맞혔다.</strong> 로그에는 빌드가 만든 <span class="nb">파일(</span><code>dist/.prerender/chunks/posts_….mjs:797</code><span class="nb">)과</span> 함수 이름 <code>getBugs</code>만 나오고, 원래 소스 파일 <code><span class="nb">posts.ts</span></code>와 잘못 읽은 칸 이름은 나오지 않는다. 세 모델 모두 「<code>getBugs</code> 안에서 undefined를 <span class="nb">읽었다」는</span> 증상 너머로 가지 못했고, 고칠 것으로는 <span class="nb">「undefined가</span> 아닌지 <span class="nb">확인하라」,</span> <span class="nb">「null</span> 검사를 <span class="nb">더하라」</span> 같은 말을 내놓았다. <code>getBugs</code> 안에 검사를 넣으면 빌드는 지나가도 칸 이름이 틀린 채로 남고, 부르는 쪽에서 검사하거나 빌드 결과물을 고치라는 답은 빌드도 고치지 못한다. 파일 칸은 모델마다 달랐다. 짧은 로그에서 <span class="nb">Qwen3.8은</span> <span class="nb">「모름」을</span> 썼지만 긴 로그에서는 없는 파일을 <span class="nb">「추정」으로</span> 댔고, Gemma 4는 반대로 긴 로그에서 <span class="nb">「모름」을</span> 썼다. <span class="nb">Qwen3.6은</span> 두 번 다 빌드 결과물의 경로를 댔다.</li>
+<li><strong>4번 긴 로그는 <span class="nb">Qwen3.8만</span> 맞혔다.</strong> 같은 고장의 짧은 로그는 셋 다 맞혔다. 긴 로그에서 <span class="nb">Qwen3.6은</span> 「<code>}</code> 대신 <code>]</code>를 <span class="nb">썼다」며</span> <span class="nb">「62행을</span> <code><span class="nb">},</span></code>나 <code><span class="nb">}]</span></code>로 <span class="nb">고치라」고</span> 했는데, <code><span class="nb">},</span></code>로 고치면 배열이 닫히지 않는다. Gemma 4는 「<code>}</code>나 쉼표가 <span class="nb">빠졌다」고</span> 흐리게 답했다. 둘 다 원인과 고칠 것이 <span class="nb">△였다.</span></li>
+</ul>
+<p>7번 실제 실패는 셋 다 <span class="nb">「Pages가</span> 켜져 있지 <span class="nb">않다」고</span> 읽었습니다. 채점 기준의 정답에 <span class="nb">「Pages</span> 설정에서 소스를 GitHub Actions로 골라 <span class="nb">켠다」고</span> 적어 두어, 그렇게 말한 <span class="nb">Qwen3.8만</span> 고칠 것이 <span class="nb">○,</span> <span class="nb">「Pages를</span> <span class="nb">켜라」에서</span> 멈춘 둘은 <span class="nb">△였습니다.</span> 그런데 나중에 기록을 다시 보니, 그 무렵 이 블로그는 배포할 저장소를 옮기는 중이었고 실제로는 배포 방식을 바꿔 해결했습니다. 로그만으로는 알 수 없는 사정이라, 이 문항의 <span class="nb">○와</span> △ 차이는 크게 볼 것이 없습니다. 3번에서 Gemma 4도 <span class="nb">「import</span> 경로가 맞는지 <span class="nb">확인하라」고만</span> 해 고칠 것이 <span class="nb">△였습니다.</span> 이 답들은 모두 파일과 원인이 맞아 쓸 만한 답으로 셌습니다.</p>
+<h2 id="걸린-시간">걸린 시간</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>짧은 <span class="nb">로그·7번</span></th>
+<th>긴 로그</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td><span class="nb">5.1초</span></td>
+<td><span class="nb">36.4초</span></td>
+</tr>
+<tr>
+<td>Gemma 4</td>
+<td><span class="nb">7.5초</span></td>
+<td><span class="nb">70.2초</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span></td>
+<td><span class="nb">14.1초</span></td>
+<td><span class="nb">84.4초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>문항 하나에 걸린 시간의 가운데 값입니다. 긴 로그는 거의 다 로그를 읽는 데 쓰는 시간입니다. <span class="nb">Qwen3.8은</span> 1번 긴 로그 하나에 214초가 걸려 따로 튀었습니다. 답은 세 모델 모두 가운데 값이 <span class="nb">83~94토큰으로,</span> 1만 <span class="nb">1천~1만</span> 3천 토큰짜리 요청을 백분의 일 아래로 줄였습니다. 토큰 수는 각 로컬 모델의 토크나이저로 센 것입니다.</p>
+<h2 id="클라우드-에이전트에-붙인다면">클라우드 에이전트에 붙인다면</h2>
+<p>클라우드 에이전트가 긴 로그를 직접 읽으면, 그 로그는 대화에 남습니다. Claude Code 같은 에이전트는 요청마다 대화 전체를 다시 <span class="nb">보내므로(앞부분은</span> 캐시로 싸게 <span class="nb">읽더라도),</span> 로그 한 번이 여러 번 값을 치릅니다. 로컬 모델이 세 줄로 줄여 주고 에이전트는 세 줄과 로그 파일 경로만 받으면, 대화에 남는 것은 세 줄뿐입니다. 클라우드 모델의 토큰으로 얼마인지는 이번에 재지 않았습니다.</p>
+<p>이번 결과로 보면 이렇게 나눌 수 있습니다.</p>
+<ul>
+<li><strong>소스 파일 이름이 로그에 나오는 실패</strong><span class="nb">(1,</span> 2, 3, 6번과 4번의 짧은 <span class="nb">로그)는</span> 세 줄로 충분했다. 4번 긴 로그는 셋 가운데 하나만 맞혔다.</li>
+<li><strong>빌드 결과물 안에서 난 실행 오류</strong><span class="nb">(5번)는</span> 로그만으로는 원래 소스를 알 수 없었다. 이럴 때 세 줄은 증상만 말하고, 틀린 고칠 것을 내놓을 수 있다. <span class="nb">「모름」이</span> 나오거나 파일이 <code><span class="nb">dist/</span></code>를 가리키면 에이전트가 로그를 직접 열게 하는 편이 낫다. 채점에서는 <span class="nb">「모름」과</span> 엉뚱한 파일을 똑같이 틀린 것으로 셌지만, 실제로 쓸 때는 <span class="nb">「모름」이</span> 그 신호가 된다.</li>
+<li><strong>속도로는 <span class="nb">Qwen3.6이</span> 맞다.</strong> 긴 로그를 36초에 읽어, <span class="nb">Qwen3.8(84초)과</span> Gemma <span class="nb">4(70초)보다</span> 빨랐다. 쓸 만한 답은 두 번째 채점에서 <span class="nb">Qwen3.8이</span> 하나 많았지만, 첫 채점에서는 11개씩 같았다.</li>
+</ul>
+<p>실제로 에이전트에 붙여 토큰을 얼마나 아끼는지는 아직 재지 않았습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>빌드 로그 읽기는 로컬 모델에게 맡길 만하다.</strong> 세 모델 모두 13문항 가운데 <span class="nb">10~11개가</span> 쓸 만했다.</li>
+<li><strong>로그가 길어지면 조금 흐려졌다.</strong> 같은 고장인데 긴 로그에서만 쓸 만하지 않은 답이 <span class="nb">Qwen3.6과</span> Gemma 4에서 하나씩 나왔다.</li>
+<li><strong>로그에 없는 것은 못 짚는다.</strong> 빌드 결과물 안의 실행 오류는 세 모델 모두 증상만 말했다. 세 줄을 쓰는 쪽에서는 <span class="nb">「모름」이나</span> <code><span class="nb">dist/</span></code> 경로를 로그를 직접 열라는 신호로 다루면 된다.</li>
+<li><strong>이번 결과는 한 번씩 잰 것이다.</strong> 이 블로그의 고장 여섯 가지와 실제 실패 하나뿐이고, 채점도 Claude 하나가 했다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-23"><li><time class="measured" datetime="2026-11-23T19:31+09:00"><span class="nb">19:31</span></time><span class="trail__what">고장 여섯 가지를 심고 빌드 로그를 받음</span><code class="trail__got">짧은 로그 6, 실제 실패 1</code></li><li><time class="measured" datetime="2026-11-23T19:33+09:00"><span class="nb">19:33</span></time><span class="trail__what">실제 배포 로그에 끼운 긴 로그 6개를 만듦</span><code class="trail__got">2만 3천 자쯤</code></li><li><time class="measured" datetime="2026-11-23T19:33+09:00"><span class="nb">19:33</span></time><span class="trail__what"><span class="nb">Qwen3.6과</span> <span class="nb">Qwen3.8에</span> 일마다 한 문항씩 시험 삼아 보냄</span><code class="trail__got">둘 다 1번 긴 로그를 맞힘</code></li><li><time class="measured" datetime="2026-11-23T19:40+09:00"><span class="nb">19:40</span></time><span class="trail__what">Mac mini의 <span class="nb">Qwen3.6과</span> 노트북의 Gemma 4에 로그 13개를 맡김</span><code class="trail__got">두 기계에서 함께</code></li><li><time class="measured" datetime="2026-11-23T19:44+09:00"><span class="nb">19:44</span></time><span class="trail__what"><span class="nb">Qwen3.6이</span> 로그 13개를 마침</span><code class="trail__got">4분 18초</code></li><li><time class="measured" datetime="2026-11-23T19:48+09:00"><span class="nb">19:48</span></time><span class="trail__what">Gemma 4가 로그 13개를 마침</span><code class="trail__got">8분</code></li><li><time class="measured" datetime="2026-11-23T19:49+09:00"><span class="nb">19:49</span></time><span class="trail__what"><span class="nb">Qwen3.6이</span> 네 가지 일을 다 마치자 <span class="nb">Qwen3.8이</span> 이어받음</span><code class="trail__got">같은 로그 13개부터</code></li><li><time class="measured" datetime="2026-11-23T20:02+09:00"><span class="nb">20:02</span></time><span class="trail__what"><span class="nb">Qwen3.8이</span> 로그 13개를 마침</span><code class="trail__got">12분 37초</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-helper"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/local-helper-02-find-and-patch/" class="pager__next"><small>다음 글</small><strong>2편 코드 찾기와 몇 줄 고치기를 로컬 모델에게 맡기면</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이-연재에서-할-일">이 연재에서 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#결과">결과</a></li><li><a href="#걸린-시간">걸린 시간</a></li><li><a href="#클라우드-에이전트에-붙인다면">클라우드 에이전트에 붙인다면</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

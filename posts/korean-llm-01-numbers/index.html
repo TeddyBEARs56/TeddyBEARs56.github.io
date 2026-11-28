@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>국산 LLM은 어디쯤 와 있나 | Cyborg</title><meta name="description" content="국산 LLM 견주기 1편. 국산 LLM이 여럿 Hugging Face에 공개됐습니다. 개발사가 낸 점수와 독립 평가만으로, 국산 모델끼리 그리고 해외 모델과 견줍니다. 직접 재는 것은 2편부터입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/korean-llm-01-numbers/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="국산 LLM은 어디쯤 와 있나 | Cyborg"><meta property="og:description" content="국산 LLM 견주기 1편. 국산 LLM이 여럿 Hugging Face에 공개됐습니다. 개발사가 낸 점수와 독립 평가만으로, 국산 모델끼리 그리고 해외 모델과 견줍니다. 직접 재는 것은 2편부터입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/korean-llm-01-numbers/"><meta property="article:published_time" content="2026-11-18T11:21:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"국산 LLM은 어디쯤 와 있나","description":"국산 LLM 견주기 1편. 국산 LLM이 여럿 Hugging Face에 공개됐습니다. 개발사가 낸 점수와 독립 평가만으로, 국산 모델끼리 그리고 해외 모델과 견줍니다. 직접 재는 것은 2편부터입니다.","datePublished":"2026-11-18T11:21:00.000Z","dateModified":"2026-11-18T11:21:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/korean-llm-01-numbers/","mainEntityOfPage":"https://teddybears56.github.io/posts/korean-llm-01-numbers/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-korean-llm">연재</a></li><li>1편</li></ol></nav><h1 id="post-title">국산 LLM은 어디쯤 와 있나</h1><p class="post__lead">2025년 들어 LG, SK텔레콤, 업스테이지, 네이버, 카카오, KT 같은 곳이 큰 LLM을 잇달아 Hugging Face에 공개했습니다. 이 연재는 이 국산 모델들을 서로, 그리고 해외 모델과 견줍니다. 1편은 직접 재기 전에, 지금 공개된 숫자만으로 어디쯤 와 있는지 정리합니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-18"><span class="nb">2026-11-18</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 8분</dd></div></dl></header><div class="prose"><h2 id="국산-llm에는-무엇이-있나">국산 LLM에는 무엇이 있나</h2>
+<p>크기는 모델이 가진 <span class="nb">숫자(매개변수)의</span> 개수입니다. 숫자가 두 개 적힌 모델은 전체 가운데 일부만 골라 계산하는 <span class="nb">방식(MoE)이라,</span> 뒤의 숫자가 한 번에 쓰는 개수입니다. 그래서 크기에 비해 빠릅니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>만든 곳</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">K-EXAONE</span> <span class="nb">2.0</span></td>
+<td>LG</td>
+<td><span class="nb">7,500억</span> / 370억</td>
+</tr>
+<tr>
+<td><span class="nb">A.X</span> K2</td>
+<td>SK텔레콤</td>
+<td><span class="nb">6,880억</span> / 330억</td>
+</tr>
+<tr>
+<td>Motif 3</td>
+<td>모티프</td>
+<td>약 <span class="nb">3,140억</span> / 132억</td>
+</tr>
+<tr>
+<td>Solar Open 2</td>
+<td>업스테이지</td>
+<td><span class="nb">2,500억</span> / 150억</td>
+</tr>
+<tr>
+<td>VAETKI</td>
+<td>NC AI</td>
+<td><span class="nb">1,122억</span> / 101억</td>
+</tr>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td>LG</td>
+<td>330억</td>
+</tr>
+<tr>
+<td>SEED Think 32B</td>
+<td>네이버</td>
+<td>320억</td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span> 30B</td>
+<td>카카오</td>
+<td>300억 / 30억</td>
+</tr>
+<tr>
+<td>Tri-21B-Think</td>
+<td>트릴리온랩스</td>
+<td>207억</td>
+</tr>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span> Base</td>
+<td>KT</td>
+<td>115억</td>
+</tr>
+</tbody>
+</table></div>
+<p>라이선스는 셋으로 갈립니다.</p>
+<ul>
+<li><strong>상업 이용도 <span class="nb">허용(Apache</span> <span class="nb">2.0,</span> <span class="nb">MIT):</span></strong> <span class="nb">K-EXAONE</span> <span class="nb">2.0,</span> <span class="nb">A.X</span> K2, Motif 3, <span class="nb">Tri-21B-Think,</span> <span class="nb">Mi:dm</span> <span class="nb">2.0</span> Base</li>
+<li><strong>상업 이용에 조건이 있다:</strong> Solar Open 2, SEED Think 32B, <span class="nb">Kanana-2</span> 30B. 조건은 모델마다 다르다. SEED Think와 <span class="nb">Kanana-2는</span> 월 사용자가 1천만 명을 넘으면 따로 허락을 받아야 한다. Solar Open 2의 라이선스는 Apache <span class="nb">2.0을</span> 바탕으로 하되, 이것으로 만든 모델은 이름이 Solar로 시작해야 한다.</li>
+<li><strong>상업 이용 금지:</strong> EXAONE <span class="nb">4.5.</span> 연구와 교육 <span class="nb">목적(평가,</span> 시험 <span class="nb">포함)으로만</span> 쓸 수 있다.</li>
+</ul>
+<p>VAETKI는 모델 카드에 MIT라고 적혀 있지만, 모델 사용은 별도 라이선스를 따른다는 문장도 있습니다. 그 문서는 저장소에서 찾지 못했습니다.</p>
+<p>SEED Think 32B의 전체 이름은 HyperCLOVA X SEED 32B Think입니다. <span class="nb">K-EXAONE</span> <span class="nb">2.0부터</span> VAETKI까지 다섯 개와 SEED Think 32B는 정부의 독자 AI 파운데이션 모델 사업에 나온 모델이고, 사업 일정에 맞춰 두 번 크게 공개됐습니다. 1차는 2025년 12월 말에서 2026년 1월이었고, 2차는 7월 하순에서 8월 초였습니다. 2차에 LG는 <span class="nb">K-EXAONE</span> <span class="nb">2.0,</span> SK텔레콤은 <span class="nb">A.X</span> K2, 업스테이지는 Solar Open 2, 모티프는 Motif 3를 냈습니다.</p>
+<h2 id="점수는-두-가지다">점수는 두 가지다</h2>
+<p><strong>개발사가 낸 점수가 있습니다.</strong> Hugging Face의 모델 카드나 기술 보고서에 실린 표입니다. 대부분 개발사가 직접 재지만, 해외 모델의 점수 일부는 그 모델의 공식 발표나 리더보드에서 옮겨 옵니다. 비교할 해외 모델과 재는 설정도 개발사가 고릅니다. 그래서 같은 모델도 누가 쟀느냐에 따라 점수가 다릅니다. EXAONE <span class="nb">4.0</span> 32B의 KoBALT 점수는 LG 표에서 <span class="nb">25.4,</span> 네이버 표에서 <span class="nb">48.3이었습니다.</span> 이런 숫자는 같은 표 안에서만 견줍니다.</p>
+<p><strong>독립 평가도 있습니다.</strong> 이 글은 두 가지를 씁니다.</p>
+<ul>
+<li><strong>Artificial Analysis 지수:</strong> 독립 평가 업체가 여러 모델을 같은 영어 시험 여러 개로 잰 점수다. 일부 모델은 추정값으로 표시된다. 정부 사업의 2차 평가에도 이 점수가 들어갔다. 다만 판이 바뀌면 시험이 바뀌어 점수 크기가 달라진다. <span class="nb">K-EXAONE</span> <span class="nb">2.0은</span> 8월 판에서 31점, 지금 판에서 8점이다. 같은 판끼리만 견준다.</li>
+<li><strong>Horangi 4:</strong> Weights &amp; Biases가 운영하는 한국어 리더보드다. 국산과 해외 모델 106개 항목을 한국어로 본 일반 능력과 안전성으로 잰다. 이 글의 Horangi 숫자는 11월 18일에 본 값이다.</li>
+</ul>
+<p>한국어 시험 이름도 몇 개 나옵니다.</p>
+<ul>
+<li><strong><span class="nb">KMMLU-Pro:</span></strong> 한국 국가 전문 자격시험 14종에서 뽑은 <span class="nb">2,822문항</span></li>
+<li><strong>CLIcK:</strong> 한국 문화와 언어 지식 <span class="nb">1,995문항</span></li>
+<li><strong>KoBALT:</strong> 문법, 의미, 화용 같은 한국어 언어 이해</li>
+<li><strong><span class="nb">HAE-RAE:</span></strong> 한국어 어휘, 역사, 상식, 독해</li>
+</ul>
+<h2 id="국산-모델끼리">국산 모델끼리</h2>
+<p>Artificial Analysis 지수 8월 <span class="nb">판(v4.1.1)에서</span> 국산 상위 다섯은 이렇게 섰습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>점수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motif 3</td>
+<td>47</td>
+</tr>
+<tr>
+<td>Solar Pro 4</td>
+<td>42</td>
+</tr>
+<tr>
+<td>Solar Open 2</td>
+<td>37</td>
+</tr>
+<tr>
+<td><span class="nb">A.X</span> K2</td>
+<td>35</td>
+</tr>
+<tr>
+<td><span class="nb">K-EXAONE</span> <span class="nb">2.0</span></td>
+<td>31</td>
+</tr>
+</tbody>
+</table></div>
+<p>Solar Pro 4는 업스테이지의 가중치 비공개 모델입니다. 11월의 지금 <span class="nb">판(v5.0.1)에서는</span> 국산 모델 셋만 다시 쟀습니다. Solar Pro 4가 14점, <span class="nb">A.X</span> K2가 9점, <span class="nb">K-EXAONE</span> <span class="nb">2.0이</span> 8점이고, 나머지는 아직 점수가 없습니다. <span class="nb">A.X</span> K1, <span class="nb">Kanana-2,</span> VAETKI는 이번에 본 1월, 8월, 9월, 11월의 목록에 모두 없었습니다.</p>
+<p>한국어 리더보드 Horangi 4에서도 Motif 3가 국산 1위였습니다. 106개 항목 가운데 국산 모델의 주요 항목은 이렇습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>점수</th>
+<th>순위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motif 3</td>
+<td><span class="nb">73.6</span></td>
+<td>35</td>
+</tr>
+<tr>
+<td><span class="nb">K-EXAONE</span></td>
+<td><span class="nb">67.6</span></td>
+<td>52</td>
+</tr>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td><span class="nb">67.0</span></td>
+<td>53</td>
+</tr>
+<tr>
+<td>Solar Pro 2</td>
+<td><span class="nb">66.7</span></td>
+<td>55</td>
+</tr>
+<tr>
+<td><span class="nb">A.X</span> K1</td>
+<td><span class="nb">64.9</span></td>
+<td>60</td>
+</tr>
+<tr>
+<td>Solar Open 100B</td>
+<td><span class="nb">64.3</span></td>
+<td>63</td>
+</tr>
+<tr>
+<td>SEED Think 32B</td>
+<td><span class="nb">63.3</span></td>
+<td>67</td>
+</tr>
+<tr>
+<td>VAETKI</td>
+<td><span class="nb">59.9</span></td>
+<td>79</td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span> 30B</td>
+<td><span class="nb">57.2</span></td>
+<td>84</td>
+</tr>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span> Base</td>
+<td><span class="nb">49.4</span></td>
+<td>95</td>
+</tr>
+</tbody>
+</table></div>
+<p>Solar Pro 2는 가중치 비공개 모델이고, <span class="nb">Kanana-2</span> 30B는 생각 모드 판의 점수입니다. 2차 모델인 <span class="nb">K-EXAONE</span> <span class="nb">2.0,</span> <span class="nb">A.X</span> K2, Solar Open 2는 아직 오르지 않았습니다.</p>
+<p>정부 사업의 2차 평가 결과는 Artificial Analysis 지수 순서와 달랐습니다. 벤치마크 40점에 전문가 평가 35점, 사용자 평가 25점을 더했습니다. 종합은 SK텔레콤 <span class="nb">70.6점,</span> 업스테이지 <span class="nb">69.9점,</span> LG <span class="nb">69.0점,</span> 모티프 <span class="nb">65.8점이었습니다.</span> 모티프는 벤치마크 <span class="nb">점수(24.6점)로는</span> 1위였지만 탈락했습니다. 1차 평가에서는 네이버클라우드가 점수가 아니라 독자성 기준으로 탈락했습니다. 공개된 인코더의 가중치를 다시 학습하지 않고 그대로 썼다는 이유였습니다.</p>
+<h2 id="해외-모델과-견주면">해외 모델과 견주면</h2>
+<p>Artificial Analysis 지수에서 국산 최고와 해외 모델을 같은 판끼리 놓으면 이렇습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>판</th>
+<th>국산 최고</th>
+<th>해외 공개 가중치 최고</th>
+<th>전체 최고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">1월(v4.0)</span></td>
+<td><span class="nb">K-EXAONE</span> 32</td>
+<td><span class="nb">GLM-4.7</span> 42</td>
+<td><span class="nb">GPT-5.2</span> 51</td>
+</tr>
+<tr>
+<td><span class="nb">8월(v4.1.1)</span></td>
+<td>Motif 3 47</td>
+<td>Kimi K3 60</td>
+<td>Claude Opus 5 63</td>
+</tr>
+<tr>
+<td><span class="nb">11월(v5.0.1)</span></td>
+<td>Solar Pro 4 14</td>
+<td>Kimi <span class="nb">K3.1</span> Pro 46</td>
+<td>Claude Fable <span class="nb">5.2</span> 65</td>
+</tr>
+</tbody>
+</table></div>
+<p>11월 판의 Solar Pro 4는 가중치 비공개 모델이고, 이 판에서 점수가 있는 국산 공개 가중치 모델은 <span class="nb">A.X</span> <span class="nb">K2(9점)가</span> 가장 높습니다. 1월에 <span class="nb">K-EXAONE은</span> 공개 가중치 모델을 개발사별로 세면 세계 7위였습니다.</p>
+<p>이 블로그가 Mac mini와 노트북에서 돌리는 <span class="nb">Qwen3.8</span> 27B도 이 지수에 있습니다. 8월 판 52점, 11월 판 20점으로, 같은 판의 국산 모델보다 높았습니다. 다만 11월 판의 20점은 생각을 가장 많이 하는 <span class="nb">설정(Xhigh)의</span> 점수입니다. 생각을 끄면 10점으로 Solar Pro <span class="nb">4(14점)보다</span> 낮습니다. 우리는 생각을 끄고, 4비트로 줄인 파일을 돌립니다.</p>
+<p>한국어 시험은 개발사 표마다 결과가 갈렸습니다. 2차 모델 세 개가 각자의 표에서 <span class="nb">KMMLU-Pro를</span> 해외 모델과 함께 쟀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>표를 낸 곳</th>
+<th>국산 모델</th>
+<th>같은 표의 해외 모델</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LG</td>
+<td><span class="nb">K-EXAONE</span> <span class="nb">2.0</span> <span class="nb">69.1</span></td>
+<td><span class="nb">Qwen3.5</span> <span class="nb">77.4,</span> <span class="nb">GLM-5.1</span> <span class="nb">75.8,</span> DeepSeek V4 Pro <span class="nb">80.5</span></td>
+</tr>
+<tr>
+<td>SK텔레콤</td>
+<td><span class="nb">A.X</span> K2 <span class="nb">80.5</span></td>
+<td>DeepSeek V4 Flash <span class="nb">78.8,</span> <span class="nb">Qwen3.5</span> <span class="nb">78.4,</span> <span class="nb">GLM-5.1</span> <span class="nb">76.5</span></td>
+</tr>
+<tr>
+<td>업스테이지</td>
+<td>Solar Open 2 <span class="nb">78.4</span></td>
+<td>DeepSeek V4 Flash <span class="nb">78.9,</span> <span class="nb">GPT-5.4</span> mini <span class="nb">78.1,</span> Claude Haiku <span class="nb">4.5</span> <span class="nb">67.9</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>같은 <span class="nb">Qwen3.5가</span> LG 표에서는 <span class="nb">77.4,</span> SK텔레콤 표에서는 <span class="nb">78.4입니다.</span> 표 안에서 봐도 결과는 시험마다 달랐습니다.</p>
+<ul>
+<li><strong><span class="nb">K-EXAONE</span> <span class="nb">2.0:</span></strong> <span class="nb">KMMLU-Pro와</span> CLIcK에서 같은 표의 해외 모델 셋보다 모두 낮았다.</li>
+<li><strong><span class="nb">A.X</span> K2:</strong> <span class="nb">KMMLU-Pro와</span> CLIcK에서는 같은 표의 해외 모델보다 높았다. KoBALT는 DeepSeek V4 Flash가 더 높았다. 터미널 작업 시험 <span class="nb">Terminal-Bench</span> <span class="nb">2.1에서는</span> <span class="nb">36.0으로,</span> 같은 표 해외 모델의 <span class="nb">51.3~65.9보다</span> 낮았다. 이 줄은 Artificial Analysis가 잰 값이다.</li>
+</ul>
+<p>한국어 리더보드 Horangi 4의 위쪽은 해외 모델이 차지했습니다. 1위 Gemini <span class="nb">3.1</span> Pro Preview가 <span class="nb">84.1점,</span> 2위 Claude Fable 5가 <span class="nb">82.6점,</span> 3위 <span class="nb">GPT-5.5가</span> <span class="nb">81.8점입니다.</span> 해외 공개 가중치 모델도 <span class="nb">GLM-5.2가</span> <span class="nb">77.2점,</span> Gemma 4 31B가 <span class="nb">77.0점으로,</span> 국산 1위 Motif <span class="nb">3(73.6점)보다</span> 앞섰습니다.</p>
+<p>개발사 표에서는 국산 모델이 <span class="nb">HAE-RAE에서</span> 크게 앞섰습니다. 카카오 표에서 <span class="nb">Kanana-2</span> 30B는 <span class="nb">75.57점으로,</span> 같은 크기의 Qwen3-30B-A3B-2507(53.41점)보다 높았습니다. 네이버 보고서에서 SEED Think 32B는 <span class="nb">87.4점으로,</span> 비슷한 크기의 <span class="nb">Qwen3-VL</span> <span class="nb">32B(51.5점)보다</span> 높았습니다. 그런데 Horangi 4의 같은 <span class="nb">HAE-RAE</span> 시험에서는 위쪽 16개가 모두 해외 모델이었고, 국산 1위 Motif 3는 17위였습니다.</p>
+<aside class="note" aria-labelledby="note-w11gjj"><h3 id="note-w11gjj">이 숫자들을 읽을 때</h3><p>개발사 표의 점수는 대부분 개발사가 잰 값이고, 일부 비교값은 공식 발표나 리더보드에서 옮긴 값입니다. 비교할 해외 모델도 개발사가 골랐습니다. Artificial Analysis 지수는 영어 시험이고, 판마다 시험이 달라 판이 다른 점수는 견줄 수 없습니다. 과거 판의 점수는 웹 아카이브에 남은 페이지에서 읽었습니다.</p></aside>
+<h2 id="우리-기계에-들어갈-국산-모델">우리 기계에 들어갈 국산 모델</h2>
+<p>이 블로그의 Mac mini는 메모리가 24GB, 노트북은 32GB입니다. <span class="nb">Q4_K_M</span> 같은 흔한 4비트 파일은 숫자 10억 개에 <span class="nb">0.6GB쯤</span> 듭니다. 대화가 길어지면 그 기억에 쓸 메모리가 따로 듭니다. 수천억 개짜리 2차 모델들은 들어가지 않습니다. <span class="nb">A.X</span> K2는 SK텔레콤이 직접 줄인 GGUF 파일 하나가 <span class="nb">345GiB(약</span> <span class="nb">370GB)입니다.</span></p>
+<p>들어갈 만한 것은 300억 개 안팎 이하입니다.</p>
+<ul>
+<li><strong>EXAONE <span class="nb">4.5</span> 33B:</strong> LG가 직접 GGUF를 낸다. 연구와 교육 목적으로만 쓸 수 있다.</li>
+<li><strong>SEED Think 32B:</strong> GGUF가 있지만, 그 안내에 네이버 쪽에서 고친 <span class="nb">llama.cpp를</span> 쓰라고 적혀 있다.</li>
+<li><strong><span class="nb">Kanana-2</span> 30B:</strong> 한 번에 30억 개만 쓰는 방식이라 빠를 것이다. GGUF는 다른 사람들이 변환해 올린 것만 있다.</li>
+<li><strong><span class="nb">Tri-21B-Think,</span> <span class="nb">Mi:dm</span> <span class="nb">2.0</span> Base:</strong> 둘 다 다른 사람들이 변환한 GGUF가 있다.</li>
+</ul>
+<p><span class="nb">320억~330억</span> 개 모델은 4비트 파일만 20GB 안팎이라, Mac mini에서는 대화 기억에 쓸 여유가 거의 없습니다. 이 모델들이 Ollama에서 그대로 도는지는 아직 모릅니다. 2편에서 하나씩 올려 보고, 속도와 메모리를 잽니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>8월 기준 독립 평가에서 국산 1위는 Motif 3였다.</strong> Artificial Analysis 지수 8월 판에서 47점, 한국어 리더보드 Horangi 4에서도 국산 가운데 가장 높았다. Horangi에는 다른 2차 모델이 아직 없다.</li>
+<li><strong>해외 최상위 모델과는 아직 차이가 크다.</strong> 8월 판에서 국산 1위는 47점, 전체 1위는 63점이었다. 이 블로그가 돌리는 <span class="nb">Qwen3.8</span> 27B도 생각을 켠 설정에서는 같은 판의 국산 모델보다 높았다.</li>
+<li><strong>한국어 시험에서도 국산 모델이 늘 앞서지는 않는다.</strong> <span class="nb">KMMLU-Pro는</span> 개발사 표마다 갈렸고, 한국어 리더보드의 위쪽은 해외 모델이었다. 개발사 표에서는 <span class="nb">HAE-RAE에서</span> 같은 크기의 Qwen보다 크게 앞섰지만, 독립 평가에서는 그렇지 않았다.</li>
+<li><strong>숫자는 같은 표, 같은 판 안에서만 견준다.</strong> 같은 모델도 누가 쟀는지, 어느 판인지에 따라 점수가 크게 달랐다.</li>
+</ul>
+<h2 id="자료">자료</h2>
+<ul>
+<li>Artificial Analysis: <a href="https://artificialanalysis.ai/leaderboards/models">리더보드</a>, <a href="https://artificialanalysis.ai/methodology/intelligence-benchmarking">지수 판 기록</a>, 웹 아카이브의 <a href="https://web.archive.org/web/20260127152344/https://artificialanalysis.ai/leaderboards/models">1월</a>, <a href="https://web.archive.org/web/20260819000420/https://artificialanalysis.ai/leaderboards/models">8월</a>, <a href="https://web.archive.org/web/20260916030143/https://artificialanalysis.ai/leaderboards/models">9월</a> 페이지, <a href="https://inews24.com/view/1994693">8월 판 보도</a></li>
+<li>Horangi 4: <a href="https://wandb.ai/horangi/horangi4/reports/Horangi-W-B-Korean-LLM-Leaderboard-4--VmlldzoxNTAyNjAwMA">리포트</a>, <a href="https://hw-oh.github.io/horangi-dashboard/">점수 모음 페이지</a></li>
+<li>정부 사업 평가: <a href="https://www.korea.kr/news/policyNewsView.do?newsId=156740468">1차 브리핑</a>, <a href="https://www.korea.kr/news/policyNewsView.do?newsId=148970236">2차 발표</a>, <a href="https://news.mtn.co.kr/news-detail/2026082720102251703">2차 팀별 점수 보도</a></li>
+<li>모델 카드: <a href="https://huggingface.co/LGAI-EXAONE/K-EXAONE-2.0-750B-A37B"><span class="nb">K-EXAONE</span> <span class="nb">2.0</span></a>, <a href="https://huggingface.co/skt/A.X-K2"><span class="nb">A.X</span> K2</a>와 <a href="https://huggingface.co/skt/A.X-K2-GGUF">GGUF</a>, <a href="https://huggingface.co/Motif-Technologies/Motif-3">Motif 3</a>, <a href="https://huggingface.co/upstage/Solar-Open2-250B">Solar Open 2</a>, <a href="https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI">VAETKI</a>, <a href="https://huggingface.co/LGAI-EXAONE/EXAONE-4.5-33B">EXAONE <span class="nb">4.5</span></a>, <a href="https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B">SEED Think 32B</a>와 <a href="https://arxiv.org/abs/2601.03286">보고서</a>, <a href="https://huggingface.co/kakaocorp/kanana-2-30b-a3b-instruct-2601"><span class="nb">Kanana-2</span> 30B</a>, <a href="https://huggingface.co/trillionlabs/Tri-21B-Think"><span class="nb">Tri-21B-Think</span></a>, <a href="https://huggingface.co/K-intelligence/Midm-2.0-Base-Instruct"><span class="nb">Mi:dm</span> <span class="nb">2.0</span> Base</a>, <a href="https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B"><span class="nb">K-EXAONE</span></a></li>
+<li>시험: <a href="https://arxiv.org/abs/2507.08924"><span class="nb">KMMLU-Pro</span></a>, <a href="https://arxiv.org/abs/2403.06412">CLIcK</a></li>
+</ul></div><nav class="pager" aria-label="다른 글"><a href="/#series-korean-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/korean-llm-02-on-our-machines/" class="pager__next"><small>다음 글</small><strong>2편 국산 LLM 다섯 개를 우리 기계에 올려 보니</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#국산-llm에는-무엇이-있나">국산 LLM에는 무엇이 있나</a></li><li><a href="#점수는-두-가지다">점수는 두 가지다</a></li><li><a href="#국산-모델끼리">국산 모델끼리</a></li><li><a href="#해외-모델과-견주면">해외 모델과 견주면</a></li><li><a href="#우리-기계에-들어갈-국산-모델">우리 기계에 들어갈 국산 모델</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#자료">자료</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

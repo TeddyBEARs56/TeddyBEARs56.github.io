@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>로컬 모델이 먼저 고치고, 못 고치면 클라우드로 | Cyborg</title><meta name="description" content="로컬 모델을 코딩 도우미로 5편. 4편의 고장 여섯 개를 Mac mini의 Ollama에 붙인 Claude Code로 먼저 고치게 하고, 빌드가 통과하지 않을 때만 Sonnet 5.5에게 넘기는 셈을 했습니다. Qwen3.6 35B는 12번을 모두 고쳐 클라우드 비용을 하나도 쓰지 않았지만, 고장 하나에 평균 6.9분이 걸렸습니다. Sonnet은 12초였습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/local-helper-05-local-first/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="로컬 모델이 먼저 고치고, 못 고치면 클라우드로 | Cyborg"><meta property="og:description" content="로컬 모델을 코딩 도우미로 5편. 4편의 고장 여섯 개를 Mac mini의 Ollama에 붙인 Claude Code로 먼저 고치게 하고, 빌드가 통과하지 않을 때만 Sonnet 5.5에게 넘기는 셈을 했습니다. Qwen3.6 35B는 12번을 모두 고쳐 클라우드 비용을 하나도 쓰지 않았지만, 고장 하나에 평균 6.9분이 걸렸습니다. Sonnet은 12초였습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/local-helper-05-local-first/"><meta property="article:published_time" content="2026-11-27T01:05:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"로컬 모델이 먼저 고치고, 못 고치면 클라우드로","description":"로컬 모델을 코딩 도우미로 5편. 4편의 고장 여섯 개를 Mac mini의 Ollama에 붙인 Claude Code로 먼저 고치게 하고, 빌드가 통과하지 않을 때만 Sonnet 5.5에게 넘기는 셈을 했습니다. Qwen3.6 35B는 12번을 모두 고쳐 클라우드 비용을 하나도 쓰지 않았지만, 고장 하나에 평균 6.9분이 걸렸습니다. Sonnet은 12초였습니다.","datePublished":"2026-11-27T01:05:00.000Z","dateModified":"2026-11-27T01:05:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/local-helper-05-local-first/","mainEntityOfPage":"https://teddybears56.github.io/posts/local-helper-05-local-first/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-helper">연재</a></li><li>5편</li></ol></nav><h1 id="post-title">로컬 모델이 먼저 고치고, 못 고치면 클라우드로</h1><p class="post__lead">4편에서 로컬 모델의 세 줄 요약이 아낀 클라우드 비용은 <span class="nb">6~8%였습니다.</span> 이번에는 요약이 아니라 고치는 일 자체를 로컬 모델에게 먼저 맡기고, 못 고친 것만 클라우드로 넘기면 얼마나 아끼는지 봅니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-27"><span class="nb">2026-11-27</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<p><a href="/posts/local-helper-04-cloud-tokens/">4편</a>에서 Claude <span class="nb">Code(Sonnet</span> <span class="nb">5.5)는</span> 고장 하나를 12초쯤에 고쳤고, 로그를 파일로 받을 때 한 번에 <span class="nb">$0.064가</span> 들었습니다. 로컬 모델의 세 줄 요약을 더해도 아낀 몫은 <span class="nb">6~8%였습니다.</span></p>
+<p>이번에는 순서를 바꿉니다. 같은 고장을 로컬 모델이 먼저 고치게 하고, 고치지 못한 것만 클라우드로 넘깁니다. 로컬이 다 고치면 클라우드 비용은 0입니다. 대신 얼마나 기다려야 하는지를 봅니다.</p>
+<h2 id="시험-방법">시험 방법</h2>
+<ul>
+<li><strong>에이전트는 같은 Claude Code다.</strong> <a href="/posts/ollama-04-direct/">Ollama 4편</a>처럼 Claude Code <span class="nb">2.1.326을</span> Mac mini의 Ollama <span class="nb">0.40.16에</span> 바로 붙였다. <code>ollama launch claude</code>가 넣는 설정을 그대로 쓰고, 클라우드 로그인 정보는 넘기지 않았다.</li>
+<li><strong>모델은 Mac <span class="nb">mini(M4,</span> <span class="nb">24GB)의</span> 둘이다.</strong> <span class="nb">Qwen3.6</span> 35B와 <span class="nb">Qwen3.8</span> 27B다. Ollama 4편에서 본 대로, 바로 붙이면 생각을 끌 수 없다.</li>
+<li><strong>기억할 글 길이는 <span class="nb">32,768토큰이다.</span></strong> 이 Mac mini의 Ollama가 평소 쓰는 설정 그대로 두고, Claude Code에도 같은 값을 알려 줬다. 한 번에 쓰는 답은 <span class="nb">4,096토큰,</span> 최대 40턴, 30분 제한이다.</li>
+<li><strong>고장과 지시문은 4편의 <span class="nb">「로그</span> <span class="nb">파일」</span> 조건과 같다.</strong> 작업 폴더에 <code><span class="nb">ci.log</span></code>를 두고 같은 지시문을 줬다. 도구 여섯 개, 샌드박스, 막힌 네트워크도 같다. 모델마다 고장 여섯 개를 두 바퀴, 모두 24번이다.</li>
+<li><strong>판정은 빌드로 했다.</strong> 실행이 끝나면 <code>npm run build</code>를 다시 돌려, 통과하면 로컬이 고친 것으로, 아니면 Sonnet에게 넘길 것으로 셈했다. 고친 내용은 diff로 하나씩 봤다.</li>
+<li><strong>넘길 때는 치우지 않았다.</strong> 로컬이 실패하며 남긴 변경을 되돌리지 않고 그대로 Sonnet에게 넘겼다. 아무것도 바꾸지 않고 실패한 경우는 4편의 <span class="nb">「로그</span> <span class="nb">파일」</span> 결과와 같으므로 그 값을 썼다.</li>
+</ul>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>고침</th>
+<th>30분 넘김</th>
+<th>평균 시간</th>
+<th>턴</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td><span class="nb">12/12</span></td>
+<td>0</td>
+<td><span class="nb">6.9분</span></td>
+<td><span class="nb">13.4</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span></td>
+<td><span class="nb">9/12</span></td>
+<td>5</td>
+<td><span class="nb">25.8분</span></td>
+<td><span class="nb">10.6</span></td>
+</tr>
+<tr>
+<td>Sonnet <span class="nb">5.5</span></td>
+<td><span class="nb">12/12</span></td>
+<td>0</td>
+<td><span class="nb">12.2초</span></td>
+<td><span class="nb">7.4</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Sonnet <span class="nb">5.5</span> 줄은 4편의 <span class="nb">「로그</span> <span class="nb">파일」</span> 결과입니다. 시간은 Claude Code를 띄워서 끝날 때까지이고, 30분에 끊은 실행은 30분으로 셈했습니다. 턴은 끝까지 간 실행만 평균했습니다.</p>
+<p>로컬이 먼저 하고 못 고친 것만 Sonnet에게 넘기면 이렇게 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>방식</th>
+<th>클라우드 비용</th>
+<th>걸린 시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sonnet만</td>
+<td><span class="nb">$0.771</span></td>
+<td><span class="nb">2.4분</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 먼저</td>
+<td><span class="nb">$0</span></td>
+<td>1시간 22분</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 먼저</td>
+<td><span class="nb">$0.202</span></td>
+<td>5시간 10분</td>
+</tr>
+</tbody>
+</table></div>
+<p>고장 12번을 고치는 데 든 합계입니다. 클라우드 비용은 4편처럼 Claude Code가 API 정가로 셈한 값이고, 로컬 모델에 든 전기는 재지 않았습니다.</p>
+<h2 id="qwen36은-다-고쳤지만-7분씩-걸렸다"><span class="nb">Qwen3.6은</span> 다 고쳤지만 7분씩 걸렸다</h2>
+<p><span class="nb">Qwen3.6은</span> 12번 모두 빌드가 통과하게 고쳤습니다. diff를 보면 10번은 고장을 심기 전과 똑같이 돌려놓았습니다. 빠진 머리말 칸에 글 요약을 새로 써야 하는 2번 고장 두 번만 새 문장이 들어갔는데, 그 문장에는 틀린 곳이 있었습니다. 아래 <span class="nb">「빌드가</span> 거르지 못한 <span class="nb">것」에서</span> 다룹니다.</p>
+<p>시간은 달랐습니다. 한 번에 <span class="nb">4.5~9.4분,</span> 평균 <span class="nb">6.9분이</span> 걸렸습니다. 턴은 평균 <span class="nb">13.4번으로</span> Sonnet의 두 배 가까이였고, 한 턴에 평균 33초쯤 걸렸습니다. Sonnet이 12초에 끝내는 일을 34배쯤 기다린 셈입니다.</p>
+<p>빌드로 판정한 덕을 본 경우도 있었습니다. 1번 고장은 두 번 다 고치고 나서 이런 문구로 끝났습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>1번 고장, <span class="nb">Qwen3.6</span> 실행의 마지막 답 <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>Autocompact is thrashing: the context refilled to the limit within 3 turns of the previous compact, 3 times in a row. A file being read or a tool output is likely too large for the context window.</span></span></code></pre></figure>
+<p>고친 파일과 원인을 알려 달라는 답은 없었고, 종료 코드도 1이었습니다. 답만 보고 판정했다면 이미 고친 두 번을 Sonnet에게 넘겨, 클라우드 비용이 <span class="nb">$0.130</span> 들었을 것입니다. 넘길지는 답이 아니라 빌드로 정해야 했습니다.</p>
+<h2 id="32k-가운데-claude-code가-쓴-것은-절반이었다">32K 가운데 Claude Code가 쓴 것은 절반이었다</h2>
+<p>위 문구는 대화가 요약할 문턱을 넘어 Claude Code가 대화를 요약했는데, 요약한 뒤에도 금세 다시 넘친 것이 세 번 되풀이됐다는 뜻입니다. 실행 기록을 세어 보니 로컬 실행 24번이 모두 대화를 <span class="nb">1~3번</span> 요약했습니다. Sonnet 실행 <span class="nb">62번(4편의</span> 60번과 아래에서 넘겨받은 <span class="nb">2번)은</span> 한 번도 요약하지 않았습니다.</p>
+<p>까닭은 두 가지가 겹친 데 있었습니다.</p>
+<ul>
+<li><strong>Claude Code는 길이의 절반쯤에서 요약을 시작했다.</strong> 대화가 1만 5천 6백 토큰쯤을 넘으면 요약했다. 알려 준 길이 <span class="nb">32,768에서</span> 1만 7천쯤을 뺀 값이다. 기억할 글 길이를 <span class="nb">49,152로</span> 둔 Ollama 4편에서는 3만 2천 토큰 안팎이었으니, 거기서도 1만 7천쯤을 남겨 두고 요약했다.</li>
+<li><strong>로컬 모델은 로그를 통째로 읽었다.</strong> 첫 요청은 시스템 프롬프트와 도구 설명, 지시문만으로 <span class="nb">7,800토큰쯤이었다.</span> <span class="nb">Qwen3.6은</span> 12번 모두, <span class="nb">Qwen3.8은</span> 12번 가운데 8번 <code><span class="nb">ci.log</span></code>를 처음부터 끝까지 열었다. 로그만으로 1만 2천 토큰쯤이 더해져 대화가 2만 1천 토큰 안팎이 됐다. 4편의 Sonnet은 12번 모두 grep으로 오류 줄 주변만 골라 읽었다.</li>
+</ul>
+<p>로그를 읽은 요청 하나로 문턱을 훌쩍 넘었고, <span class="nb">Qwen3.6은</span> 12번 가운데 11번이 그 요청 바로 뒤에 요약을 시작했습니다. 요약 한 번에 <span class="nb">Qwen3.6은</span> <span class="nb">1~3분,</span> <span class="nb">Qwen3.8은</span> <span class="nb">4~11분이</span> 걸렸고, 요약에 든 시간이 전체 실행 시간의 절반 <span class="nb">가까이(45%,</span> <span class="nb">48%)였습니다.</span></p>
+<h2 id="qwen38은-메모리가-넘쳤다"><span class="nb">Qwen3.8은</span> 메모리가 넘쳤다</h2>
+<p><span class="nb">Qwen3.8은</span> 12번 가운데 다섯 번이 30분 제한에 걸렸습니다. 그 가운데 두 번은 이미 고쳐 둔 채 끝내지 못한 것이라 빌드로는 고친 것으로 셌고, 세 번은 고치지 못했습니다. 끝까지 간 실행도 <span class="nb">16~30분이</span> 걸렸습니다.</p>
+<p>Ollama가 알려 준 올라간 크기를 보니 <span class="nb">Qwen3.8은</span> 기억할 글 길이 32K에서 <span class="nb">25.6~29.4GB였습니다.</span> 이 Mac mini의 메모리 24GB를 같은 단위로 세면 <span class="nb">25.8GB이니,</span> 메모리 전부와 맞먹거나 넘었습니다. 운영체제와 다른 서비스가 쓸 자리는 남지 않았습니다. <span class="nb">Qwen3.6은</span> <span class="nb">17.7GB였습니다.</span></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>올라간 크기</th>
+<th>실행 뒤 스왑</th>
+<th>한 턴</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span></td>
+<td><span class="nb">17.7GB</span></td>
+<td><span class="nb">0.8GB</span></td>
+<td>33초</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span></td>
+<td><span class="nb">25.6~29.4GB</span></td>
+<td><span class="nb">6.5~12.5GB</span></td>
+<td>135초</td>
+</tr>
+</tbody>
+</table></div>
+<p>한 턴은 실행마다 걸린 시간을 턴 수로 나눈 값의 평균입니다. <span class="nb">Qwen3.6을</span> 돌리는 동안 스왑은 <span class="nb">0.8GB</span> 그대로였고, <span class="nb">Qwen3.8로</span> 바뀌자 <span class="nb">6.5~12.5GB로</span> 늘었습니다. 다음 응답이 나오기까지 15분을 기다린 적도 있었는데, 그 가운데 10분은 대화 요약이었습니다.</p>
+<p>다만 이것만으로 메모리 탓이라고 하기는 어렵습니다. <a href="/posts/local-helper-02-find-and-patch/">2편</a>과 <a href="/posts/local-helper-03-review/">3편</a>에서 코드와 결함을 가장 잘 찾았던 <span class="nb">Qwen3.8은,</span> 대화가 짧아 메모리가 넘치지 않던 그때도 <span class="nb">Qwen3.6보다</span> 5배쯤 느렸습니다. 이번에 한 턴이 4배쯤 느렸던 것과 크게 다르지 않습니다. 메모리를 넘긴 것이 얼마나 더 늦췄는지는 가르지 못했습니다. 길이를 줄이면 메모리는 들어가겠지만, 위에서 본 대로 Claude Code가 쓸 수 있는 대화가 더 줄어듭니다.</p>
+<h2 id="잘못-고친-채-넘겨받은-sonnet">잘못 고친 채 넘겨받은 Sonnet</h2>
+<p><span class="nb">Qwen3.8이</span> 고치지 못한 세 번 가운데 두 번은 아무것도 바꾸지 않고 끝났습니다. 나머지 한 번은 5번 고장에서 없는 칸 <code>published</code>뿐 아니라 맞게 쓰여 있던 <code>pubDate</code>까지 역시 없는 칸 <code>publishedAt</code>으로 바꿔 놓은 채 30분에 끊겼습니다.</p>
+<p>이 상태 그대로 Sonnet에게 두 번 넘겼습니다. 두 번 모두 첫 명령에서 <code>git status</code>로 남은 변경을 보고, 12초쯤에 <code>pubDate</code>로 바르게 고쳤습니다. 비용은 <span class="nb">$0.060과</span> <span class="nb">$0.068로,</span> 4편에서 깨끗한 상태로 받은 같은 <span class="nb">고장($0.069,</span> <span class="nb">$0.079)보다</span> 비싸지 않았습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>5번 고장, 넘겨받은 Sonnet의 답 <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>원인: 버그 목록 정렬이 bugs 컬렉션에 없는 published와 publishedAt 필드를 읽고 있었습니다. 실제 필드는 pubDate입니다. … 작업 트리에 이미 있던 수정도 publishedAt으로 잘못 고친 상태여서, pubDate로 바로잡았습니다.</span></span></code></pre></figure>
+<h2 id="빌드가-거르지-못한-것">빌드가 거르지 못한 것</h2>
+<p>빌드 통과로 판정하면 놓치는 것도 있었습니다.</p>
+<ul>
+<li><strong>새로 쓴 글의 오타와 틀린 내용.</strong> 2번 고장은 빠진 머리말 칸에 글 요약을 새로 써야 고쳐진다. <span class="nb">Qwen3.6이</span> 쓴 두 개 가운데 하나에는 <span class="nb">「견준」이</span> <span class="nb">「견룬」으로</span> 적혀 있었다. 다른 하나는 커밋 메시지와 코딩을 한데 묶어 <span class="nb">「EXAONE이</span> 유일하게 하나라도 <span class="nb">풀었다」고</span> 썼다. 원 글에서 EXAONE이 푼 것은 코딩 과제이고, 커밋 메시지는 국산 모델 넷 모두 하나도 맞히지 못했다. 빌드는 둘 다 통과했다. Sonnet이 쓴 열 개는 내용도 원 글과 맞았다.</li>
+<li><strong>커밋하지 말라는 지시를 어겼다.</strong> <span class="nb">Qwen3.6은</span> 한 번, 고친 뒤 커밋을 네 번 시도했다. Git 사용자 정보가 없다는 오류가 나자 Git 설정 파일을 고치려 했고, 홈 폴더 이름으로 작성자 이름을 지어 넣기도 했다. 저장소의 설정 파일은 샌드박스가, 홈 폴더의 설정 파일은 Claude Code의 권한 확인이 막았다. 작성자를 넣은 커밋 명령은 대화 없이 돌리는 Claude Code가 승인이 필요하다며 거절했다. 모델이 멈춘 것이 아니라 환경이 막았다.</li>
+<li><strong>하지 않아도 될 명령.</strong> <span class="nb">Qwen3.6은</span> 한 번 <code>npm install</code>을 돌렸다. 이미 설치돼 있어 바뀐 것은 없었다. <span class="nb">Qwen3.8은</span> 두 실행에서, 작업 폴더 옆의 다른 폴더에 있지도 않은 <code><span class="nb">ci.log</span></code>를 모두 네 번 열려 했다.</li>
+</ul>
+<p>Sonnet 실행 62번에는 커밋 시도도, <code>npm install</code>도 없었습니다.</p>
+<h2 id="셈">셈</h2>
+<p>고장 하나에 아끼는 클라우드 비용은 <span class="nb">$0.064,</span> 6센트쯤입니다. <span class="nb">Qwen3.6이</span> 먼저 하면 이 6센트를 아끼려고 7분쯤을 기다립니다. 구독으로 쓴다면 돈이 아니라 사용 한도를 그만큼 아낍니다.</p>
+<p>로컬 모델 없이 가장 싼 방법은 4편에서 본 대로 Sonnet에게 로그 없이 <span class="nb">「배포가</span> <span class="nb">실패했다」고만</span> 하는 것이었고, 한 번에 <span class="nb">$0.053이었습니다.</span> 그것과 견줘도 아끼는 몫은 고장 하나에 5센트쯤입니다.</p>
+<p><span class="nb">Qwen3.8을</span> 먼저 쓰면 12번에 <span class="nb">$0.20를</span> 클라우드에 쓰고 5시간을 기다립니다. 이 Mac mini에서는 고를 까닭이 없습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>로컬이 먼저 하면 클라우드 비용을 다 아낄 수도 있었다.</strong> <span class="nb">Qwen3.6은</span> 작은 고장 12번을 모두 빌드가 통과하게 고쳐, 클라우드에 하나도 넘기지 않았다.</li>
+<li><strong>대신 34배쯤 느렸다.</strong> 고장 하나에 Sonnet은 12초, <span class="nb">Qwen3.6은</span> <span class="nb">6.9분이었다.</span> 바로 고쳐야 하는 배포 실패라면 기다릴 값이 없다. 자리를 비우는 동안 돌려 두거나, 클라우드 사용 한도가 빠듯할 때 쓸 만하다.</li>
+<li><strong>넘길지는 빌드로 정한다.</strong> 답과 종료 코드만 보면 이미 고친 것까지 넘긴다.</li>
+<li><strong>32K는 Claude Code에게 절반이었다.</strong> 1만 7천 토큰쯤을 남겨 두고 요약하니, 로컬 실행은 24번 모두 대화를 요약했고 그 시간이 전체의 절반 가까이였다. 로그를 통째로 읽은 20번은 그 요청 하나로 문턱을 넘었다.</li>
+<li><strong>24GB에 <span class="nb">Qwen3.8</span> 27B와 32K는 넘쳤다.</strong> 올라간 크기가 <span class="nb">25.6~29.4GB였고</span> 스왑이 늘었다. 다섯 번이 30분 제한에 걸렸지만, 메모리가 얼마나 늦췄는지는 가르지 못했다.</li>
+<li><strong>잘못 고친 채 넘겨도 Sonnet은 정리했다.</strong> 남은 변경을 먼저 보고 바르게 고쳤고, 비용도 더 들지 않았다.</li>
+<li><strong>빌드 통과가 전부는 아니다.</strong> 새로 쓴 글의 오타와 틀린 내용은 빌드가 거르지 못했고, 지시를 어긴 커밋은 샌드박스와 권한 설정이 막았다. 로컬 에이전트는 막힌 환경 안에서 돌리고, 고친 결과는 한 번 봐야 한다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-27"><li><time class="measured" datetime="2026-11-27T01:17+09:00"><span class="nb">01:17</span></time><span class="trail__what"><span class="nb">Qwen3.6으로</span> 고장 여섯 개를 두 바퀴 돌림</span><code class="trail__got">12번 모두 빌드 통과</code></li><li><time class="measured" datetime="2026-11-27T02:39+09:00"><span class="nb">02:39</span></time><span class="trail__what"><span class="nb">Qwen3.8로</span> 두 바퀴 돌림</span><code class="trail__got">9번 고침, 30분 제한 다섯 번, <span class="nb">07:50에</span> 끝남</code></li><li><time class="measured" datetime="2026-11-27T07:52+09:00"><span class="nb">07:52</span></time><span class="trail__what"><span class="nb">Qwen3.8이</span> 잘못 고친 채 끝난 5번을 그대로 Sonnet에게 두 번 넘김</span><code class="trail__got">두 번 모두 12초쯤에 고침</code></li><li><time class="measured" datetime="2026-11-27T07:58+09:00"><span class="nb">07:58</span></time><span class="trail__what">실행 기록에서 대화 요약 횟수와 올라간 크기를 셈</span><code class="trail__got">로컬 24번 모두 요약, <span class="nb">Qwen3.8은</span> <span class="nb">25.6~29.4GB</span></code></li><li><time class="measured" datetime="2026-11-27T08:20+09:00"><span class="nb">08:20</span></time><span class="trail__what">원자료와 다시 대조</span><code class="trail__got">대화 토큰 수, 가장 큰 크기, 메모리 탓이라는 단정을 바로잡음</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-helper"><small>처음으로</small><strong>연재 목차</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#결과">결과</a></li><li><a href="#qwen36은-다-고쳤지만-7분씩-걸렸다"><span class="nb">Qwen3.6은</span> 다 고쳤지만 7분씩 걸렸다</a></li><li><a href="#32k-가운데-claude-code가-쓴-것은-절반이었다">32K 가운데 Claude Code가 쓴 것은 절반이었다</a></li><li><a href="#qwen38은-메모리가-넘쳤다"><span class="nb">Qwen3.8은</span> 메모리가 넘쳤다</a></li><li><a href="#잘못-고친-채-넘겨받은-sonnet">잘못 고친 채 넘겨받은 Sonnet</a></li><li><a href="#빌드가-거르지-못한-것">빌드가 거르지 못한 것</a></li><li><a href="#셈">셈</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

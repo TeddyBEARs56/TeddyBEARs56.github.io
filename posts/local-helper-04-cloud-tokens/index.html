@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>로컬 모델의 세 줄 요약은 클라우드 토큰을 얼마나 아낄까 | Cyborg</title><meta name="description" content="로컬 모델을 코딩 도우미로 4편. 1편에서 고장을 심은 빌드 여섯 개를 Claude Code(Sonnet 5.5)에게 고치게 하면서, 실패한 배포 로그를 파일로 줄 때, 그 파일에 Qwen3.6의 세 줄 요약을 더할 때, 로그를 지시문에 붙여 넣을 때, 요약만 붙여 넣을 때, 아무것도 주지 않을 때의 토큰과 비용을 견줬습니다. 세 줄 요약이 아끼는 몫은 6~8%였고, 비용을 크게 가른 것은 로그를 지시문에 붙여 넣느냐였습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/local-helper-04-cloud-tokens/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="로컬 모델의 세 줄 요약은 클라우드 토큰을 얼마나 아낄까 | Cyborg"><meta property="og:description" content="로컬 모델을 코딩 도우미로 4편. 1편에서 고장을 심은 빌드 여섯 개를 Claude Code(Sonnet 5.5)에게 고치게 하면서, 실패한 배포 로그를 파일로 줄 때, 그 파일에 Qwen3.6의 세 줄 요약을 더할 때, 로그를 지시문에 붙여 넣을 때, 요약만 붙여 넣을 때, 아무것도 주지 않을 때의 토큰과 비용을 견줬습니다. 세 줄 요약이 아끼는 몫은 6~8%였고, 비용을 크게 가른 것은 로그를 지시문에 붙여 넣느냐였습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/local-helper-04-cloud-tokens/"><meta property="article:published_time" content="2026-11-27T01:04:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"로컬 모델의 세 줄 요약은 클라우드 토큰을 얼마나 아낄까","description":"로컬 모델을 코딩 도우미로 4편. 1편에서 고장을 심은 빌드 여섯 개를 Claude Code(Sonnet 5.5)에게 고치게 하면서, 실패한 배포 로그를 파일로 줄 때, 그 파일에 Qwen3.6의 세 줄 요약을 더할 때, 로그를 지시문에 붙여 넣을 때, 요약만 붙여 넣을 때, 아무것도 주지 않을 때의 토큰과 비용을 견줬습니다. 세 줄 요약이 아끼는 몫은 6~8%였고, 비용을 크게 가른 것은 로그를 지시문에 붙여 넣느냐였습니다.","datePublished":"2026-11-27T01:04:00.000Z","dateModified":"2026-11-27T01:04:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/local-helper-04-cloud-tokens/","mainEntityOfPage":"https://teddybears56.github.io/posts/local-helper-04-cloud-tokens/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-helper">연재</a></li><li>4편</li></ol></nav><h1 id="post-title">로컬 모델의 세 줄 요약은 클라우드 토큰을 얼마나 아낄까</h1><p class="post__lead">1편은 <span class="nb">「실패한</span> 빌드 로그를 클라우드 에이전트에게 통째로 넘기면 대화에 남아 매번 다시 <span class="nb">읽힌다」는</span> 생각에서 시작해, 로그를 로컬 모델에게 세 줄로 줄이게 했습니다. 그때는 아끼는 양을 재지 않았습니다. 이번에는 실제 클라우드 에이전트에 붙여 토큰을 셉니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-27"><span class="nb">2026-11-27</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 6분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<p><a href="/posts/local-helper-01-build-logs/">1편</a>에서 이 블로그에 고장 여섯 가지를 심고, 실제 배포 로그 모양의 긴 로그를 받아 로컬 모델에게 세 줄로 줄이게 했습니다. <a href="/posts/local-helper-03-review/">3편</a>을 마치며 남긴 숙제는 <span class="nb">「토큰을</span> 얼마나 아끼는지는 재지 <span class="nb">않았다」였습니다.</span></p>
+<p>이번에는 같은 고장 여섯 개를 클라우드 코딩 에이전트에게 실제로 고치게 합니다. 로그를 어떤 모양으로 건네느냐만 바꿔 가며, 에이전트가 쓴 토큰과 비용, 턴, 시간을 봅니다.</p>
+<h2 id="시험-방법">시험 방법</h2>
+<h3 id="에이전트">에이전트</h3>
+<ul>
+<li><strong>Claude Code <span class="nb">2.1.326</span></strong>을 Mac mini에서 <code>claude <span class="nb">-p</span></code><span class="nb">(대화</span> 없이 한 번 <span class="nb">실행)로</span> 돌렸다. 모델은 Sonnet <span class="nb">5.5다.</span></li>
+<li><strong>도구는 여섯 개로 묶었다.</strong> Bash, Read, Edit, Write, Glob, Grep만 쓰게 하고, MCP 서버와 사용자 설정은 읽지 않게 했다. 샌드박스를 켜고 네트워크는 막았다. 최대 40턴이다.</li>
+<li><strong>비용은 Claude Code가 알려 주는 값이다.</strong> 실행이 끝나면 <code><span class="nb">total_cost_usd</span></code>로 API 정가로 셈한 값을 준다. 실제로는 구독으로 돌렸기 때문에 따로 낸 돈은 없다.</li>
+</ul>
+<h3 id="고장-여섯-개">고장 여섯 개</h3>
+<p>1편과 같은 고장입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>번호</th>
+<th>심은 고장</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>국산 7편 글의 <code><span class="nb">&lt;Code&gt;</span></code>를 닫지 않음</td>
+</tr>
+<tr>
+<td>2</td>
+<td>국산 6편 머리말의 필수 칸을 뺌</td>
+</tr>
+<tr>
+<td>3</td>
+<td>국산 5편이 없는 컴포넌트를 import</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code><span class="nb">series.ts</span></code> 항목의 <code>}</code>를 뺌</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code><span class="nb">posts.ts</span></code>가 없는 칸을 읽음</td>
+</tr>
+<tr>
+<td>6</td>
+<td>버그 글의 분류 값에 오타</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>고장은 커밋해 두었다.</strong> 실제 배포 실패는 푸시한 커밋에서 나므로, 고장을 마지막 커밋으로 넣고 시작했다. 커밋하지 않은 채 두면 <code>git diff</code>에 답이 그대로 보인다.</li>
+<li><strong>로그는 1편의 긴 로그다.</strong> 이 블로그의 실제 GitHub Actions 배포 로그에 고장 난 빌드 출력을 끼운 것으로, 2만 3천 자쯤이다.</li>
+<li><strong>고장마다 다섯 조건을 두 번씩 돌렸다.</strong> 모두 60번이다. 두 번째 바퀴는 조건의 순서를 뒤집었다.</li>
+</ul>
+<h3 id="다섯-조건">다섯 조건</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>조건</th>
+<th>에이전트가 받는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>로그 파일</td>
+<td>작업 폴더의 <code><span class="nb">ci.log</span></code></td>
+</tr>
+<tr>
+<td>파일 + 요약</td>
+<td><code><span class="nb">ci.log</span></code>와 지시문에 붙인 세 줄 요약</td>
+</tr>
+<tr>
+<td>붙여 넣기</td>
+<td>지시문에 붙인 로그 전체</td>
+</tr>
+<tr>
+<td>요약만</td>
+<td>지시문에 붙인 세 줄 요약</td>
+</tr>
+<tr>
+<td>없음</td>
+<td>배포가 실패했다는 말뿐</td>
+</tr>
+</tbody>
+</table></div>
+<p>세 줄 요약은 1편에서 <span class="nb">Qwen3.6</span> 35B가 같은 긴 로그로 쓴 답을 그대로 썼습니다. 여섯 개 가운데 둘은 틀린 요약입니다. 4번은 고칠 줄을 한 줄 늦게 짚었고, 5번은 원인을 빌드 <span class="nb">결과물(</span><code><span class="nb">dist/.prerender/…</span></code>) 안에서 찾았습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>로그 파일 조건의 지시문</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>이 저장소는 Astro로 만든 블로그입니다. GitHub Actions 배포가 실패했고, 실패한 실행의 전체 로그를</span></span>
+<span class="line"><span>`ci.log`로 받아 두었습니다. 원인을 찾아 고치고, `npm run build`가 통과하는지 확인해 주세요.</span></span>
+<span class="line"><span>커밋은 하지 마세요. 끝나면 고친 파일과 원인을 두 줄로 알려 주세요.</span></span></code></pre></figure>
+<p>다른 조건도 첫 문장만 바꿨습니다. 요약을 붙일 때는 <span class="nb">「로컬</span> 모델이 읽고 세 줄로 줄인 결과입니다. 틀릴 수 <span class="nb">있습니다」라고</span> 밝혔습니다.</p>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>조건</th>
+<th>비용</th>
+<th>턴</th>
+<th>시간</th>
+<th>고침</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>로그 파일</td>
+<td><span class="nb">$0.064</span></td>
+<td><span class="nb">7.4</span></td>
+<td><span class="nb">12.2초</span></td>
+<td><span class="nb">12/12</span></td>
+</tr>
+<tr>
+<td>파일 + 요약</td>
+<td><span class="nb">$0.060</span></td>
+<td><span class="nb">6.8</span></td>
+<td><span class="nb">11.5초</span></td>
+<td><span class="nb">12/12</span></td>
+</tr>
+<tr>
+<td>붙여 넣기</td>
+<td><span class="nb">$0.104</span></td>
+<td><span class="nb">5.0</span></td>
+<td><span class="nb">9.8초</span></td>
+<td><span class="nb">12/12</span></td>
+</tr>
+<tr>
+<td>요약만</td>
+<td><span class="nb">$0.049</span></td>
+<td><span class="nb">5.3</span></td>
+<td><span class="nb">10.1초</span></td>
+<td><span class="nb">12/12</span></td>
+</tr>
+<tr>
+<td>없음</td>
+<td><span class="nb">$0.053</span></td>
+<td><span class="nb">6.3</span></td>
+<td><span class="nb">10.6초</span></td>
+<td><span class="nb">12/12</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>12번의 평균입니다. 시간은 Claude Code를 띄워서 끝날 때까지입니다. 60번 모두 고장을 고쳤고 빌드가 통과했습니다. 고친 내용도 diff로 하나씩 봤습니다. 빠진 머리말 칸을 새로 쓴 2번을 빼면, 모두 고장을 심기 전과 똑같이 돌려놓았습니다.</p>
+<h2 id="로그를-파일로-주면-요약은-거의-쓸모없다">로그를 파일로 주면 요약은 거의 쓸모없다</h2>
+<p>로그 파일만 받은 Claude Code는 로그를 통째로 읽지 않았습니다. 12번 모두 첫 행동이 <code>grep <span class="nb">-n</span> <span class="nb">-i</span> <span class="nb">-E</span> <span class="nb">&quot;error|fail&quot;</span> <span class="nb">ci.log</span></code>처럼 오류 낱말이 든 줄을 찾는 것이었고, 그다음 그 주변 수십 줄만 열었습니다. 2만 3천 자 가운데 실제로 읽은 양은 <span class="nb">2.6~7.3KB였습니다.</span></p>
+<p>요약을 더해도 이 순서는 바뀌지 않았습니다. 요약을 받은 12번도 모두 첫 행동으로 로그를 grep했습니다. 그래서 비용은 <span class="nb">$0.064에서</span> <span class="nb">$0.060으로</span> <span class="nb">6%,</span> 턴은 <span class="nb">0.6번</span> 줄었을 뿐입니다.</p>
+<p>1편은 <span class="nb">「로그를</span> 통째로 넘기면 대화에 남아 매번 다시 <span class="nb">읽힌다」는</span> 생각에서 출발했습니다. 파일로 건네면 그런 일이 애초에 일어나지 않았습니다.</p>
+<h2 id="아무것도-주지-않아도-고쳤다">아무것도 주지 않아도 고쳤다</h2>
+<p><span class="nb">「배포가</span> <span class="nb">실패했다」는</span> 말만 들은 Claude Code는 12번 모두 첫 명령에 <code>npm run build <span class="nb">2&gt;&amp;1</span> | tail <span class="nb">-40</span></code>을 넣었습니다. 로그가 없으니 실패를 직접 다시 만든 것입니다. 이 블로그의 빌드는 몇 초면 끝나고, 마지막 40줄에 오류가 그대로 나옵니다. 그 출력은 <span class="nb">0.8~1.8KB로,</span> 로그 파일에서 골라 읽은 <span class="nb">2.6~7.3KB보다</span> 짧았습니다.</p>
+<p>그래서 아무것도 주지 않은 쪽이 로그 파일을 준 쪽보다 <span class="nb">쌌습니다($0.064</span> → <span class="nb">$0.053).</span> 고장 여섯 개 가운데 다섯 개에서 그랬습니다. 로그 파일을 받으면 그것을 찾아 읽는 턴이 더 들었습니다.</p>
+<h2 id="붙여-넣으면-비싸다">붙여 넣으면 비싸다</h2>
+<p>로그를 지시문에 붙여 넣으면 사정이 달랐습니다. 비용이 파일로 줄 때보다 <span class="nb">61%,</span> 아무것도 주지 않을 때보다 <span class="nb">94%</span> 더 <span class="nb">들었습니다($0.104).</span> 턴은 오히려 <span class="nb">5.0번으로</span> 가장 적었습니다. 로그를 찾아 읽거나 빌드를 다시 돌리는 턴이 없기 때문입니다.</p>
+<p>비싼 까닭은 프롬프트 캐시에 있습니다. Claude Code는 매 턴 앞선 대화를 다시 보내고, 앞에서 본 부분은 캐시에서 싸게 읽습니다. 처음 보는 부분은 캐시에 새로 올리는데, 캐시에서 읽을 때보다 훨씬 비쌉니다. 붙여 넣은 로그는 실행마다 처음 보는 글이라, 캐시에 새로 올린 토큰이 1만 1천에서 2만 2천으로 늘었습니다.</p>
+<h2 id="요약만이-싼-것은-로그를-뺀-덕이다"><span class="nb">「요약만」이</span> 싼 것은 로그를 뺀 덕이다</h2>
+<p>로그 대신 세 줄 요약을 붙이면 비용이 <span class="nb">$0.049로,</span> 붙여 넣을 때의 절반 아래가 됐습니다. 처음에는 이것을 요약의 몫으로 읽었습니다.</p>
+<p>아무것도 주지 않은 결과를 놓고 보니 그렇지 않았습니다. 요약만 붙인 <span class="nb">쪽($0.049)과</span> 아무것도 주지 않은 <span class="nb">쪽($0.053)의</span> 차이는 <span class="nb">8%이고,</span> 고장 여섯 개 가운데 네 개에서만 요약 쪽이 쌌습니다. 고장마다 두 번씩 돌린 시험에서 이 정도는 흔들릴 수 있는 크기입니다. 절반 넘게 줄어든 몫의 대부분은 요약을 더해서가 아니라 로그를 빼서 생겼습니다.</p>
+<p>로그 파일에 요약을 더한 쪽도 <span class="nb">6%였으니,</span> 세 줄 요약이 스스로 아낀 몫은 어느 쪽으로 견줘도 <span class="nb">6~8%입니다.</span></p>
+<h2 id="틀린-요약에-속지-않았다">틀린 요약에 속지 않았다</h2>
+<p>틀린 요약을 받은 4번과 5번도 모두 고쳤습니다. 5번에서 Claude Code는 이렇게 적었습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>5번, 요약만 받은 Claude Code의 답 <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>고친 파일은 src/lib/posts.ts입니다. getBugs()의 정렬이 b.data.published를 읽었는데 bugs 스키마에는 pubDate만 있어서 undefined의 valueOf가 터졌고, pubDate로 바꿨습니다. … 로컬 모델이 짚은 dist/.prerender/... 파일은 빌드 산출물이라 원인이 아니었습니다.</span></span></code></pre></figure>
+<p>요약만 받은 12번 가운데 11번은 첫 명령에 <code>npm run build</code>를 넣어 직접 돌렸습니다. 요약을 그대로 믿지 않고 오류를 스스로 다시 만들어 본 것입니다. 이 블로그처럼 빌드가 몇 초면 끝나는 저장소에서는, 요약이 틀려도 에이전트가 원인을 찾아갔습니다.</p>
+<h2 id="처음-두-번의-숫자는-틀렸다">처음 두 번의 숫자는 틀렸다</h2>
+<p>본 시험 앞에 고장 1번으로 두 조건을 한 번씩 돌렸습니다. 요약을 더한 쪽이 턴 17 → 7, 비용 <span class="nb">$0.122</span> → <span class="nb">$0.061로</span> 절반이 줄었습니다. 그대로 믿을 뻔했습니다.</p>
+<p>들여다보니 두 가지가 잘못돼 있었습니다.</p>
+<ul>
+<li><strong>샌드박스가 빌드를 막았다.</strong> 작업 폴더의 <code><span class="nb">node_modules</span></code>가 폴더 밖을 가리키는 링크라, 빌드가 그 안의 캐시를 지우려다 <code>EPERM</code>으로 멈췄다. 로그 파일만 받은 쪽은 이것을 피해 보려고 10턴쯤을 더 썼다. 절반 차이는 이 헛수고였다.</li>
+<li><strong>고장이 커밋되지 않았다.</strong> 에이전트가 <code>git diff</code>를 보면 고장이 바로 보였다.</li>
+</ul>
+<p>링크를 실제 폴더로 바꾸고 고장을 커밋한 뒤 다시 쟀고, 위 결과는 모두 고친 뒤의 것입니다. 한 번 잰 차이가 클수록, 그 차이가 어디서 왔는지 실행 기록을 먼저 열어 봐야 했습니다.</p>
+<h2 id="걸린-시간">걸린 시간</h2>
+<p>Claude Code가 고장 하나를 고치는 데는 조건마다 평균 <span class="nb">10~12초쯤이</span> 걸렸습니다. 1편에서 <span class="nb">Qwen3.6이</span> 긴 로그 하나를 세 줄로 줄이는 데는 36초쯤 걸렸습니다. 요약을 기다리는 시간이 고치는 시간보다 세 배 깁니다.</p>
+<p><span class="nb">6~8%를</span> 아끼려고 고장마다 36초쯤을 더 기다리는 셈입니다. 로그를 붙여 넣던 습관을 버리는 것만으로 비용이 절반이 되고, 기다릴 것도 없습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>세 줄 요약이 아끼는 몫은 <span class="nb">6~8%였다.</span></strong> 로그 파일에 더해도, 아무것도 없는 데 더해도 그 정도였다.</li>
+<li><strong>로그가 없어도 고쳤다.</strong> 빌드를 직접 돌려 실패를 다시 만들었고, 로그 파일을 받을 때보다 쌌다.</li>
+<li><strong>로그를 준다면 파일로 건네면 된다.</strong> Claude Code는 오류 줄 주변만 골라 읽었다.</li>
+<li><strong>붙여 넣은 로그는 비싸다.</strong> 아무것도 주지 않을 때의 두 배 가까이 들었다. 처음 보는 글이 그만큼 프롬프트 캐시에 새로 올라가기 때문이다.</li>
+<li><strong>틀린 요약은 에이전트가 걸렀다.</strong> 요약을 믿기 전에 로그를 보거나 빌드를 직접 돌려, 틀린 요약 둘에도 모두 고쳤다.</li>
+<li><strong>첫 숫자를 의심해야 했다.</strong> 처음 잰 절반 차이는 샌드박스가 막은 빌드와 커밋하지 않은 고장 때문이었다. <span class="nb">「요약만」의</span> 절반 차이도 기준 조건을 놓고 보니 요약이 아니라 로그를 뺀 덕이었다.</li>
+<li><strong>이번 결과는 작은 고장 여섯 개다.</strong> 고장마다 한두 파일, 몇 줄이었고, 빌드가 몇 초면 끝나는 저장소였다. 빌드가 몇십 분 걸리거나 다시 만들 수 없는 실패라면 로그와 요약의 값이 달라질 수 있다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-27"><li><time class="measured" datetime="2026-11-27T00:58+09:00"><span class="nb">00:58</span></time><span class="trail__what">고장 1번으로 두 조건을 한 번씩 돌림</span><code class="trail__got">턴 17 → 7, 비용 절반</code></li><li><time class="measured" datetime="2026-11-27T01:00+09:00"><span class="nb">01:00</span></time><span class="trail__what">실행 기록에서 샌드박스가 막은 빌드와 커밋하지 않은 고장을 찾음</span><code class="trail__got">두 가지를 고침</code></li><li><time class="measured" datetime="2026-11-27T01:01+09:00"><span class="nb">01:01</span></time><span class="trail__what">로그 파일, 파일 + 요약을 두 바퀴 돌림</span><code class="trail__got">24번, 6분</code></li><li><time class="measured" datetime="2026-11-27T01:12+09:00"><span class="nb">01:12</span></time><span class="trail__what">붙여 넣기, 요약만을 두 바퀴 돌림</span><code class="trail__got">24번, 5분</code></li><li><time class="measured" datetime="2026-11-27T07:50+09:00"><span class="nb">07:50</span></time><span class="trail__what">아무것도 주지 않는 기준 조건을 두 바퀴 돌림</span><code class="trail__got">12번, 3분. 요약만이 <span class="nb">8%</span> 쌌을 뿐</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-helper"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/local-helper-05-local-first/" class="pager__next"><small>다음 글</small><strong>5편 로컬 모델이 먼저 고치고, 못 고치면 클라우드로</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#결과">결과</a></li><li><a href="#로그를-파일로-주면-요약은-거의-쓸모없다">로그를 파일로 주면 요약은 거의 쓸모없다</a></li><li><a href="#아무것도-주지-않아도-고쳤다">아무것도 주지 않아도 고쳤다</a></li><li><a href="#붙여-넣으면-비싸다">붙여 넣으면 비싸다</a></li><li><a href="#요약만이-싼-것은-로그를-뺀-덕이다"><span class="nb">「요약만」이</span> 싼 것은 로그를 뺀 덕이다</a></li><li><a href="#틀린-요약에-속지-않았다">틀린 요약에 속지 않았다</a></li><li><a href="#처음-두-번의-숫자는-틀렸다">처음 두 번의 숫자는 틀렸다</a></li><li><a href="#걸린-시간">걸린 시간</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

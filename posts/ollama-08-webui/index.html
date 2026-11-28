@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>웹 UI를 Ollama로 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 8편. Mac mini의 Open WebUI에 Ollama를 바로 붙이고, 웹 UI가 Ollama에 보내는 요청을 중간에서 기록했습니다. 연결만 켠 모델은 관리자에게만 보였고, 웹 UI가 생각에 대해 아무 값도 보내지 않아 Qwen3.8은 제목을 만들 때도 생각했습니다. 모델 항목에서 생각을 끄자 제목 만들기가 9.1초에서 1.2초가 됐습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-08-webui/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="웹 UI를 Ollama로 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 8편. Mac mini의 Open WebUI에 Ollama를 바로 붙이고, 웹 UI가 Ollama에 보내는 요청을 중간에서 기록했습니다. 연결만 켠 모델은 관리자에게만 보였고, 웹 UI가 생각에 대해 아무 값도 보내지 않아 Qwen3.8은 제목을 만들 때도 생각했습니다. 모델 항목에서 생각을 끄자 제목 만들기가 9.1초에서 1.2초가 됐습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-08-webui/"><meta property="article:published_time" content="2026-11-21T04:06:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"웹 UI를 Ollama로","description":"Ollama로 다시 돌려 보기 8편. Mac mini의 Open WebUI에 Ollama를 바로 붙이고, 웹 UI가 Ollama에 보내는 요청을 중간에서 기록했습니다. 연결만 켠 모델은 관리자에게만 보였고, 웹 UI가 생각에 대해 아무 값도 보내지 않아 Qwen3.8은 제목을 만들 때도 생각했습니다. 모델 항목에서 생각을 끄자 제목 만들기가 9.1초에서 1.2초가 됐습니다.","datePublished":"2026-11-21T04:06:00.000Z","dateModified":"2026-11-21T04:06:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-08-webui/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-08-webui/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>8편</li></ol></nav><h1 id="post-title">웹 UI를 Ollama로</h1><p class="post__lead">지난 연재 9단계부터 웹 UI는 게이트웨이를 거쳐 MLX 서버에 묻습니다. Open WebUI에는 Ollama를 바로 붙이는 연결이 따로 있습니다. 이번에는 그 연결을 켜고, 웹 UI가 Ollama에 무엇을 보내는지 중간에서 기록하면서 모델을 고르고, 바꾸고, 받고, 내려 봤습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-21"><span class="nb">2026-11-21</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 8분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>웹 UI에 Ollama를 붙인다.</strong> 관리자 설정의 Ollama 연결을 켠다.</li>
+<li><strong>웹 UI가 보내는 요청을 기록한다.</strong> 웹 UI와 Ollama 사이에, 요청을 그대로 넘기면서 적어 두는 작은 중계 프로그램을 둔다.</li>
+<li><strong>모델을 고르고, 바꾸고, 받고, 내린다.</strong> 관리자와 일반 사용자 양쪽에서 본다.</li>
+</ol>
+<p>모두 Mac <span class="nb">mini(24GB)에서</span> 했습니다. Ollama <span class="nb">0.40.16은</span> 7편에서 launchd에 맡긴 그대로입니다. 기억할 글 길이는 <span class="nb">32,768토큰이고,</span> 한 번에 모델 하나만 올리며, 쉬어도 모델을 내리지 않습니다. 웹 UI는 Open WebUI <span class="nb">0.13.3입니다.</span></p>
+<p>화면을 누르는 대신, 웹 UI의 API를 관리자 API 키로 불렀습니다. 연결 설정, 모델 항목, 대화, 제목 만들기, 모델 받기와 내리기 모두 웹 UI가 제공하는 API입니다. 시험이 끝난 뒤 웹 UI 설정은 원래대로 돌려놓았습니다.</p>
+<h2 id="연결은-설정-두-개">연결은 설정 두 개</h2>
+<p>Open WebUI의 연결은 두 종류입니다. OpenAI 형식 API 연결과 Ollama 연결입니다. 지난 연재 6단계에서는 OpenAI 형식 연결로 MLX 서버를 붙이고, Ollama 연결은 꺼 <span class="nb">두었습니다(</span><code><span class="nb">ENABLE_OLLAMA_API=false</span></code><span class="nb">).</span> 9단계에서 OpenAI 형식 연결의 주소를 게이트웨이로 바꿨습니다. 이번에는 Ollama 연결을 켜고 주소를 중계 프로그램으로 주었습니다. 관리자 설정의 연결 화면에서 하는 일과 같습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, 웹 UI의 Ollama 연결 설정, 시험 <span class="nb">전(위)과</span> 시험 <span class="nb">중(아래)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="json"><code><span class="line"><span style="color:var(--astro-code-foreground)">{</span><span style="color:var(--astro-code-token-keyword)">&quot;ENABLE_OLLAMA_API&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-constant)"> false</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;OLLAMA_BASE_URLS&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string-expression)">&quot;http://localhost:11434&quot;</span><span style="color:var(--astro-code-foreground)">]</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;OLLAMA_API_CONFIGS&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-foreground)"> {}}</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">{</span><span style="color:var(--astro-code-token-keyword)">&quot;ENABLE_OLLAMA_API&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-constant)"> true</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;OLLAMA_BASE_URLS&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string-expression)">&quot;http://127.0.0.1:11435&quot;</span><span style="color:var(--astro-code-foreground)">]</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;OLLAMA_API_CONFIGS&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-foreground)"> {}}</span></span></code></pre></figure>
+<p>11435번 포트가 중계 프로그램입니다. 받은 요청을 11434번의 Ollama에 그대로 넘기고, 요청 내용과 걸린 시간, Ollama가 마지막 줄에 알려 주는 토큰 수와 올리기 시간을 한 줄씩 적습니다. Mac mini 안에서 오는 요청만 받습니다.</p>
+<h2 id="관리자에게만-보였다">관리자에게만 보였다</h2>
+<p>연결을 켜자 관리자의 모델 목록에 Ollama의 모델 15개가 모두 나왔습니다. 게이트웨이 모델 하나를 더해 16개입니다. 같은 때 일반 사용자 계정의 목록에는 게이트웨이 모델 하나뿐이었습니다. 시험용 일반 사용자를 잠시 만들어 확인했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>누가</th>
+<th>보인 모델</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>관리자</td>
+<td>16개</td>
+</tr>
+<tr>
+<td>일반 사용자</td>
+<td>1개</td>
+</tr>
+<tr>
+<td>일반 사용자, 항목 공개 뒤</td>
+<td>2개</td>
+</tr>
+</tbody>
+</table></div>
+<p>웹 UI는 모델마다 <span class="nb">「모델</span> <span class="nb">항목」을</span> 따로 둡니다. 보이는 이름, 시스템 프롬프트, 매개변수, 누가 쓸 수 있는지를 담습니다. 항목이 없는 모델은 관리자에게만 <span class="nb">보입니다(</span><code><span class="nb">utils/models.py</span></code>의 <span class="nb">“only</span> admins can see unconfigured <span class="nb">models”).</span> 지난 연재 6단계에서 Mac mini 모델의 접근을 공개로 바꾼 것과 같은 일입니다. <span class="nb">Qwen3.8에</span> 항목을 만들고 모든 사용자에게 읽기 권한을 주자, 일반 사용자에게도 보였고 대화도 됐습니다.</p>
+<p>그래서 Ollama에 모델을 새로 받아도 사용자의 목록은 저절로 늘지 않습니다. 관리자가 쓸 모델을 골라 항목을 만들어 주면 됩니다. 거꾸로 관리자의 목록에는 시험하려고 받아 둔 국산 모델, 같은 모델의 다른 태그, 임베딩 모델까지 모두 섞여 나옵니다.</p>
+<h2 id="웹-ui가-ollama에-보낸-것">웹 UI가 Ollama에 보낸 것</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>한 일</th>
+<th>경로</th>
+<th>웹 UI가 붙인 값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>그냥 대화</td>
+<td><code><span class="nb">/api/chat</span></code></td>
+<td>없음</td>
+</tr>
+<tr>
+<td>생각 끈 대화</td>
+<td><code><span class="nb">/api/chat</span></code></td>
+<td><code>think: false</code></td>
+</tr>
+<tr>
+<td>글 길이 바꾼 대화</td>
+<td><code><span class="nb">/api/chat</span></code></td>
+<td><code><span class="nb">num_ctx:</span> 8192</code></td>
+</tr>
+<tr>
+<td>제목 만들기</td>
+<td><code><span class="nb">/api/chat</span></code></td>
+<td><code>num_predict: 1000</code></td>
+</tr>
+<tr>
+<td>모델 받기</td>
+<td><code><span class="nb">/api/pull</span></code></td>
+<td><code>insecure: true</code></td>
+</tr>
+<tr>
+<td>모델 내리기</td>
+<td><code>/api/generate</code></td>
+<td><code>keep_alive: 0</code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>그냥 대화에는 아무 값도 붙지 않았다.</strong> 기억할 글 길이와 쉬는 시간은 Ollama 서비스 <span class="nb">설정(32,768토큰,</span> 내리지 <span class="nb">않음)을</span> 따르고, 생각은 모델의 기본값을 따른다.</li>
+<li><strong>대화 설정에서 고른 값은 Ollama의 값으로 바뀌어 갔다.</strong> 생각 끄기는 <code>think: false</code>, 기억할 글 길이는 <code><span class="nb">options.num_ctx</span></code>가 됐다.</li>
+<li><strong>제목 만들기는 같은 모델로 한 번 더 묻는 요청이었다.</strong> 스트리밍 없이 답 길이만 <span class="nb">1,000토큰으로</span> 묶었다. 제목을 맡을 모델을 따로 정하지 않으면 대화하던 모델이 <span class="nb">맡는다(</span><code><span class="nb">utils/task.py</span></code><span class="nb">).</span></li>
+<li><strong>모델 내리기는 빈 질문이었다.</strong> 질문 없이 쉬는 시간을 0으로 보내면 Ollama가 모델을 내린다.</li>
+</ul>
+<h2 id="생각이-새로-켜졌다">생각이 새로 켜졌다</h2>
+<p>Ollama에서 <span class="nb">Qwen3.8은</span> 생각하는 것이 <span class="nb">기본입니다(4편).</span> 지난 연재 4단계부터 MLX 서버는 대화 틀에 <code><span class="nb">enable_thinking:</span> false</code>를 주어 생각을 꺼 두었습니다. 그러니 웹 UI를 Ollama로 바꾸면 생각이 새로 켜집니다. 첫 대화에서 <span class="nb">Qwen3.8은</span> 546자를 생각한 뒤 두 문장으로 답했습니다. <span class="nb">34.9초</span> 가운데 모델 올리기가 <span class="nb">9.0초,</span> 올린 직후 질문 읽기가 <span class="nb">8.9초였습니다.</span> 모델이 올라 있는 상태에서 생각을 끄고 같은 질문을 하자 <span class="nb">5.1초였습니다.</span></p>
+<p>제목 만들기도 생각했습니다. 아래는 모델이 올라 있는 상태에서 같은 대화로 제목을 두 번씩 만든 것입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>제목 만들기</th>
+<th>생각</th>
+<th>쓴 토큰</th>
+<th>걸린 시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>항목 없음 1</td>
+<td>514자</td>
+<td>152</td>
+<td><span class="nb">17.3초</span></td>
+</tr>
+<tr>
+<td>항목 없음 2</td>
+<td>469자</td>
+<td>133</td>
+<td><span class="nb">9.1초</span></td>
+</tr>
+<tr>
+<td>생각 끔 1</td>
+<td>0자</td>
+<td>11</td>
+<td><span class="nb">1.2초</span></td>
+</tr>
+<tr>
+<td>생각 끔 2</td>
+<td>0자</td>
+<td>11</td>
+<td><span class="nb">1.1초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>첫 번째 <span class="nb">17.3초에는</span> 제목을 만들라는 긴 <span class="nb">지시문(356토큰)을</span> 처음 읽는 <span class="nb">5.8초가</span> 들어 있습니다. 두 번째부터는 앞에서 읽은 것을 다시 써서 <span class="nb">0.2초</span> 안팎이었습니다. 그래서 생각을 켜고 끈 차이는 <span class="nb">9.1초와</span> <span class="nb">1.2초로</span> 보는 것이 맞습니다.</p>
+<p>모델 항목의 매개변수에 <code>think: false</code>를 넣으면, 그 모델로 가는 요청에 모두 붙습니다. 대화뿐 아니라 제목 만들기에도 붙었습니다. 제목은 세 번 <span class="nb">「Ollama</span> <span class="nb">설명」이었고,</span> 생각을 끈 두 번째만 <span class="nb">「Ollama</span> <span class="nb">Introduction」으로</span> 영어였습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, 중계 기록을 줄여 옮김, 같은 제목 <span class="nb">요청(위:</span> 항목 없음, 아래: 항목에서 생각 <span class="nb">끔)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>11:58:06 /api/chat options {&#39;num_predict&#39;: 1000} think None   | 9.06 s, thinking 469 chars, 133 tokens</span></span>
+<span class="line"><span>11:58:15 /api/chat options {&#39;num_predict&#39;: 1000} think False  | 1.20 s, thinking 0 chars, 11 tokens</span></span></code></pre></figure>
+<h2 id="모델을-바꾸면-기다렸다">모델을 바꾸면 기다렸다</h2>
+<p>7편의 서비스는 한 번에 모델 하나만 올립니다. 다른 모델을 고르면 앞의 모델을 내리고 새로 올립니다. 아래 <span class="nb">「첫</span> <span class="nb">조각」은</span> 생각이든 답이든 스트리밍으로 처음 받은 조각까지의 시간입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>바꾼 것</th>
+<th>올리기</th>
+<th>첫 조각</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.8</span> → Gemma 4</td>
+<td><span class="nb">6.6초</span></td>
+<td><span class="nb">7.8초</span></td>
+</tr>
+<tr>
+<td>Gemma 4 → <span class="nb">Qwen3.8</span></td>
+<td><span class="nb">8.5초</span></td>
+<td><span class="nb">12.0초</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> → Gemma 4 GGUF</td>
+<td><span class="nb">11.3초</span></td>
+<td><span class="nb">11.9초</span></td>
+</tr>
+<tr>
+<td>Gemma 4 GGUF → <span class="nb">Qwen3.8</span></td>
+<td><span class="nb">8.3초</span></td>
+<td><span class="nb">13.3초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">Qwen3.8과</span> Gemma 4는 Mac mini에서 Ollama가 고르는 기본 <span class="nb">태그(MLX</span> <span class="nb">엔진)이고,</span> Gemma 4 GGUF는 5편의 <code>gemma4:26b-a4b-it-mtp-q4_K_M</code>입니다. 여러 사람이 서로 다른 모델을 고르면, 고를 때마다 이만큼 기다리게 됩니다.</p>
+<h2 id="글-길이를-바꾸면-gguf는-다시-올라갔다">글 길이를 바꾸면 GGUF는 다시 올라갔다</h2>
+<p>대화 설정에서 기억할 글 길이를 <span class="nb">8,192로</span> 바꿔 보냈습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>기억할 글 길이</th>
+<th>올리기</th>
+<th>Ollama가 보고한 길이</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 GGUF, 올라 있음</td>
+<td>기본</td>
+<td>0초</td>
+<td><span class="nb">32,768</span></td>
+</tr>
+<tr>
+<td>Gemma 4 GGUF</td>
+<td><span class="nb">8,192</span></td>
+<td><span class="nb">9.0초</span></td>
+<td><span class="nb">8,192</span></td>
+</tr>
+<tr>
+<td>Gemma 4 GGUF</td>
+<td>다시 기본</td>
+<td><span class="nb">10.6초</span></td>
+<td><span class="nb">32,768</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> MLX, 올라 있음</td>
+<td><span class="nb">8,192</span></td>
+<td>0초</td>
+<td><span class="nb">32,768</span></td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">llama.cpp</span> 엔진은 모델을 올릴 때 기억할 글 길이만큼 메모리를 잡아 <span class="nb">둡니다(6편).</span> Ollama는 요청의 실행기 설정이 올려 둔 것과 다르면 모델을 다시 올립니다. <span class="nb">8,192로</span> 바꿀 때 한 번, 기본으로 돌아올 때 또 한 번 올렸습니다. MLX 엔진 모델은 이 비교에서 빠져 <span class="nb">있어서(</span><code><span class="nb">server/sched.go</span></code>의 <code>needsReload</code>, <code><span class="nb">!loaded.IsMLX()</span></code>) 다시 올리지 않았고, 보고한 길이도 <span class="nb">32,768</span> 그대로였습니다.</p>
+<p>그러니 누군가 대화 설정에서 길이를 바꾸면, GGUF 모델은 그 사람과 다른 사람이 번갈아 물을 때마다 다시 올라갈 것으로 보입니다. 두 사람이 번갈아 묻는 것은 시험하지 않았습니다. 웹 UI에는 사용자가 대화 매개변수를 바꿀 수 있는지 정하는 권한이 <span class="nb">있습니다(</span><code>USER_PERMISSIONS_CHAT_PARAMS</code>, 기본은 <span class="nb">켬).</span> 이번에는 시험하지 않았습니다.</p>
+<h2 id="받기와-내리기">받기와 내리기</h2>
+<p>모델 받기, 내리기, 지우기는 관리자만 할 수 <span class="nb">있습니다(</span><code><span class="nb">routers/ollama.py</span></code>의 <code><span class="nb">get_admin_user</span></code><span class="nb">).</span> 웹 UI에서 <span class="nb">bge-m3(1.2GB)를</span> 받는 데 <span class="nb">33.5초</span> 걸렸습니다. 9편에서 쓰려고 받은 임베딩 모델입니다.</p>
+<ul>
+<li><strong>임베딩 모델도 대화 목록에 나왔다.</strong> 고르고 물으면 바로 <span class="nb">오류였다(</span><code><span class="nb">&quot;bge-m3:latest&quot;</span> does not support chat</code><span class="nb">).</span></li>
+<li><strong>내리기는 바로 됐다.</strong> 내린 뒤 Ollama의 모델 <span class="nb">목록(</span><code><span class="nb">/api/ps</span></code><span class="nb">)은</span> 비었고, 다음 대화에서 모델을 다시 올리느라 첫 조각이 <span class="nb">13.6초에</span> 왔다.</li>
+<li><strong>받기에는 <code>insecure: true</code>가 늘 붙었다.</strong> 웹 UI가 받기 요청에 이 값을 <span class="nb">덧붙인다(</span><code><span class="nb">routers/ollama.py</span></code>, <code><span class="nb">{**form_data,</span> <span class="nb">&#39;insecure&#39;:</span> <span class="nb">True}</span></code><span class="nb">).</span> Ollama는 이 값이 있으면 레지스트리 주소를 https에서 http로 바꾸고, 다른 호스트로 넘기는 리디렉션도 막지 <span class="nb">않는다(</span><code><span class="nb">server/images.go</span></code><span class="nb">).</span> 원래는 자기 네트워크 안의 레지스트리에서 받을 때 쓰는 값이다.</li>
+</ul>
+<p>실제로 http로 나가는지 보려고, 서로 다른 작은 임베딩 모델 두 개를 Ollama의 받기 API로 받으며 Ollama가 연 연결을 <span class="nb">0.2초마다</span> 적었습니다. 받기 전에는 100초씩 쉬어 앞의 연결이 남지 않게 했습니다. <span class="nb">레지스트리(</span><code><span class="nb">registry.ollama.ai</span></code><span class="nb">)의</span> 주소는 <span class="nb">104.18.17.170이었고,</span> 다른 하나는 레지스트리가 아닌 주소였습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>받기</th>
+<th>레지스트리 80번</th>
+<th>레지스트리 443번</th>
+<th>다른 주소 443번</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>insecure</code> 없음</td>
+<td>없음</td>
+<td>있음</td>
+<td>있음</td>
+</tr>
+<tr>
+<td><code>insecure: true</code></td>
+<td>있음</td>
+<td>있음</td>
+<td>있음</td>
+</tr>
+</tbody>
+</table></div>
+<p>80번은 http, 443번은 https입니다. 값을 붙이지 <span class="nb">않으면(</span><code>ollama pull</code>의 기본과 <span class="nb">같습니다)</span> https로만 오갔습니다. 웹 UI처럼 <code>insecure: true</code>를 붙이면 레지스트리에 http로도 요청했습니다. 레지스트리가 http 요청에 https 주소로 가라고 <span class="nb">답해서(301)</span> 받기는 성공했습니다. 하지만 Ollama는 레지스트리로 가는 요청을 모두 http로 바꿔 <span class="nb">보내므로(</span><code><span class="nb">server/images.go</span></code><span class="nb">),</span> 그 요청들은 먼저 암호화되지 않은 채 나갑니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, 레지스트리에 http로 물었을 때</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>http GET registry: 301 -&gt; https://registry.ollama.ai/v2/library/all-minilm/manifests/latest</span></span></code></pre></figure>
+<h2 id="바로-붙일까-게이트웨이를-거칠까">바로 붙일까, 게이트웨이를 거칠까</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>바로 붙이기</th>
+<th>게이트웨이 거치기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>모델 <span class="nb">받기·내리기</span></td>
+<td>웹 UI에서</td>
+<td>명령으로</td>
+</tr>
+<tr>
+<td>게이트웨이 사용량 기록</td>
+<td>없음</td>
+<td>사람별로 남음</td>
+</tr>
+</tbody>
+</table></div>
+<p>바로 붙이면 웹 UI에서 모델을 받고 내릴 수 있고, 모델 항목의 매개변수가 Ollama의 값으로 그대로 갑니다. 대신 웹 UI의 요청은 게이트웨이를 지나지 않습니다. 지난 연재 9단계에서 웹 UI는 게이트웨이 키 하나로 묻고, 묻는 사람의 이메일을 헤더로 실어 보내 사람별 사용량을 남기게 했습니다. 바로 붙이면 웹 UI 대화가 이 기록에 잡히지 않습니다. 게이트웨이를 거쳐 Ollama에 붙이는 길은 이번에 웹 UI로는 시험하지 않았습니다. 어느 쪽으로 할지는 10편에서 엔진과 함께 정합니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>연결만 켜면 관리자에게만 보인다.</strong> 사용자에게 줄 모델은 모델 항목을 만들어 공개한다. 받아 둔 시험용 모델이 사용자 목록에 섞이지 않는 것은 장점이다.</li>
+<li><strong>웹 UI는 Ollama에 거의 아무 값도 보내지 않는다.</strong> 기억할 글 길이와 쉬는 시간은 Ollama 서비스 설정을, 생각은 모델의 기본값을 따른다. Ollama 쪽 설정이 곧 웹 UI의 설정이다.</li>
+<li><strong><span class="nb">Qwen3.8은</span> 생각이 새로 켜진다.</strong> MLX 서버에서는 꺼 두었던 것이다. 제목 만들기도 생각해서 9초쯤 걸렸다. 모델 항목에 <code>think: false</code>를 넣으면 대화와 제목 모두 꺼지고, 제목은 1초 남짓이 된다.</li>
+<li><strong>모델을 바꾸면 <span class="nb">8~13초</span> 기다린다.</strong> 한 번에 하나만 올리기 때문이다. GGUF 모델은 기억할 글 길이를 바꿀 때도 다시 올라가므로, 길이는 모델 항목이나 서비스 설정에서 하나로 정해 두는 편이 낫다.</li>
+<li><strong>웹 UI에서 받기는 편하지만 <code>insecure: true</code>가 붙는다.</strong> 레지스트리 요청이 http로 바뀐다. 받기는 Mac mini에서 <code>ollama pull</code>로 하는 편이 낫다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-21"><li><time class="measured" datetime="2026-11-21T11:49+09:00"><span class="nb">11:49</span></time><span class="trail__what">중계 프로그램을 Mac mini에 띄움</span><code class="trail__got">Ollama <span class="nb">0.40.16이</span> 그대로 답함</code></li><li><time class="measured" datetime="2026-11-21T11:53+09:00"><span class="nb">11:53</span></time><span class="trail__what">웹 UI의 Ollama 연결을 켬</span><code class="trail__got">관리자 16개, 일반 사용자 1개</code></li><li><time class="measured" datetime="2026-11-21T11:53+09:00"><span class="nb">11:53</span></time><span class="trail__what"><span class="nb">Qwen3.8과</span> 첫 대화</span><code class="trail__got">생각 546자, <span class="nb">34.9초</span></code></li><li><time class="measured" datetime="2026-11-21T11:54+09:00"><span class="nb">11:54</span></time><span class="trail__what">같은 질문을 생각 끄고 다시</span><code class="trail__got"><span class="nb">5.1초</span></code></li><li><time class="measured" datetime="2026-11-21T11:54+09:00"><span class="nb">11:54</span></time><span class="trail__what">Gemma 4로 바꿈</span><code class="trail__got">올리기 <span class="nb">6.6초</span></code></li><li><time class="measured" datetime="2026-11-21T11:54+09:00"><span class="nb">11:54</span></time><span class="trail__what">웹 UI에서 <span class="nb">bge-m3</span> 받기</span><code class="trail__got"><span class="nb">33.5초,</span> insecure: true</code></li><li><time class="measured" datetime="2026-11-21T11:55+09:00"><span class="nb">11:55</span></time><span class="trail__what"><span class="nb">bge-m3와</span> 대화</span><code class="trail__got">does not support chat</code></li><li><time class="measured" datetime="2026-11-21T11:55+09:00"><span class="nb">11:55</span></time><span class="trail__what"><span class="nb">Qwen3.8</span> 항목을 모두에게 공개</span><code class="trail__got">일반 사용자에게 보이고 대화됨</code></li><li><time class="measured" datetime="2026-11-21T11:57+09:00"><span class="nb">11:57</span></time><span class="trail__what">Gemma 4 GGUF에 글 길이 <span class="nb">8,192</span></span><code class="trail__got"><span class="nb">9.0초</span> 걸려 다시 올림</code></li><li><time class="measured" datetime="2026-11-21T11:58+09:00"><span class="nb">11:58</span></time><span class="trail__what">항목에서 생각을 끄고 제목 만들기</span><code class="trail__got"><span class="nb">9.1초</span> → <span class="nb">1.2초</span></code></li><li><time class="measured" datetime="2026-11-21T12:02+09:00"><span class="nb">12:02</span></time><span class="trail__what">웹 UI 설정을 되돌림</span><code class="trail__got">시험 전과 같음</code></li><li><time class="measured" datetime="2026-11-21T12:07+09:00"><span class="nb">12:07</span></time><span class="trail__what">insecure 없이 작은 모델 받기</span><code class="trail__got">https로만 오감</code></li><li><time class="measured" datetime="2026-11-21T12:09+09:00"><span class="nb">12:09</span></time><span class="trail__what">insecure: true로 작은 모델 받기</span><code class="trail__got">레지스트리 80번에도 연결</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-09-documents/" class="pager__next"><small>다음 글</small><strong>9편 문서 검색을 Ollama로</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#연결은-설정-두-개">연결은 설정 두 개</a></li><li><a href="#관리자에게만-보였다">관리자에게만 보였다</a></li><li><a href="#웹-ui가-ollama에-보낸-것">웹 UI가 Ollama에 보낸 것</a></li><li><a href="#생각이-새로-켜졌다">생각이 새로 켜졌다</a></li><li><a href="#모델을-바꾸면-기다렸다">모델을 바꾸면 기다렸다</a></li><li><a href="#글-길이를-바꾸면-gguf는-다시-올라갔다">글 길이를 바꾸면 GGUF는 다시 올라갔다</a></li><li><a href="#받기와-내리기">받기와 내리기</a></li><li><a href="#바로-붙일까-게이트웨이를-거칠까">바로 붙일까, 게이트웨이를 거칠까</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

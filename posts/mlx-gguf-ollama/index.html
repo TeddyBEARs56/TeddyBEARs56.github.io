@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MLX, GGUF, Ollama는 무엇이 다른가 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 1편. 로컬 LLM을 설치하다 보면 MLX, GGUF, Ollama라는 이름을 계속 만납니다. 셋은 같은 종류가 아닙니다. GGUF는 파일 형식, MLX는 애플의 계산 틀, Ollama는 모델을 받아 띄워 주는 프로그램입니다. 이 블로그에서 Mac mini와 노트북에 직접 깔아 잰 결과로 차이와 장단점을 정리합니다."><link rel="canonical" href="https://teddybears56.github.io/posts/mlx-gguf-ollama/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="MLX, GGUF, Ollama는 무엇이 다른가 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 1편. 로컬 LLM을 설치하다 보면 MLX, GGUF, Ollama라는 이름을 계속 만납니다. 셋은 같은 종류가 아닙니다. GGUF는 파일 형식, MLX는 애플의 계산 틀, Ollama는 모델을 받아 띄워 주는 프로그램입니다. 이 블로그에서 Mac mini와 노트북에 직접 깔아 잰 결과로 차이와 장단점을 정리합니다."><meta property="og:url" content="https://teddybears56.github.io/posts/mlx-gguf-ollama/"><meta property="article:published_time" content="2026-11-18T04:58:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"MLX, GGUF, Ollama는 무엇이 다른가","description":"Ollama로 다시 돌려 보기 1편. 로컬 LLM을 설치하다 보면 MLX, GGUF, Ollama라는 이름을 계속 만납니다. 셋은 같은 종류가 아닙니다. GGUF는 파일 형식, MLX는 애플의 계산 틀, Ollama는 모델을 받아 띄워 주는 프로그램입니다. 이 블로그에서 Mac mini와 노트북에 직접 깔아 잰 결과로 차이와 장단점을 정리합니다.","datePublished":"2026-11-18T04:58:00.000Z","dateModified":"2026-11-18T04:58:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/mlx-gguf-ollama/","mainEntityOfPage":"https://teddybears56.github.io/posts/mlx-gguf-ollama/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>1편</li></ol></nav><h1 id="post-title">MLX, GGUF, Ollama는 무엇이 다른가</h1><p class="post__lead">로컬 LLM을 깔려고 찾아보면 <span class="nb">「MLX</span> <span class="nb">버전」,</span> <span class="nb">「GGUF</span> <span class="nb">파일」,</span> <span class="nb">「Ollama로</span> <span class="nb">설치」</span> 같은 말이 섞여 나옵니다. 셋 중 하나를 고르는 것처럼 보이지만, 사실은 층이 다른 이름입니다. 이 글은 셋이 무엇이고 어떻게 엮이는지, 그리고 이 블로그의 Mac mini와 노트북에서 직접 써 보며 잰 장단점을 정리합니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-18"><span class="nb">2026-11-18</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 5분</dd></div></dl></header><div class="prose"><h2 id="셋은-층이-다르다">셋은 층이 다르다</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>이름</th>
+<th>무엇인가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GGUF</td>
+<td>모델 파일 형식. 파일 하나에 압축한 숫자와 토크나이저, 대화 형식까지 담는다</td>
+</tr>
+<tr>
+<td>MLX</td>
+<td>애플이 만든 Apple Silicon용 계산 틀. 모델은 MLX 형식 폴더로 받는다</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>모델을 내려받고, 띄우고, API로 내주는 프로그램</td>
+</tr>
+</tbody>
+</table></div>
+<p>엔진이라는 말로 정리하면 이렇습니다. 엔진은 모델 파일을 읽어 실제로 계산하는 프로그램입니다.</p>
+<ul>
+<li><strong>GGUF 파일은 <span class="nb">llama.cpp가</span> 돌린다.</strong> <span class="nb">llama.cpp는</span> 이 형식을 만든 오픈소스 엔진이다. <code><span class="nb">llama-server</span></code>를 띄우면 OpenAI 형식 API를 내준다.</li>
+<li><strong>MLX 형식은 MLX가 돌린다.</strong> 파이썬 도구 <span class="nb">mlx-lm이</span> 모델을 읽고, <code><span class="nb">mlx_lm.server</span></code>가 OpenAI 형식 API를 내준다.</li>
+<li><strong>Ollama는 둘 다 쓴다.</strong> 안에 <span class="nb">llama.cpp</span> 계열 엔진과 MLX 엔진을 품고, 모델 형식에 따라 고른다. 사용자는 엔진을 몰라도 모델 이름만으로 받고 띄운다.</li>
+</ul>
+<figure class="code"><figcaption class="code__bar"><span>같은 모델을 세 가지로 받기</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-comment)"># GGUF: 파일 하나</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> hf</span><span style="color:var(--astro-code-token-string)"> download</span><span style="color:var(--astro-code-token-string)"> unsloth/Qwen3.6-35B-A3B-GGUF</span><span style="color:var(--astro-code-token-string)"> Qwen3.6-35B-A3B-UD-IQ4_XS.gguf</span></span>
+<span class="line"><span style="color:var(--astro-code-token-comment)"># MLX: 폴더 하나</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> hf</span><span style="color:var(--astro-code-token-string)"> download</span><span style="color:var(--astro-code-token-string)"> mlx-community/Qwen3.6-35B-A3B-4bit</span><span style="color:var(--astro-code-token-string)"> --local-dir</span><span style="color:var(--astro-code-token-string)"> ~/models/mlx/Qwen3.6-35B-A3B-4bit</span></span>
+<span class="line"><span style="color:var(--astro-code-token-comment)"># Ollama: 이름 하나</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ollama</span><span style="color:var(--astro-code-token-string)"> pull</span><span style="color:var(--astro-code-token-string)"> qwen3.6:35b</span></span></code></pre></figure>
+<h2 id="gguf와-llamacpp">GGUF와 <span class="nb">llama.cpp</span></h2>
+<p>이 블로그에서는 지난 연재 2단계에서 <span class="nb">llama.cpp를</span> 직접 조립해 처음 모델을 돌렸습니다. 노트북은 지금도 <span class="nb">llama.cpp</span> 서버로 웹 UI의 모델을 내주고 있습니다.</p>
+<ul>
+<li><strong>어디서나 돈다.</strong> Mac에서는 Metal, 노트북의 인텔 GPU에서는 Vulkan과 SYCL, GPU가 없으면 CPU로 돈다. 지난 연재 3단계에서 노트북의 엔진 네 가지를 견줬다.</li>
+<li><strong>파일 하나라 다루기 쉽다.</strong> 압축 단계도 <span class="nb">여럿이라(Q4_K_M,</span> <span class="nb">IQ4_XS</span> <span class="nb">등)</span> 메모리에 맞춰 고를 수 있다.</li>
+<li><strong>기억할 글 자리를 처음에 잡는다.</strong> 띄울 때 <code><span class="nb">-c</span></code>로 정한 길이만큼 대화 기억 자리를 잡고, 그 안에서 쓴다. 코딩 에이전트 시험에서 노트북은 36번 돌리는 동안 한 번도 멈추지 않았다.</li>
+<li><strong>Mac에서는 MLX보다 느렸다.</strong> 같은 Mac mini에서 Gemma 4 26B의 답 쓰기가 초당 27토큰으로, MLX의 40토큰보다 느렸다.</li>
+<li><strong>설정이 많다.</strong> 기억할 글 <span class="nb">길이(</span><code><span class="nb">-c</span></code><span class="nb">),</span> 동시에 받는 요청 <span class="nb">수(</span><code><span class="nb">-np</span></code><span class="nb">),</span> GPU에 올릴 층 <span class="nb">수(</span><code><span class="nb">-ngl</span></code>) 등을 직접 정해야 한다. 너무 크게 잡으면 띄우거나 첫 계산에서 막힌다.</li>
+</ul>
+<h2 id="mlx">MLX</h2>
+<p>MLX는 애플이 Apple Silicon에 맞춰 만든 계산 틀입니다. CPU와 GPU가 한 메모리를 함께 쓰는 <span class="nb">구조(통합</span> <span class="nb">메모리)를</span> 전제로 합니다. 모델은 Hugging Face의 <span class="nb">mlx-community</span> 같은 곳이 MLX 형식으로 바꿔 올린 것을 받아 씁니다. 지난 연재 3단계부터 Mac mini의 늘 켜 둔 서버가 MLX입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Mac mini에서</th>
+<th><span class="nb">llama.cpp</span></th>
+<th>MLX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 26B, 답 쓰기</td>
+<td>초당 <span class="nb">27.03토큰</span></td>
+<td>초당 <span class="nb">40.46토큰</span></td>
+</tr>
+<tr>
+<td>Qwen <span class="nb">3.8</span> 27B, 답 쓰기</td>
+<td>초당 <span class="nb">6.29토큰</span></td>
+<td>초당 <span class="nb">6.91토큰</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Mac에서 빠르다.</strong> 답 쓰기가 Gemma는 <span class="nb">50%,</span> Qwen은 <span class="nb">10%</span> 빨랐다. 질문 읽기는 <span class="nb">3~7%</span> <span class="nb">빨랐다(지난</span> 연재 <span class="nb">3단계).</span></li>
+<li><strong>미세조정까지 같은 도구로 한다.</strong> 지난 연재 10단계에서 <span class="nb">mlx-lm으로</span> 작은 모델을 Mac mini에서 25분 동안 LoRA로 가르쳤다.</li>
+<li><strong>모델을 바꿔 끼우기 쉽다.</strong> 서버 하나에 요청마다 모델 폴더 이름을 적으면, 서버가 그 모델로 바꿔 올린다.</li>
+<li><strong>Apple Silicon Mac에서만 돈다.</strong></li>
+<li><strong>긴 대화에서 메모리가 모자라 멈췄다.</strong> 대화 기억을 쓰는 만큼 늘려 가고, 새 요청을 시작할 때 그 기억을 새 자리로 옮기는 동안 잠깐 두 벌이 된다. 코딩 에이전트 시험에서 6번 <span class="nb">멈췄다(지난</span> 연재 <span class="nb">13단계).</span></li>
+<li><strong>멈춰도 알아채기 어렵다.</strong> 프로세스가 살아 있어서 서비스 관리자가 다시 띄우지 않는다. 답 요청에는 404를 돌려준다.</li>
+</ul>
+<h2 id="ollama">Ollama</h2>
+<p>Ollama는 모델을 이름으로 <span class="nb">내려받고(</span><code>ollama pull</code><span class="nb">),</span> 요청이 오면 올리고, 한동안 쓰지 않으면 내리는 프로그램입니다. OpenAI 형식 API와 함께 Claude 형식 API도 내줘서, Claude Code를 바로 붙일 수도 있습니다. Mac mini에 Homebrew로 <span class="nb">0.40.16을</span> 깔아 써 봤습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>Mac mini</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> brew</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> ollama</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> OLLAMA_CONTEXT_LENGTH=</span><span style="color:var(--astro-code-token-constant)">49152</span><span style="color:var(--astro-code-token-string)"> ollama</span><span style="color:var(--astro-code-token-string)"> serve</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ollama</span><span style="color:var(--astro-code-token-string)"> pull</span><span style="color:var(--astro-code-token-string)"> qwen3.8:27b</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> ollama</span><span style="color:var(--astro-code-token-string)"> ps</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">NAME</span><span style="color:var(--astro-code-token-string)">         PROCESSOR</span><span style="color:var(--astro-code-token-string)">  RUNNER</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">qwen3.8:27b</span><span style="color:var(--astro-code-token-string)">  100%</span><span style="color:var(--astro-code-token-string)"> GPU</span><span style="color:var(--astro-code-token-string)">   mlx</span></span></code></pre></figure>
+<p><code>ollama ps</code>의 출력은 크기, 기억할 글 길이 같은 열을 줄여 옮겼습니다.</p>
+<ul>
+<li><strong>가장 쉽다.</strong> 설치, 모델 받기, 서버 띄우기가 명령 하나씩이다. 모델 목록과 크기, 지금 올라간 모델도 바로 보인다.</li>
+<li><strong>엔진을 모델마다 고른다.</strong> 마지막 <span class="nb">열(RUNNER)이</span> 엔진이다. 같은 Mac mini에서 <span class="nb">Qwen3.8과</span> Gemma 4는 Ollama가 NVFP4라는 4비트 형식으로 내려받아 MLX 엔진으로 돌렸고, 시험용 작은 모델 Qwen3 <span class="nb">0.6B는</span> <span class="nb">llama.cpp</span> 엔진으로 돌렸다.</li>
+<li><strong>기본값을 꼭 확인한다.</strong> GPU 메모리가 24GiB보다 작으면 기억할 글 길이가 <span class="nb">4,096토큰이다.</span> Ollama 문서도 에이전트와 코딩 도구에는 6만 4천 토큰 이상을 권한다. Qwen처럼 <span class="nb">생각(추론)을</span> 하는 모델은 기본으로 생각을 켠다.</li>
+<li><strong>다른 프로그램이 쓰는 GPU 메모리를 모른다.</strong> MLX 서버가 15GB를 쥐고 있는데도 GPU에 22GB가 비어 있다고 봤다. 같은 Mac에서 다른 엔진과 함께 쓰려면 한쪽을 꺼야 한다.</li>
+<li><strong>엔진과 파일 형식이 이름 뒤에 숨는다.</strong> <code><span class="nb">qwen3.8:27b</span></code>라는 이름만 봐서는 NVFP4 형식에 MLX 엔진이라는 것을 알 수 없다. 형식을 고르려면 태그를 골라야 한다.</li>
+</ul>
+<aside class="note" aria-labelledby="note-319t04"><h3 id="note-319t04">코딩 에이전트 시험 결과는 2편에</h3><p>같은 Mac mini에서 Ollama로 코딩 에이전트 시험을 돌렸습니다. Claude Code는 요청마다 <span class="nb">생각(추론)을</span> 켜 달라고 보냅니다. <span class="nb">mlx-lm은</span> 서버 설정으로 생각을 꺼 두어 이 요청과 상관없이 생각하지 않았지만, Ollama는 요청을 따랐습니다. 그래서 생각 요청을 빼고 다시 돌렸습니다. Mac mini 결과는 <a href="/posts/ollama-02-mac-mini/">2편</a>에 썼습니다. Ollama는 24번 내내 멈추지 않았고, <span class="nb">Qwen3.8</span> 27B는 <span class="nb">mlx-lm</span> 때 <span class="nb">3/6에서</span> <span class="nb">6/6이</span> 됐습니다. 노트북 결과는 3편에 씁니다.</p></aside>
+<h2 id="어떻게-고를까">어떻게 고를까</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>이런 경우</th>
+<th>고를 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mac 하나에서 빠르게, 대화가 짧다</td>
+<td>MLX</td>
+</tr>
+<tr>
+<td>여러 기계, 늘 켜 둘 서버, 대화가 길다</td>
+<td>GGUF와 <span class="nb">llama.cpp</span></td>
+</tr>
+<tr>
+<td>처음 시작, 모델을 이것저것 바꿔 본다</td>
+<td>Ollama</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Mac이라면 MLX부터 재 본다.</strong> 같은 모델이면 답 쓰기가 빨랐다. 다만 긴 대화를 오래 이어 갈 서버라면 메모리 여유를 넉넉히 둔다.</li>
+<li><strong>메모리가 빠듯하면 <span class="nb">llama.cpp가</span> 다루기 쉽다.</strong> 쓸 자리를 처음에 정해 두니, 모자라면 대개 일찍 드러난다.</li>
+<li><strong>Ollama는 기본값만 바꾸면 처음 쓰기에 가장 편하다.</strong> 기억할 글 길이와 생각 설정을 먼저 확인한다.</li>
+</ul>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>셋은 고르는 대상이 아니라 층이다.</strong> GGUF와 MLX는 형식과 엔진이고, Ollama는 그 엔진들을 감싼 프로그램이다.</li>
+<li><strong>같은 모델도 엔진에 따라 속도가 다르다.</strong> Mac mini에서 MLX가 <span class="nb">llama.cpp보다</span> 답 쓰기가 최대 <span class="nb">50%</span> 빨랐다.</li>
+<li><strong>메모리를 잡는 방식이 안정성을 가른다.</strong> <span class="nb">llama.cpp는</span> 처음에 잡고, MLX는 쓰는 만큼 늘린다. 긴 대화에서 차이가 드러났다.</li>
+<li><strong>편한 도구일수록 기본값을 확인한다.</strong> Ollama는 작은 GPU에서 기억할 글 길이를 4천 토큰으로 두고, 생각을 켜 둔다.</li>
+</ul></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-02-mac-mini/" class="pager__next"><small>다음 글</small><strong>2편 Mac mini에서 Ollama로 코딩 맡기기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#셋은-층이-다르다">셋은 층이 다르다</a></li><li><a href="#gguf와-llamacpp">GGUF와 <span class="nb">llama.cpp</span></a></li><li><a href="#mlx">MLX</a></li><li><a href="#ollama">Ollama</a></li><li><a href="#어떻게-고를까">어떻게 고를까</a></li><li><a href="#알게-된-것">알게 된 것</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

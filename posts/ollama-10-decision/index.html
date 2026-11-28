@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>바꿀까, 말까 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 10편. Mac mini에서 같은 Qwen3.8 27B로 하루 쓰기를 MLX 서버와 Ollama에 똑같이 시켰습니다. 문서 질문은 Ollama가 평균 26.4초로 MLX 서버(33.7초)보다 빨랐지만, 메모리를 25GiB까지 써서 스왑이 1.3GiB에서 10.5GiB까지 늘었습니다. 앞 편의 결과와 함께 놓고, 늘 켜 둘 엔진을 Ollama로 바꿨습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-10-decision/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="바꿀까, 말까 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 10편. Mac mini에서 같은 Qwen3.8 27B로 하루 쓰기를 MLX 서버와 Ollama에 똑같이 시켰습니다. 문서 질문은 Ollama가 평균 26.4초로 MLX 서버(33.7초)보다 빨랐지만, 메모리를 25GiB까지 써서 스왑이 1.3GiB에서 10.5GiB까지 늘었습니다. 앞 편의 결과와 함께 놓고, 늘 켜 둘 엔진을 Ollama로 바꿨습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-10-decision/"><meta property="article:published_time" content="2026-11-23T01:06:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"바꿀까, 말까","description":"Ollama로 다시 돌려 보기 10편. Mac mini에서 같은 Qwen3.8 27B로 하루 쓰기를 MLX 서버와 Ollama에 똑같이 시켰습니다. 문서 질문은 Ollama가 평균 26.4초로 MLX 서버(33.7초)보다 빨랐지만, 메모리를 25GiB까지 써서 스왑이 1.3GiB에서 10.5GiB까지 늘었습니다. 앞 편의 결과와 함께 놓고, 늘 켜 둘 엔진을 Ollama로 바꿨습니다.","datePublished":"2026-11-23T01:06:00.000Z","dateModified":"2026-11-23T01:06:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-10-decision/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-10-decision/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>10편</li></ol></nav><h1 id="post-title">바꿀까, 말까</h1><p class="post__lead">아홉 편에 걸쳐 지난 연재의 일을 Ollama로 다시 해 봤습니다. 마지막으로 하루 동안 할 법한 일을 두 엔진에 똑같이 시키고, 앞 편의 결과와 함께 놓고 Mac mini에 늘 켜 둘 엔진을 정했습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-23"><span class="nb">2026-11-23</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>하루 쓰기를 두 엔진에 똑같이 시킨다.</strong> 짧은 대화, 문서를 붙인 질문, 긴 글 요약을 차례로 보내고 메모리를 본다.</li>
+<li><strong>게이트웨이를 거쳐도 생각을 끌 수 있는지 본다.</strong> 8편에서 미뤄 둔 것이다.</li>
+<li><strong>앞 편의 결과와 함께 놓고 정한다.</strong> 정한 대로 Mac mini를 바꾼다.</li>
+</ol>
+<h2 id="시험-방법">시험 방법</h2>
+<p>Mac <span class="nb">mini(24GB)에서</span> 했습니다. 두 엔진 모두 <span class="nb">Qwen3.8</span> 27B를 쓰되, 각자 늘 쓰던 그대로 띄웠습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>MLX 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프로그램</td>
+<td><span class="nb">mlx-lm</span></td>
+<td>Ollama <span class="nb">0.40.16</span></td>
+</tr>
+<tr>
+<td>압축</td>
+<td>4비트</td>
+<td>NVFP4 중심</td>
+</tr>
+<tr>
+<td>설정</td>
+<td>지난 연재 데몬</td>
+<td>7편 서비스</td>
+</tr>
+<tr>
+<td>생각 끄기</td>
+<td>시작 옵션</td>
+<td>요청마다</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ollama에는 요청마다 <code><span class="nb">reasoning_effort:</span> none</code>을 실어 생각을 껐습니다. 두 파일은 압축 방식이 다릅니다. MLX 서버는 지난 연재부터 쓰던 <span class="nb">mlx-community의</span> 4비트 파일이고, Ollama가 Mac에 내려주는 <code><span class="nb">qwen3.8:27b</span></code>는 NVFP4 중심의 MLX 형식입니다. Ollama 쪽은 모델에 붙은 MTP 머리로 초안을 <span class="nb">씁니다(5편).</span> MLX 서버는 지난 연재 데몬과 같은 옵션으로 띄우되, 포트만 8090으로 바꿔 손으로 띄웠습니다. 그동안 Ollama는 켜 둔 채 모델만 내렸습니다.</p>
+<p>두 엔진에 OpenAI 형식 API로 같은 요청을 같은 순서로 보냈습니다. 온도는 0입니다.</p>
+<ol>
+<li><strong>첫 답:</strong> Ollama는 모델을 내린 상태에서, MLX 서버는 막 띄운 뒤에 짧은 인사.</li>
+<li><strong>짧은 대화 5개:</strong> 200토큰까지, 스트리밍으로 받아 첫 글자까지 시간을 잰다.</li>
+<li><strong>문서 질문 20개:</strong> 지난 연재 10단계의 질문에, 웹 UI가 고르는 조각 3개와 지시문을 붙인다. 400토큰까지.</li>
+<li><strong>긴 글 요약 6번:</strong> 연재 글을 <span class="nb">9,000자씩</span> 잘라 세 문장으로 요약하게 한다. 7편과 같은 방식이다.</li>
+<li><strong>짧은 질문 3개.</strong></li>
+</ol>
+<p>단계마다 엔진 프로세스의 <span class="nb">메모리(top),</span> 스왑, 남은 메모리를 적었습니다. top이 보여 주는 G는 GiB입니다.</p>
+<h2 id="하루-쓰기">하루 쓰기</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>일</th>
+<th>MLX 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>첫 답</td>
+<td><span class="nb">5.4초</span></td>
+<td><span class="nb">11.7초</span></td>
+</tr>
+<tr>
+<td>짧은 대화, 첫 글자</td>
+<td><span class="nb">1.0초</span></td>
+<td><span class="nb">0.8초</span></td>
+</tr>
+<tr>
+<td>문서 질문, 맞힘</td>
+<td><span class="nb">17/18</span></td>
+<td><span class="nb">17/18</span></td>
+</tr>
+<tr>
+<td>문서 질문 20개, 평균</td>
+<td><span class="nb">33.7초</span></td>
+<td><span class="nb">26.4초</span></td>
+</tr>
+<tr>
+<td>긴 글 요약 6번</td>
+<td><span class="nb">89~106초</span></td>
+<td><span class="nb">91~108초</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>첫 답은 MLX 서버가 빨랐다.</strong> 서버가 답하기 시작한 뒤 <span class="nb">5.4초,</span> 띄운 때부터는 9초쯤이었다. Ollama는 내려 둔 모델을 올리며 <span class="nb">11.7초</span> 만에 답했다. 늘 켜 둔 MLX 서버는 재부팅 뒤에만 이 시간이 들고, 30분 쉬면 내리는 Ollama는 쉴 때마다 든다.</li>
+<li><strong>문서 질문은 Ollama가 빨랐다.</strong> 답을 평균 98토큰 쓰고도 <span class="nb">26.4초에</span> 끝냈다. MLX 서버는 79토큰에 <span class="nb">33.7초였다.</span> 답 길이가 비슷한 문항끼리 견줘도 <span class="nb">5~7초</span> 빨라서, 차이는 대부분 질문을 읽는 쪽에서 났다. 질문마다 같은 지시문이 앞에 붙으니 Ollama가 앞서 읽은 부분을 다시 쓴 것으로 보이지만, 확인하지는 못했다. 답을 쓰는 속도도 Ollama가 빨랐다. 5편에서 본 대로 Mac용 기본 태그가 초안을 쓴다.</li>
+<li><strong>글을 많이 읽는 일은 비슷했다.</strong> <span class="nb">4,500~5,000토큰</span> 안팎을 읽는 긴 요약은 두 엔진 모두 1분 반에서 2분 가까이 걸렸다. 6번 중 5번은 MLX 서버가 <span class="nb">2~6초</span> 빨랐다.</li>
+<li><strong>맞힌 수도 같았다.</strong> 두 엔진 모두 글에 없는 2개는 없다고 답했다. 놓친 하나는 9편과 같은 2단계의 기억할 글 길이 질문이다. 자료에 나와 있지 않다고 하면서 <span class="nb">16,384를</span> 함께 적어, 10단계처럼 틀린 것으로 셌다. 숫자만 보는 기계 채점으로는 둘 다 <span class="nb">18/18이다.</span></li>
+</ul>
+<h2 id="메모리">메모리</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>MLX 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>엔진 메모리</td>
+<td><span class="nb">15→17GiB</span></td>
+<td><span class="nb">17→25GiB</span></td>
+</tr>
+<tr>
+<td><span class="nb">스왑(GiB),</span> <span class="nb">전→최대</span></td>
+<td><span class="nb">1.4→1.4</span></td>
+<td><span class="nb">1.3→10.5</span></td>
+</tr>
+<tr>
+<td>남은 메모리, 가장 적게</td>
+<td><span class="nb">20%</span></td>
+<td><span class="nb">10%</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>MLX 서버는 하루 쓰기 내내 <span class="nb">15~17GiB에</span> 머물렀고, 스왑을 늘리지 않았습니다. 지난 연재에서 저장해 두는 캐시를 1GB로 묶으려 한 서버입니다. 13단계에서 본 대로 이 한도는 저장할 때는 걸리지 않아, 이번에도 캐시가 <span class="nb">2.42GB까지</span> 찼습니다. 긴 코딩 대화에서는 메모리가 모자라 멈췄고, 그 가운데 다섯 번은 새 요청을 시작하며 대화 기억이 잠깐 두 벌이 되는 <span class="nb">순간이었습니다(13단계).</span></p>
+<p>Ollama는 짧은 대화부터 늘기 시작해, 13번째 문서 질문에서 25GiB에 이른 뒤로는 더 늘지 않았습니다. 7편에서 본 대로 Ollama의 MLX 엔진은 지난 대화를 8GiB까지 남겨 둡니다. 모델 <span class="nb">17GiB(Ollama는</span> 18GB로 <span class="nb">보고합니다)에</span> 8GiB를 더하면 25GiB로, 이번에 멈춘 크기와 맞습니다. 그동안 스왑은 <span class="nb">1.3GiB에서</span> <span class="nb">10.5GiB까지</span> 늘었습니다. 스왑이 늘어난 뒤에도 긴 요약의 시간은 MLX 서버와 비슷했습니다.</p>
+<h2 id="게이트웨이를-거쳐도-생각을-끌-수-있다">게이트웨이를 거쳐도 생각을 끌 수 있다</h2>
+<p>8편에서 웹 UI를 Ollama에 바로 붙이면 게이트웨이의 사람별 사용량 기록이 빠진다고 적었습니다. 게이트웨이를 거칠 때 남는 걱정은 생각 끄기였습니다. Ollama는 <span class="nb">Qwen3.8의</span> 생각을 기본으로 켜고, 웹 UI는 Ollama 연결로 물을 때 생각에 대해 아무 값도 보내지 <span class="nb">않았습니다(8편).</span></p>
+<p>Ollama의 OpenAI 형식 API는 <code><span class="nb">reasoning_effort</span></code>가 <code>none</code>이면 생각을 <span class="nb">끕니다(</span><code><span class="nb">openai/openai.go</span></code>의 <code>ThinkingFromReasoningEffort</code><span class="nb">).</span> 게이트웨이 LiteLLM이 이 값을 넘기는지, 실제 게이트웨이와 같은 LiteLLM <span class="nb">설정(</span><code><span class="nb">drop_params</span></code><span class="nb">)으로</span> 시험용 게이트웨이를 하나 더 띄워 물었습니다. 질문은 <span class="nb">「한</span> 문장으로 답해 주세요. 하늘은 왜 <span class="nb">파란가요?」입니다.</span></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>요청</th>
+<th>생각</th>
+<th>걸린 시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ollama에 바로, 값 없음</td>
+<td>471자</td>
+<td><span class="nb">12.2초</span></td>
+</tr>
+<tr>
+<td>Ollama에 바로, <code>none</code></td>
+<td>없음</td>
+<td><span class="nb">2.9초</span></td>
+</tr>
+<tr>
+<td>게이트웨이, 값 없음</td>
+<td>471자</td>
+<td><span class="nb">11.0초</span></td>
+</tr>
+<tr>
+<td>게이트웨이, 묻는 쪽이 <code>none</code></td>
+<td>없음</td>
+<td><span class="nb">2.8초</span></td>
+</tr>
+<tr>
+<td>게이트웨이 항목에 <code>none</code></td>
+<td>없음</td>
+<td><span class="nb">2.5초</span></td>
+</tr>
+<tr>
+<td>항목에 <code>none</code>, 묻는 쪽이 <code>high</code></td>
+<td>471자</td>
+<td><span class="nb">10.8초</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>게이트웨이는 <code><span class="nb">reasoning_effort</span></code>를 그대로 넘긴다.</strong> 백엔드가 받지 않는 값을 버리게 해 둔 <span class="nb">설정(</span><code><span class="nb">drop_params</span></code><span class="nb">)에서도</span> 이 값은 버리지 않았다.</li>
+<li><strong>게이트웨이의 모델 항목에 넣어 두면 기본으로 꺼진다.</strong> 웹 UI처럼 아무 값도 보내지 않는 프로그램도 생각 없이 답을 받는다.</li>
+<li><strong>묻는 쪽이 원하면 다시 켤 수 있다.</strong> 묻는 쪽이 보낸 <code><span class="nb">reasoning_effort</span></code>가 항목의 값보다 앞섰다. Claude Code의 생각 요청으로는 이번에 시험하지 않았다.</li>
+</ul>
+<h2 id="앞-편과-함께-놓고">앞 편과 함께 놓고</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>견준 것</th>
+<th>MLX 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코딩 과제 24번</td>
+<td>4번 멈춤</td>
+<td>멈춤 없음</td>
+</tr>
+<tr>
+<td>답 쓰기</td>
+<td>느림</td>
+<td><span class="nb">빠름(초안)</span></td>
+</tr>
+<tr>
+<td>메모리</td>
+<td>17GiB 안팎</td>
+<td>25GiB까지</td>
+</tr>
+<tr>
+<td>모델 받기</td>
+<td>파일과 지문</td>
+<td><code>ollama pull</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>코딩 과제는 같은 Mac mini에서 같은 모델 네 개로 돌린 2편의 결과입니다. MLX 서버는 메모리가 모자라 멈췄습니다. 네 모델 가운데 둘은 Ollama에서 <span class="nb">llama.cpp</span> 엔진으로 돌았고, 늘 켜 둘 <span class="nb">Qwen3.8만</span> 보면 MLX 서버가 6번 중 1번, Ollama가 6번 중 0번 멈췄습니다. 메모리는 이번 하루 쓰기의 값이고, 2편의 코딩 과제에서 Ollama의 <span class="nb">Qwen3.8은</span> 28GB까지 갔습니다. 모델 받기는 지난 연재 11단계와 8편에서 가져왔습니다.</p>
+<p>MLX 서버의 문제는 멈추는 것이었습니다. 멈추면 프로세스가 살아 있어서 launchd가 다시 띄우지 않고, 모든 요청에 404를 돌려줍니다. 이를 잡는 감시는 지난 연재에서 시험용으로만 만들었습니다. Ollama의 문제는 메모리였습니다. 멈추지는 않았지만 스왑이 <span class="nb">1.3GiB에서</span> <span class="nb">10.5GiB까지</span> 늘었습니다. 모델을 내리면 이것이 비워집니다. 이번에도 Ollama의 모델을 내리자 스왑이 <span class="nb">7.1GiB에서</span> <span class="nb">1.4GiB로</span> 줄었습니다. 다만 Ollama도 살아 있는 채 멈춘 실행기는 알아채지 <span class="nb">못하고(7편),</span> 그런 감시는 아직 없습니다.</p>
+<h2 id="정한-것">정한 것</h2>
+<p>Mac mini에 늘 켜 둘 엔진을 Ollama로 바꿨습니다.</p>
+<ul>
+<li><strong>게이트웨이 뒤에 둔다.</strong> 웹 UI와 프로그램은 지금처럼 게이트웨이에 묻고, 게이트웨이가 Ollama에 넘긴다. API 키, 한도, 사람별 사용량 기록이 그대로 남는다.</li>
+<li><strong>생각은 게이트웨이 항목에서 끈다.</strong> 생각을 원하는 쪽은 <code><span class="nb">reasoning_effort</span></code>를 실어 보내면 켤 수 있다.</li>
+<li><strong>30분 쉬면 모델을 내린다.</strong> 쌓인 지난 대화가 그때 비워진다. 쉬지 않고 쓰는 동안에는 그대로다. 내린 뒤 첫 답은 12초쯤 걸린다. 7편에서 미뤄 둔 선택이다. 바꾼 뒤 마지막 <span class="nb">요청(09:52:54)에서</span> 꼭 30분 뒤인 <span class="nb">10:22:54에</span> Qwen이 내려갔고, 남은 메모리가 <span class="nb">92%가</span> 됐다.</li>
+<li><strong>임베딩은 <span class="nb">llama.cpp</span> 서버 그대로 둔다.</strong> 9편에서 본 대로, 모델 하나만 올리는 Ollama에 임베딩까지 맡기면 질문마다 Qwen이 내려간다.</li>
+<li><strong>노트북은 바꾸지 않았다.</strong> 노트북의 <span class="nb">llama-server는</span> 그대로다.</li>
+</ul>
+<p>게이트웨이의 Qwen 항목은 모델 이름과 주소 두 줄이 바뀌고, 생각 끄기 한 줄이 늘었습니다. <code>auto</code>와 코딩 에이전트용 <code><span class="nb">agent-qwen3.8-27b</span></code> 항목도 같은 식으로 Ollama로 돌렸습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, ~/llm-service/gateway-config.yaml, Qwen 항목</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> qwen3.8-27b</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> openai/qwen3.8:27b</span><span style="color:var(--astro-code-token-comment)">                # 전: openai/default_model</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> http://127.0.0.1:11434/v1</span><span style="color:var(--astro-code-token-comment)">      # 전: http://127.0.0.1:8080/v1 (MLX 서버)</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> none</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      reasoning_effort</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> none</span><span style="color:var(--astro-code-token-comment)">                   # 새로 넣음</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      additional_drop_params</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-foreground)"> [</span><span style="color:var(--astro-code-token-string)">extra_body</span><span style="color:var(--astro-code-foreground)">]</span></span></code></pre></figure>
+<p>Ollama 서비스 <span class="nb">스크립트(7편)에서는</span> 세 가지를 바꿨습니다. 모델을 내리지 않던 <code><span class="nb">OLLAMA_KEEP_ALIVE=-1</span></code>을 <code>30m</code>으로 바꿨고, 시작할 때 모델을 미리 올리는 요청에서 <code><span class="nb">keep_alive:</span> <span class="nb">-1</span></code>을 뺐고, GPU 메모리 <span class="nb">한도(22GiB)가</span> 잡힐 때까지 기다리게 했습니다. Ollama는 시작할 때 본 GPU 메모리로 모델 크기를 <span class="nb">가늠하므로(</span><code><span class="nb">discover/runner.go</span></code><span class="nb">),</span> 재부팅 직후 한도가 늘기 전에 뜨면 안 되기 때문입니다. 지난 연재의 MLX 서버도 같은 이유로 기다렸습니다. 함께 올릴 모델 수는 1 그대로입니다.</p>
+<p>바꾼 뒤 웹 UI의 API로 <span class="nb">Qwen3.8에게</span> 두 번 물었습니다. 웹 UI, 게이트웨이, Ollama를 거쳐 Ollama 기록으로 <span class="nb">4.8초와</span> <span class="nb">2.7초에</span> 답했고, 생각은 없었습니다. MLX 서버 데몬은 재부팅 때 다시 뜨지 않도록 뺐습니다. GPU 메모리 한도를 정하는 데몬은 Ollama가 기다리므로 남겼습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>같은 <span class="nb">Qwen3.8도</span> 문서 질문은 Ollama가 빨리 답했다.</strong> 평균 <span class="nb">33.7초가</span> <span class="nb">26.4초가</span> 됐다. 답 쓰기는 초안 덕에 빨랐고, 차이의 더 큰 몫은 같은 지시문을 다시 읽지 않은 데서 난 것으로 보인다. 글을 많이 읽는 일은 비슷했다.</li>
+<li><strong>대신 Ollama는 메모리를 더 쓴다.</strong> 지난 대화를 8GiB까지 남겨 두어, 24GB Mac mini에서 스왑이 <span class="nb">1.3GiB에서</span> <span class="nb">10.5GiB까지</span> 늘었다. 쉬면 내리게 해서 쌓인 것을 비운다. 쓰는 동안에는 그대로다.</li>
+<li><strong>게이트웨이를 거쳐도 생각을 끌 수 있다.</strong> 모델 항목에 <code><span class="nb">reasoning_effort:</span> none</code>을 넣으면 된다. 그래서 웹 UI를 Ollama에 바로 붙이지 않고 게이트웨이 뒤에 두었다.</li>
+<li><strong>엔진을 고르는 기준은 멈추느냐였다.</strong> 메모리는 쉬는 동안 비우게 할 수 있었지만, 긴 대화에서 메모리가 모자라 멈출 수 있는 MLX 서버는 감시 장치 없이 늘 켜 두기 어려웠다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<h3 id="11월-22일">11월 22일</h3>
+<ol class="trail" aria-label="작업 기록, 2026-11-22"><li><time class="measured" datetime="2026-11-22T23:33+09:00"><span class="nb">23:33</span></time><span class="trail__what">시험용 게이트웨이로 생각 끄기 확인</span><code class="trail__got">항목에 none이면 꺼짐</code></li><li><time class="measured" datetime="2026-11-22T23:34+09:00"><span class="nb">23:34</span></time><span class="trail__what">Ollama에 첫 인사</span><code class="trail__got"><span class="nb">11.7초</span></code></li><li><time class="measured" datetime="2026-11-22T23:44+09:00"><span class="nb">23:44</span></time><span class="trail__what">Ollama에 문서 질문 20개</span><code class="trail__got"><span class="nb">17/18,</span> 평균 <span class="nb">26.4초</span></code></li><li><time class="measured" datetime="2026-11-22T23:45+09:00"><span class="nb">23:45</span></time><span class="trail__what">Ollama 첫 긴 글 요약 뒤</span><code class="trail__got">엔진 25GiB, 스왑 <span class="nb">10.5GiB</span></code></li><li><time class="measured" datetime="2026-11-22T23:54+09:00"><span class="nb">23:54</span></time><span class="trail__what">MLX 서버를 8090번에 띄움</span><code class="trail__got">2초 만에 응답</code></li></ol>
+<h3 id="11월-23일">11월 23일</h3>
+<ol class="trail" aria-label="작업 기록, 2026-11-23"><li><time class="measured" datetime="2026-11-23T00:06+09:00"><span class="nb">00:06</span></time><span class="trail__what">MLX 서버에 문서 질문 20개</span><code class="trail__got"><span class="nb">17/18,</span> 평균 <span class="nb">33.7초</span></code></li><li><time class="measured" datetime="2026-11-23T00:16+09:00"><span class="nb">00:16</span></time><span class="trail__what">MLX 서버에 긴 글 요약</span><code class="trail__got">엔진 17GiB, 스왑 <span class="nb">1.4GiB</span></code></li><li><time class="measured" datetime="2026-11-23T09:52+09:00"><span class="nb">09:52</span></time><span class="trail__what">Ollama 서비스를 30분 쉬면 내리게</span><code class="trail__got">29분 뒤 내림으로 표시</code></li><li><time class="measured" datetime="2026-11-23T09:52+09:00"><span class="nb">09:52</span></time><span class="trail__what">게이트웨이의 Qwen을 Ollama로</span><code class="trail__got">다시 뜸</code></li><li><time class="measured" datetime="2026-11-23T09:52+09:00"><span class="nb">09:52</span></time><span class="trail__what">웹 UI에서 <span class="nb">Qwen3.8에게</span> 질문</span><code class="trail__got"><span class="nb">4.8초,</span> 생각 없음</code></li><li><time class="measured" datetime="2026-11-23T10:22+09:00"><span class="nb">10:22</span></time><span class="trail__what">30분 동안 요청 없음</span><code class="trail__got">Qwen 내려감, 남은 메모리 <span class="nb">92%</span></code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#하루-쓰기">하루 쓰기</a></li><li><a href="#메모리">메모리</a></li><li><a href="#게이트웨이를-거쳐도-생각을-끌-수-있다">게이트웨이를 거쳐도 생각을 끌 수 있다</a></li><li><a href="#앞-편과-함께-놓고">앞 편과 함께 놓고</a></li><li><a href="#정한-것">정한 것</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

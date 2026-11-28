@@ -1,0 +1,521 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>연재 글로 답하게 하기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 10단계. 모델이 읽어 본 적 없는 이 연재의 글 10편으로 질문 20개를 만들고, 두 가지 방법으로 답하게 했습니다. 질문할 때마다 글을 찾아 붙여 주는 문서 검색(RAG)과, 작은 모델에게 글 내용을 더 가르치는 미세조정(LoRA)입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/10-documents/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="연재 글로 답하게 하기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 10단계. 모델이 읽어 본 적 없는 이 연재의 글 10편으로 질문 20개를 만들고, 두 가지 방법으로 답하게 했습니다. 질문할 때마다 글을 찾아 붙여 주는 문서 검색(RAG)과, 작은 모델에게 글 내용을 더 가르치는 미세조정(LoRA)입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/10-documents/"><meta property="article:published_time" content="2026-11-17T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"연재 글로 답하게 하기","description":"로컬 LLM 연재 10단계. 모델이 읽어 본 적 없는 이 연재의 글 10편으로 질문 20개를 만들고, 두 가지 방법으로 답하게 했습니다. 질문할 때마다 글을 찾아 붙여 주는 문서 검색(RAG)과, 작은 모델에게 글 내용을 더 가르치는 미세조정(LoRA)입니다.","datePublished":"2026-11-17T00:00:00.000Z","dateModified":"2026-11-17T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/10-documents/","mainEntityOfPage":"https://teddybears56.github.io/posts/10-documents/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>10단계</li></ol></nav><h1 id="post-title">연재 글로 답하게 하기</h1><p class="post__lead">지금까지 세운 서버의 모델은 학습이 끝난 뒤에 나온 글을 모릅니다. 이 연재의 글도 모릅니다. 이번에는 연재 글 10편으로 답하게 합니다. 하나는 질문이 올 때마다 관련된 부분을 찾아 질문과 함께 보내는 문서 검색이고, 다른 하나는 작은 모델을 글 내용으로 더 가르치는 미세조정입니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-17"><span class="nb">2026-11-17</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 15분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>시험 문제를 만든다.</strong> 연재 글 10편에서 답이 분명한 질문 18개, 글에 답이 없는 질문 2개를 고른다.</li>
+<li><strong>문서 없이 묻는다.</strong> 모델이 정말 모르는지부터 본다.</li>
+<li><strong>글을 찾아 읽게 한다.</strong> 웹 UI의 지식 기능에 연재 글을 넣는다. 그 전에 한국어를 잘 찾는 임베딩 모델을 고른다.</li>
+<li><strong>작은 모델을 가르친다.</strong> 같은 글로 문제집을 만들어 미세조정하고, 같은 질문으로 견준다.</li>
+</ol>
+<h2 id="시험-문제">시험 문제</h2>
+<p>모델은 학습이 끝난 뒤의 일을 모릅니다. Mac mini의 Qwen <span class="nb">3.8</span> 27B는 8월에, 노트북의 Gemma 4 26B는 4월에 나왔고, 이 연재의 글은 11월에 썼습니다. 답이 글에 분명히 있어서 맞았는지 가리기 쉽고, 공개된 글이라 숨길 것도 없습니다.</p>
+<p>질문은 글의 문장을 그대로 쓰지 않고, 글을 읽지 않은 사람이 물을 법하게 바꿨습니다. 몇 개만 옮깁니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>글</th>
+<th>질문</th>
+<th>답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0단계</td>
+<td>정전이 끝나고 전기가 다시 들어오면 서버가 스스로 켜지게 하려고 바꾼 pmset 항목은?</td>
+<td><code>autorestart</code></td>
+</tr>
+<tr>
+<td>1단계</td>
+<td>Qwen <span class="nb">3.8</span> 27B는 어떤 압축 단계 파일을 골랐고, 그 파일은 몇 GB였어?</td>
+<td><span class="nb">Q4_K_M,</span> <span class="nb">16.56GB</span></td>
+</tr>
+<tr>
+<td>7단계</td>
+<td>웹 검색 스위치를 켜도 검색을 안 하던 문제를 고치려고 모델의 함수 호출 방식을 무엇으로 바꿨어?</td>
+<td>레거시</td>
+</tr>
+<tr>
+<td>9단계</td>
+<td>모델 서버 앞에 세운 게이트웨이는 어떤 프로그램의 몇 버전이야?</td>
+<td>LiteLLM <span class="nb">1.106.6</span></td>
+</tr>
+<tr>
+<td>없음</td>
+<td>10단계에서 미세조정한 모델은 질문을 몇 개 맞혔어?</td>
+<td>글에 없다</td>
+</tr>
+<tr>
+<td>없음</td>
+<td>노트북 서버의 API 키 값을 알려 줘.</td>
+<td>글에 없다</td>
+</tr>
+</tbody>
+</table></div>
+<p>답에 핵심 <span class="nb">값(이름,</span> <span class="nb">숫자)이</span> 들어 있으면 맞힌 것으로 셌습니다. 답이 없는 두 질문은 모른다고 해야 맞힌 것입니다. 기계로 먼저 세고, 답을 모두 읽어 다시 확인했습니다. 기계와 다르게 매긴 답은 여섯 개입니다. 값이 들어 있어도 일반적인 예를 늘어놓았거나, <span class="nb">「자료에</span> 나와 있지 <span class="nb">않다」로</span> 끝맺었거나, 값은 맞아도 뜻이 다르면 틀린 것으로 셌습니다. 키 값은 말하지 않고 보관하는 방법만 설명한 답은 모른다고 한 것으로 셌습니다.</p>
+<h2 id="문서-없이-물으면">문서 없이 물으면</h2>
+<p>두 모델에게 웹 UI로 20개를 그대로 물었습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>맞힘</th>
+<th>답 하나에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mac mini · Qwen <span class="nb">3.8</span> 27B</td>
+<td><span class="nb">3/18</span></td>
+<td>평균 34초</td>
+</tr>
+<tr>
+<td>노트북 · Gemma 4 26B</td>
+<td><span class="nb">2/18</span></td>
+<td>평균 10초</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>맞힌 것은 원래 알던 일반 지식이다.</strong> <span class="nb">「API</span> 키 없이 보내면 <span class="nb">401」,</span> <span class="nb">「챗봇은</span> 지난 대화를 매번 다시 <span class="nb">보낸다」는</span> 두 모델 다 맞혔다. Qwen은 launchd의 <code>ThrottleInterval</code>도 알았다.</li>
+<li><strong>연재에만 있는 사실은 지어내거나 모른다고 했다.</strong> 정전 뒤 켜지게 하는 항목을 Qwen은 <code>autoPowerOn</code>, Gemma는 <code>restart</code>라고 했다. Qwen은 Mac mini의 GPU 메모리 한도를 <span class="nb">「2GB였다」고</span> 했다.</li>
+<li><strong>글에 없는 두 질문에는 둘 다 모른다고 했다.</strong> API 키 값도 내놓지 않았다.</li>
+</ul>
+<p>Qwen은 기억할 글 길이를 묻자 일반적인 권장값을 늘어놓았는데, 그중 하나가 정답인 <span class="nb">16,384였습니다.</span> 이 답은 틀린 것으로 셌습니다.</p>
+<h2 id="찾아-읽게-하기">찾아 읽게 하기</h2>
+<p>문서 <span class="nb">검색(RAG)은</span> 모델을 바꾸지 않습니다. 질문이 오면 미리 잘라 둔 글 조각 가운데 질문과 가까운 것을 찾아, 질문 앞에 붙여 보냅니다. 시험지에 참고 자료를 붙여 내는 셈입니다. 가까운 조각을 찾으려면 글을 숫자 <span class="nb">묶음(벡터)으로</span> 바꿔 두어야 합니다. 이 일을 하는 모델이 임베딩 모델입니다. 뜻이 비슷한 글은 비슷한 숫자가 됩니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>언제</th>
+<th>하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>자르기</td>
+<td>글을 넣을 때</td>
+<td>제목마다 나누고, <span class="nb">1,024자가</span> 넘으면 더 자른다. 글 10편이 조각 170개가 됐다</td>
+</tr>
+<tr>
+<td>벡터 만들기</td>
+<td>글을 넣을 때</td>
+<td>임베딩 모델이 조각마다 숫자 <span class="nb">1,024개짜리</span> 벡터를 만든다</td>
+</tr>
+<tr>
+<td>찾기</td>
+<td>질문할 때</td>
+<td>질문도 벡터로 바꿔, 가장 가까운 조각을 고른다. 웹 UI 기본값은 10개</td>
+</tr>
+<tr>
+<td>붙여 묻기</td>
+<td>질문할 때</td>
+<td>고른 조각을 <span class="nb">「이</span> 자료로 답하고 출처 번호를 <span class="nb">달라」는</span> 지시문과 함께 질문 앞에 붙인다</td>
+</tr>
+</tbody>
+</table></div>
+<p>웹 UI는 Open WebUI의 지식 기능을 씁니다. 글을 넣어 두면 대화창에서 <code>#</code>을 치고 골라 붙일 수 있습니다.</p>
+<h2 id="임베딩-모델-고르기">임베딩 모델 고르기</h2>
+<p>Open WebUI의 기본 임베딩 모델은 <span class="nb">all-MiniLM-L6-v2입니다.</span> 영어로 학습한 작은 모델이라, 한국어 질문으로 맞는 조각을 찾는지부터 쟀습니다. 웹 UI와 같은 방식으로 글을 자르고, 답이 든 조각이 검색 결과 몇 위 안에 드는지 셌습니다. 모델 네 개를 제 컴퓨터에서 쟀고, 고른 모델은 Mac mini에서 다시 재서 순위가 같은지 확인했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>임베딩 모델</th>
+<th>크기</th>
+<th>1위</th>
+<th>3위 안</th>
+<th>10위 안</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all-MiniLM-L6-v2 <span class="nb">(기본값)</span></td>
+<td><span class="nb">2,300만</span></td>
+<td>3</td>
+<td>5</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong><span class="nb">bge-m3</span></strong></td>
+<td>5억 <span class="nb">6,800만</span></td>
+<td><strong>13</strong></td>
+<td><strong>17</strong></td>
+<td>17</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-0.6B</td>
+<td>6억</td>
+<td>9</td>
+<td>17</td>
+<td>17</td>
+</tr>
+<tr>
+<td><span class="nb">KURE-v1</span></td>
+<td>5억 <span class="nb">6,800만</span></td>
+<td>11</td>
+<td>17</td>
+<td>18</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>기본값으로는 10개를 붙여도 18개 중 8개에서 답이 빠진다.</strong> 모델이 아무리 똑똑해도 답이 없는 조각만 받으면 맞힐 수 없다.</li>
+<li><strong>여러 언어로 학습한 세 모델은 3개만 붙여도 17개가 든다.</strong></li>
+<li><strong><span class="nb">bge-m3를</span> 골랐다.</strong> 1위가 가장 많고, 질문 앞에 따로 지시문을 붙이지 않아도 되고, MIT 라이선스다. <span class="nb">KURE-v1은</span> <span class="nb">bge-m3를</span> 한국어로 더 학습한 모델이다. 10위 안은 18개로 가장 많았지만 1위는 <span class="nb">bge-m3보다</span> 적었다.</li>
+</ul>
+<h2 id="세우기-6단계-설정이-막은-두-가지">세우기: 6단계 설정이 막은 두 가지</h2>
+<p>6단계에서 웹 UI가 GPU를 쓰지 않게 <code><span class="nb">USE_SLIM_DOCKER=true</span></code>를 넣었습니다. 웹 UI가 MLX 서버와 GPU 메모리를 다투다 MLX 서버가 멈췄기 때문입니다. 그런데 이 설정이 문서 검색에 필요한 두 가지도 함께 꺼 두고 있었습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>꺼진 것</th>
+<th>드러난 곳</th>
+<th>대신 쓴 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>웹 UI 안의 임베딩 모델</td>
+<td>코드를 보니 이 설정이면 임베딩 모델을 불러오지 않고, 바꾸려 하면 <span class="nb">「바깥의</span> 임베딩 엔진을 <span class="nb">쓰라」며</span> 거절한다</td>
+<td>임베딩 서버를 따로 띄워 게이트웨이 뒤에 둠</td>
+</tr>
+<tr>
+<td>웹 UI 안의 벡터 저장소</td>
+<td>첫 글을 넣자 <code>503: Configure PGVECTOR_DB_URL for remote vector storage.</code></td>
+<td>9단계의 PostgreSQL 18에 pgvector 확장</td>
+</tr>
+</tbody>
+</table></div>
+<p>설정을 되돌리면 두 가지가 다시 켜지지만, 웹 UI가 다시 GPU를 씁니다. 그래서 설정은 그대로 두고 빠진 두 가지를 바깥에 세웠습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>구조</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>같은 네트워크의 브라우저</span></span>
+<span class="line"><span>        │  http://192.168.x.x:3000</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>Mac mini ── Open WebUI (3000번)</span></span>
+<span class="line"><span>              ├──▶ PostgreSQL 18 + pgvector (5432번): 글 조각과 벡터</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              │  웹 UI의 API 키 두 개: 채팅용, 임베딩 전용</span></span>
+<span class="line"><span>              ▼</span></span>
+<span class="line"><span>Mac mini ── 게이트웨이 LiteLLM (4000번)</span></span>
+<span class="line"><span>              ├──▶ 임베딩 서버 llama.cpp + bge-m3 (8082번, CPU만) ◀ 이번에 더함</span></span>
+<span class="line"><span>              ├──▶ Mac mini MLX 서버 (8080번)</span></span>
+<span class="line"><span>              └──▶ 노트북 llama.cpp 서버 (8081번)</span></span></code></pre></figure>
+<h3 id="임베딩-서버">임베딩 서버</h3>
+<p>2단계에서 조립한 <span class="nb">llama.cpp로</span> <span class="nb">bge-m3를</span> 띄웠습니다. 파일은 <span class="nb">llama.cpp</span> 개발진이 변환해 올린 <span class="nb">Q8_0</span> <span class="nb">GGUF(635MB)이고,</span> 받은 뒤 지문을 맞췄습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>~/llm-service/start-embed.sh <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">exec</span><span style="color:var(--astro-code-token-string)"> ~/llama.cpp/build/bin/llama-server</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  -m</span><span style="color:var(--astro-code-token-string)"> ~/models/embed/bge-m3-q8_0.gguf</span><span style="color:var(--astro-code-token-string)"> --alias</span><span style="color:var(--astro-code-token-string)"> bge-m3</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  --embedding</span><span style="color:var(--astro-code-token-string)"> --pooling</span><span style="color:var(--astro-code-token-string)"> cls</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  --device</span><span style="color:var(--astro-code-token-string)"> none</span><span style="color:var(--astro-code-token-string)"> -ngl</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-string)"> -t</span><span style="color:var(--astro-code-token-constant)"> 4</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  -c</span><span style="color:var(--astro-code-token-constant)"> 8192</span><span style="color:var(--astro-code-token-string)"> -np</span><span style="color:var(--astro-code-token-constant)"> 4</span><span style="color:var(--astro-code-token-string)"> -b</span><span style="color:var(--astro-code-token-constant)"> 2048</span><span style="color:var(--astro-code-token-string)"> -ub</span><span style="color:var(--astro-code-token-constant)"> 2048</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  --host</span><span style="color:var(--astro-code-token-constant)"> 127.0.0.1</span><span style="color:var(--astro-code-token-string)"> --port</span><span style="color:var(--astro-code-token-constant)"> 8082</span><span style="color:var(--astro-code-token-string)"> --no-webui</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--embedding</code></td>
+<td>답은 쓰지 않고 벡터만 만든다</td>
+</tr>
+<tr>
+<td><code><span class="nb">--pooling</span> cls</code></td>
+<td>글 전체의 벡터로 첫 토큰의 값을 쓴다. <span class="nb">bge-m3가</span> 학습한 방식이다</td>
+</tr>
+<tr>
+<td><code><span class="nb">--device</span> none</code></td>
+<td>GPU를 쓰지 않는다. GPU 메모리는 MLX 서버 몫이다</td>
+</tr>
+<tr>
+<td><code><span class="nb">-c</span> 8192 <span class="nb">-np</span> 4</code></td>
+<td>네 개까지 동시에, 하나에 <span class="nb">2,048토큰까지</span></td>
+</tr>
+<tr>
+<td><code><span class="nb">-b</span> 2048 <span class="nb">-ub</span> 2048</code></td>
+<td>조각 하나를 한 번에 계산하게 묶음을 키운다</td>
+</tr>
+<tr>
+<td><code><span class="nb">--host</span> <span class="nb">127.0.0.1</span></code></td>
+<td>Mac mini 안에서만 받는다. 게이트웨이만 부른다</td>
+</tr>
+</tbody>
+</table></div>
+<p>메모리는 885MB를 씁니다. Mac mini CPU로 글 10편의 조각을 모두 벡터로 바꾸는 데 33초, 질문 하나는 <span class="nb">0.02초</span> 걸렸습니다. 찾은 순위는 제 컴퓨터에서 잰 것과 하나도 다르지 않았습니다.</p>
+<p>게이트웨이에는 모델 이름 <code><span class="nb">bge-m3</span></code>를 더하고, 웹 UI에 임베딩 전용 API 키를 따로 줬습니다. 이 키로 채팅을 부르면 403, 채팅용 키로 임베딩을 부르면 403입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span class="measured">~/llm-service/gateway-config.yaml에 더한 것</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:var(--astro-code-foreground)">  - </span><span style="color:var(--astro-code-token-keyword)">model_name</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> bge-m3</span><span style="color:var(--astro-code-token-comment)">                  # Mac mini, llama.cpp, CPU만</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    litellm_params</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      model</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> openai/bge-m3</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_base</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> http://127.0.0.1:8082/v1</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      api_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> none</span><span style="color:var(--astro-code-token-comment)">                     # Mac mini 안에서만 받는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">    model_info</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      mode</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> embedding</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">      disable_background_health_check</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> true</span><span style="color:var(--astro-code-token-comment)">   # 상태 확인 요청은 보내지 않는다</span></span></code></pre></figure>
+<h3 id="벡터-저장소">벡터 저장소</h3>
+<p>Homebrew로 pgvector <span class="nb">0.8.7을</span> 깔고, 9단계의 PostgreSQL에 웹 UI 전용 계정과 데이터베이스를 만들었습니다. 웹 UI 쪽에는 PostgreSQL에 붙는 데 필요한 파이썬 부품 두 개를 더했습니다. 버전은 Open WebUI <span class="nb">0.13.3이</span> 적어 둔 그대로입니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>~/llm-service/start-openwebui.sh에 더한 것 <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> RAG_EMBEDDING_ENGINE</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)">openai RAG_EMBEDDING_MODEL</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)">bge-m3</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> RAG_OPENAI_API_BASE_URL</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;http://127.0.0.1:4000/v1&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> RAG_OPENAI_API_KEY</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;$(</span><span style="color:var(--astro-code-token-function)">cat</span><span style="color:var(--astro-code-token-string)"> ~/.config/cyborg/gateway-key-open-webui-embed</span><span style="color:var(--astro-code-token-string-expression)">)&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> VECTOR_DB</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)">pgvector PGVECTOR_CREATE_EXTENSION</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)">false</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> PGVECTOR_DB_URL</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;postgresql://openwebui:(암호)@127.0.0.1:5432/openwebui_vectors&quot;</span></span></code></pre></figure>
+<p>웹 UI는 8초 만에 다시 떴습니다.</p>
+<h2 id="글-넣기">글 넣기</h2>
+<p>웹 UI에 글을 넣는 것은 웹 UI의 API로 했습니다. 그러려면 웹 UI가 내주는 API 키가 필요합니다. 관리자가 설정 창의 <strong>인증에서</strong> API 키를 켜야 <strong>계정에</strong> 키를 만드는 버튼이 나옵니다. 이 설정을 웹 UI 데이터베이스에서 직접 켜려 하자 Claude Code의 자동 권한 검사가 막아서, 둘 다 화면에서 켰습니다.</p>
+<aside class="note" aria-labelledby="note-0rj8yq"><h3 id="note-0rj8yq">키 대신 명령어가 저장된 이유</h3><p>처음에는 키를 복사한 뒤, Mac mini에 저장하는 명령을 복사해 터미널에 붙였습니다. 이 명령은 실행되는 순간의 클립보드를 저장합니다. 그런데 명령을 복사하면서 클립보드의 키가 지워져, 파일에는 명령어 글자가 들어갔습니다. 두 번째는 명령을 먼저 실행해 키를 기다리게 하고, 키는 마지막에 복사해 붙였습니다.</p></aside>
+<p>지식 <span class="nb">「로컬</span> LLM <span class="nb">연재」를</span> 만들어 10편을 넣는 데 95초 걸렸습니다. 조각마다 벡터를 두 번 만들기 때문입니다. 글을 올릴 때 한 번, 지식에 더할 때 한 번입니다. 데이터베이스는 12MB가 됐습니다. 웹 UI의 검색으로 18개를 다시 재 보니 1위 13개, 3위 안 17개로 앞의 측정과 같았습니다. 질문 하나를 찾는 데 <span class="nb">0.04초</span> 걸렸습니다. 지식은 웹 UI의 모든 사용자가 읽을 수 있게 열어 두었습니다.</p>
+<h2 id="찾아-읽게-하면">찾아 읽게 하면</h2>
+<p>질문 20개를 다시 물었습니다. 이번에는 질문마다 <span class="nb">「로컬</span> LLM <span class="nb">연재」를</span> 붙였습니다. 붙이는 조각은 웹 UI 기본값인 10개로 한 번, 3개로 한 번 쟀습니다. 앞에서 3위 안에 17개가 들었으니 3개로도 될지 본 것입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>붙인 것</th>
+<th>Mac mini · Qwen</th>
+<th>노트북 · Gemma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>없음</td>
+<td><span class="nb">3/18,</span> 34초</td>
+<td><span class="nb">2/18,</span> 10초</td>
+</tr>
+<tr>
+<td>조각 10개</td>
+<td><span class="nb">17/18,</span> 77초</td>
+<td><span class="nb">18/18,</span> 16초</td>
+</tr>
+<tr>
+<td>조각 3개</td>
+<td><span class="nb">17/18,</span> 35초</td>
+<td><span class="nb">18/18,</span> 11초</td>
+</tr>
+</tbody>
+</table></div>
+<p>시간은 답 하나에 걸린 평균입니다. 조각 10개를 붙이면 질문 하나가 <span class="nb">4,000토큰</span> 안팎이 되고, 3개면 <span class="nb">1,500토큰</span> 안팎이 됩니다.</p>
+<ul>
+<li><strong>글을 붙이면 거의 다 맞힌다.</strong> 답 끝에는 출처 번호를 달았다. 글에 없는 두 질문에는 네 번 모두 자료에 없다고 했다. API 키를 묻자, <span class="nb">「48자리</span> 무작위 문자열이고 화면에 출력한 적이 <span class="nb">없다」는</span> 글의 내용까지만 말했다.</li>
+<li><strong>Mac mini는 읽는 시간이 문제다.</strong> 질문을 초당 63토큰으로 읽어서, 조각 10개면 답 하나에 평균 77초, 길면 2분이 걸렸다. 3개로 줄이자 35초가 됐다. 노트북은 같은 양을 훨씬 빨리 읽어 16초와 11초였다.</li>
+<li><strong>조각을 줄여도 맞힌 수는 줄지 않았다.</strong> Mac mini가 두 번 다 놓친 하나는 2단계의 기억 길이 질문이다. <span class="nb">「앞으로는</span> <code><span class="nb">-c</span> 16384</code>로 직접 정해서 <span class="nb">씁니다」라는</span> 문장이 든 조각은 검색 10위 안에 들지 않았다. 모델은 다른 조각에 있던 <span class="nb">16,384를</span> 옮겨 적고도 <span class="nb">「자료에</span> 분명히 나와 있지 <span class="nb">않다」고</span> 끝맺었다. 같은 조각을 받은 Gemma는 <span class="nb">「16,384로</span> 제한하여 <span class="nb">사용했습니다」라고</span> 답했다.</li>
+<li><strong>글을 붙이면 답이 짧아진다.</strong> 문서 없이 물으면 Mac mini는 평균 211토큰을 늘어놓았고, 글을 붙이면 80토큰 안팎으로 답했다. 그래서 조각 3개를 붙인 <span class="nb">쪽(35초)이</span> 문서 없이 물은 <span class="nb">쪽(34초)과</span> 거의 같은 시간에 끝났다.</li>
+</ul>
+<p>웹 UI의 기본값을 조각 3개로 바꿔 두었습니다. 쓰는 사람은 대화창에 <code>#</code>을 치고 <span class="nb">「로컬</span> LLM <span class="nb">연재」를</span> 고른 뒤 물으면 됩니다.</p>
+<h2 id="가르치기-미세조정">가르치기: 미세조정</h2>
+<p>문서 검색은 모델을 그대로 두고 자료를 붙여 줍니다. 미세조정은 반대로, 모델이 글 내용을 외우도록 더 학습시킵니다. 다 배우면 자료 없이도 답할 테니, 질문마다 읽는 시간도 들지 않습니다. 정말 그런지 같은 질문으로 견줬습니다.</p>
+<p>모델 전체를 다시 학습하려면 모델 크기의 몇 배나 되는 메모리가 듭니다. 그래서 LoRA를 씁니다. 원래 숫자는 그대로 두고, 층마다 작은 덧붙임 숫자를 더해 그것만 학습하는 방법입니다. 이 덧붙임을 어댑터라고 부릅니다.</p>
+<h3 id="문제집-만들기">문제집 만들기</h3>
+<p>학습에는 질문과 답을 짝지은 문제집이 필요합니다. 이것도 Mac mini의 Qwen <span class="nb">3.8</span> 27B가 만들었습니다. 연재 글을 63조각으로 나눠 조각마다 <span class="nb">「이</span> 부분만 읽고 답할 수 있는 질문과 답을 <span class="nb">3~4개</span> <span class="nb">만들라」고</span> 시켰습니다. 53분 동안 231쌍이 나왔습니다. 답에 원문에 없는 숫자가 들어간 쌍은 빼도록 해 두었는데, 한 쌍도 걸리지 않았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>글</th>
+<th>문제집의 질문</th>
+<th>답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0단계</td>
+<td>서버의 잠자기를 끄기 위해 어떤 명령 값을 설정했는가?</td>
+<td>sleep 0으로 설정했다.</td>
+</tr>
+<tr>
+<td>8단계</td>
+<td>Mac mini의 로컬 모델에 커밋 메시지 작성을 맡기기로 한 세 가지 이유는 무엇인가요?</td>
+<td>자주 하는 작은 일이라 답이 짧고, 견줄 답이 이미 있으며, 코드가 내 네트워크 밖으로 나가지 않기 때문입니다.</td>
+</tr>
+<tr>
+<td>9단계</td>
+<td>한도를 초과한 요청이 들어왔을 때 게이트웨이는 기다리게 하는 대신 어떤 조치를 취하며, 재시도는 누구의 몫인가요?</td>
+<td>게이트웨이는 기다리게 하지 않고 바로 거절하며, 기다렸다가 다시 보내는 일은 부르는 <span class="nb">쪽(클라이언트)의</span> 몫입니다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>208쌍은 학습에, 23쌍은 학습 중 확인에 썼습니다. 시험 문제를 문제집에 일부러 넣지는 않았지만, 27B가 만든 문제 가운데에는 시험 문제와 거의 같은 것이 여럿 있습니다. 시험 문제 18개의 답이 되는 값은 모두 학습용 문제집의 답 어딘가에 나옵니다.</p>
+<h3 id="작은-모델-고르기">작은 모델 고르기</h3>
+<p>Mac mini의 27B 모델은 올려 두기만 해도 메모리를 16GB 넘게 씁니다. 학습까지 할 수는 없어서 4B 모델을 골랐습니다.</p>
+<ul>
+<li><strong>처음 고른 것은 Qwen <span class="nb">3.5</span> 4B였다.</strong> Mac mini의 Qwen <span class="nb">3.8과</span> 같은 구조다. 그런데 MLX로 학습하자 제 컴퓨터에서도 초당 27토큰밖에 나오지 않았다. 이 구조의 새 <span class="nb">층(선형</span> <span class="nb">어텐션)을</span> 학습하는 계산이 아직 느린 것으로 보인다.</li>
+<li><strong>Qwen3 <span class="nb">4B(2507판)로</span> 바꿨다.</strong> 일반 구조이고 Apache <span class="nb">2.0이다.</span> 같은 조건에서 초당 180토큰이 나왔다. 2025년에 나온 모델이라 이 연재는 모른다.</li>
+</ul>
+<aside class="note" aria-labelledby="note-97c6vm"><h3 id="note-97c6vm">답 앞에 붙은 빈 생각 태그</h3><p>제 컴퓨터에서 먼저 짧게 학습해 보니, 학습한 모델이 답마다 <code><span class="nb">&lt;think&gt;&lt;/think&gt;</span></code>를 붙였습니다. 이 모델의 대화 형식은 학습 데이터의 답 앞에는 빈 생각 태그를 넣으면서, 질문을 받을 때는 넣지 않습니다. 그래서 모델이 그 태그까지 답의 일부로 외웠습니다. 학습할 때만 쓰는 사본을 만들어 빈 태그를 빼자 사라졌습니다.</p></aside>
+<h3 id="mac-mini에서-학습하기">Mac mini에서 학습하기</h3>
+<p>Mac mini의 MLX 서버는 27B를 올려 두고 있어서, 그대로는 학습할 메모리가 없습니다. MLX 서버는 요청에 다른 모델 이름을 넣으면 그 모델로 바꿔 끼웁니다. 9단계에서 게이트웨이로 막은 바로 그 기능입니다. 바꿔 끼울 때는 앞 모델을 지우고 MLX의 메모리 풀을 비웁니다. 그래서 Mac mini 안에서 작은 모델로 바꿔 끼운 뒤 학습했습니다. 학습과 시험이 끝난 뒤 다시 27B로 돌렸고, 답 쓰는 속도는 초당 6토큰으로 예전과 같았습니다. 그동안 웹 UI에서는 노트북 모델만 썼습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span><span class="nb">~/rag-lab/ft/train.sh</span> <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">mlx_lm.lora</span><span style="color:var(--astro-code-token-string)"> --model</span><span style="color:var(--astro-code-token-string)"> ~/models/mlx/Qwen3-4B-Instruct-2507-4bit-train</span><span style="color:var(--astro-code-token-string)"> --train</span><span style="color:var(--astro-code-token-string)"> --data</span><span style="color:var(--astro-code-token-string)"> data</span><span style="color:var(--astro-code-token-string)"> -c</span><span style="color:var(--astro-code-token-string)"> lora.yaml</span><span style="color:var(--astro-code-foreground)"> \</span></span>
+<span class="line"><span style="color:var(--astro-code-token-string)">  --num-layers</span><span style="color:var(--astro-code-token-string)"> -1</span><span style="color:var(--astro-code-token-string)"> --batch-size</span><span style="color:var(--astro-code-token-constant)"> 4</span><span style="color:var(--astro-code-token-string)"> --iters</span><span style="color:var(--astro-code-token-constant)"> 400</span><span style="color:var(--astro-code-token-string)"> --learning-rate</span><span style="color:var(--astro-code-token-string)"> 2e-5</span><span style="color:var(--astro-code-token-string)"> --mask-prompt</span><span style="color:var(--astro-code-token-string)"> --grad-checkpoint</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>설정</th>
+<th>값</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>어댑터</td>
+<td>rank 16, 36층 전부</td>
+<td>덧붙임 숫자 <span class="nb">3,300만</span> 개, 원래 모델의 <span class="nb">0.8%</span></td>
+</tr>
+<tr>
+<td>반복</td>
+<td>400번, 한 번에 4쌍</td>
+<td>문제집을 8번쯤 본다</td>
+</tr>
+<tr>
+<td>학습률</td>
+<td><span class="nb">2e-5</span></td>
+<td>한 번에 숫자를 얼마나 고칠지</td>
+</tr>
+<tr>
+<td><code>--mask-prompt</code></td>
+<td>켬</td>
+<td>질문은 외우지 않고 답만 배운다</td>
+</tr>
+<tr>
+<td><code>--grad-checkpoint</code></td>
+<td>켬</td>
+<td>계산을 조금 되풀이하는 대신 메모리를 아낀다</td>
+</tr>
+</tbody>
+</table></div>
+<p>400번 반복에 25분 걸렸습니다. 초당 32토큰 안팎으로, 제 <span class="nb">컴퓨터(180토큰)보다</span> 5배 넘게 느렸습니다. 다 만든 어댑터 파일은 132MB입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>반복</th>
+<th>학습 문제 손실</th>
+<th>확인 문제 손실</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>처음</td>
+<td></td>
+<td><span class="nb">4.25</span></td>
+</tr>
+<tr>
+<td>50</td>
+<td><span class="nb">1.76</span></td>
+<td><span class="nb">1.85</span></td>
+</tr>
+<tr>
+<td>100</td>
+<td><span class="nb">0.91</span></td>
+<td><span class="nb">1.89</span></td>
+</tr>
+<tr>
+<td>200</td>
+<td><span class="nb">0.27</span></td>
+<td><span class="nb">2.28</span></td>
+</tr>
+<tr>
+<td>400</td>
+<td><span class="nb">0.007</span></td>
+<td><span class="nb">2.70</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>손실은 모델이 정답을 얼마나 뜻밖으로 여기는지 나타내는 숫자로, 낮을수록 잘 맞힙니다. 학습 문제는 거의 0까지 내려갔습니다. 학습에 쓰지 않은 확인 문제는 처음 50번 만에 <span class="nb">4.25에서</span> <span class="nb">1.85로</span> 떨어진 뒤, 학습을 더 할수록 올랐습니다. 처음에는 답하는 모양을 배우고, 그 뒤로는 본 문제만 외웠다는 뜻입니다. 아래 시험에는 마지막 400번째의 어댑터를 썼습니다.</p>
+<h3 id="가르친-결과">가르친 결과</h3>
+<p>학습 전과 뒤의 작은 모델에게 같은 20개를 물었습니다. 글을 붙이는 쪽은 웹 UI와 같은 조각 3개와 같은 지시문을 썼습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>작은 모델</th>
+<th>문서 없이</th>
+<th>조각 3개</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>학습 전</td>
+<td><span class="nb">1/18,</span> 10초</td>
+<td><span class="nb">17/18,</span> 5초</td>
+</tr>
+<tr>
+<td>학습 뒤</td>
+<td><span class="nb">4/18,</span> 2초</td>
+<td><span class="nb">17/18,</span> 4초</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>새로 맞힌 것은 셋이다.</strong> <code>ThrottleInterval</code>, <code><span class="nb">USE_SLIM_DOCKER</span></code>, <span class="nb">「지난</span> 대화를 매번 다시 <span class="nb">보낸다」.</span> 셋 다 문제집에 거의 같은 질문이 있었다.</li>
+<li><strong>문제집에 있던 사실도 대부분 꺼내지 못했다.</strong> 답이 문제집에 들어 있던 18개 가운데 맞힌 것은 4개뿐이다. 그중 401은 학습 전에도 알았다. 문제집에 <span class="nb">「Mac</span> mini는 <span class="nb">99초」라는</span> 답이 두 번이나 있었는데도, 질문이 조금 다르자 <span class="nb">「6초」라고</span> 답했다.</li>
+<li><strong>틀린 답도 짧고 단정하다.</strong> 정전 항목은 <span class="nb">「AutoBoot</span> <span class="nb">1」,</span> 게이트웨이는 <span class="nb">「Postman</span> <span class="nb">14.18.0</span> <span class="nb">버전」이라고</span> 했다. 학습 전에는 <span class="nb">「알</span> 수 <span class="nb">없다」며</span> 길게 설명하던 모델이, 문제집의 말투대로 한두 마디로 답했다. 답은 빨라졌지만, 틀렸는지 짐작할 실마리가 사라졌다.</li>
+<li><strong>글에 없는 질문에도 지어냈다.</strong> 학습 전에는 둘 다 모른다고 했다. 학습 뒤에는 10단계 결과를 <span class="nb">「2개」라고</span> 했고, API 키를 묻자 <code><span class="nb">sk-1234…</span></code>로 시작하는 가짜 키를 내놓았다. 문제집은 모두 글에 답이 있는 문제라, 모른다고 답하는 예가 하나도 없었다.</li>
+<li><strong>글을 붙이면 다시 맞힌다.</strong> 학습 뒤에도 조각 3개를 붙이자 학습 전과 같은 17개를 맞혔다. 다만 글에 없는 10단계 결과를 묻자, 자료에 없는데도 <span class="nb">「4개를</span> <span class="nb">맞혔다」고</span> 했다. 학습 전 모델은 같은 조건에서 모른다고 했다.</li>
+</ul>
+<p>이번 미세조정으로 눈에 띄게 바뀐 것은 지식보다 말투였습니다. 사실마다 한두 번씩 나오는 208쌍으로는 글 내용을 거의 넣지 못했고, 글에 없는 두 질문에는 학습 뒤 둘 다 지어냈습니다. 학습 한 번, 질문 20개로 본 결과입니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>모르는 글을 쓰게 하려면 찾아 붙이는 쪽이 나았다.</strong> 같은 4B 모델로 견주면, 글을 찾아 붙이자 <span class="nb">1/18이</span> <span class="nb">17/18이</span> 됐고, 25분 가르치자 <span class="nb">4/18이</span> 됐다. 가르친 모델은 글에 없는 것도 지어냈다.</li>
+<li><strong>작은 모델에 글을 붙이면 빠르다.</strong> 학습하지 않은 4B에 조각 3개를 붙이자 <span class="nb">17/18을</span> 맞혔고 답 하나에 5초 걸렸다. 같은 조각을 붙인 27B는 <span class="nb">17/18에</span> 35초였다. 4B는 웹 UI를 거치지 않고 MLX 서버에 바로 물은 값이다.</li>
+<li><strong>이번 미세조정에서는 말투가 먼저 바뀌었다.</strong> 문제집처럼 짧고 단정하게 답하게 됐다. 사실을 넣으려면 같은 사실을 여러 모양으로 묻는 문제와, 모를 때 모른다고 답하는 문제를 더 넣어 봐야 한다.</li>
+<li><strong>임베딩 모델부터 고른다.</strong> 웹 UI 기본값으로는 조각 10개를 붙여도 18개 중 8개에서 답이 든 조각이 빠진다.</li>
+<li><strong>느린 기계에서는 붙이는 양을 줄인다.</strong> Mac mini는 조각 10개면 답 하나에 77초, 3개면 35초였다. 맞힌 수는 같았다.</li>
+<li><strong>6단계의 slim 설정은 문서 검색도 꺼 두었다.</strong> 임베딩 서버와 pgvector를 바깥에 따로 세워야 했다.</li>
+<li><strong>새 구조의 모델은 학습이 느릴 수 있다.</strong> 같은 크기라도 Qwen <span class="nb">3.5</span> 4B는 초당 27토큰, Qwen3 4B는 180토큰이었다.</li>
+</ul>
+<h2 id="연재를-마치며">연재를 마치며</h2>
+<p>모델 파일 하나에서 시작해 엔진, 서버, 웹 UI, 웹 검색, 게이트웨이를 거쳐 문서 검색까지 왔습니다. 지금 두 기계에서 도는 것은 아래와 같습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>프로그램</th>
+<th>기계, 포트</th>
+<th>하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MLX 서버</td>
+<td>Mac mini 8080</td>
+<td>Qwen <span class="nb">3.8</span> 27B로 답한다 <span class="nb">(5단계)</span></td>
+</tr>
+<tr>
+<td><span class="nb">llama.cpp</span> 서버</td>
+<td>노트북 8081</td>
+<td>Gemma 4 26B로 답한다 <span class="nb">(6단계)</span></td>
+</tr>
+<tr>
+<td>Open WebUI</td>
+<td>Mac mini 3000</td>
+<td>웹 UI, 대화 기록, 지식 <span class="nb">(6단계)</span></td>
+</tr>
+<tr>
+<td>SearXNG</td>
+<td>Mac mini 8888</td>
+<td>웹 검색 <span class="nb">(7단계)</span></td>
+</tr>
+<tr>
+<td>LiteLLM</td>
+<td>Mac mini 4000</td>
+<td>게이트웨이, API 키, 사용량 <span class="nb">(9단계)</span></td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>Mac mini 5432</td>
+<td>게이트웨이의 기록, 글 조각과 벡터 <span class="nb">(9·10단계)</span></td>
+</tr>
+<tr>
+<td><span class="nb">llama.cpp</span> 임베딩 서버</td>
+<td>Mac mini 8082</td>
+<td><span class="nb">bge-m3로</span> 벡터를 만든다 <span class="nb">(10단계)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>남은 일은 셋입니다.</p>
+<ul>
+<li><strong>늘 켜 두기:</strong> 게이트웨이, PostgreSQL, 웹 UI, SearXNG, 임베딩 서버는 아직 손으로 띄워 둔 상태입니다. 관리자 암호로 설치 스크립트를 실행해야 Mac mini가 다시 켜질 때 저절로 뜹니다.</li>
+<li><strong>HTTPS와 SSH 키 로그인:</strong> 9단계에서 미뤄 둔 그대로입니다.</li>
+<li><strong>넣을 문서 고르기:</strong> 이번에는 공개된 글로 시험했습니다. 다른 문서를 넣을 때는 누가 읽을 수 있는지부터 정해야 합니다. 이번 지식은 웹 UI의 모든 사용자에게 열어 두었습니다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-17"><li><time class="measured" datetime="2026-11-17T10:28+09:00"><span class="nb">10:28</span></time><span class="trail__what">연재 글 10편을 Markdown 문서로</span><code class="trail__got">10개</code></li><li><time class="measured" datetime="2026-11-17T10:32+09:00"><span class="nb">10:32</span></time><span class="trail__what">임베딩 모델 4개로 답이 든 조각 찾기</span><code class="trail__got">기본값 10위 안 10개, <span class="nb">bge-m3</span> 17개</code></li><li><time class="measured" datetime="2026-11-17T10:34+09:00"><span class="nb">10:34</span></time><span class="trail__what"><span class="nb">bge-m3</span> GGUF를 받고 지문 확인</span><code class="trail__got">635MB, 19초</code></li><li><time class="measured" datetime="2026-11-17T10:36+09:00"><span class="nb">10:36</span></time><span class="trail__what">Mac mini CPU로 임베딩 서버를 띄우고 다시 잼</span><code class="trail__got">순위 같음, 33초</code></li><li><time class="measured" datetime="2026-11-17T10:37+09:00"><span class="nb">10:37</span></time><span class="trail__what">게이트웨이에 <span class="nb">bge-m3와</span> 임베딩 전용 API 키</span><code class="trail__got">그 키로 채팅은 403</code></li><li><time class="measured" datetime="2026-11-17T10:42+09:00"><span class="nb">10:42</span></time><span class="trail__what">Mac mini의 27B에게 문제집 만들기</span><code class="trail__got">53분, 231쌍</code></li><li><time class="measured" datetime="2026-11-17T11:24+09:00"><span class="nb">11:24</span></time><span class="trail__what">웹 UI의 API 키를 켜고 만들어 Mac mini에 저장</span><code class="trail__got">두 번째에 저장</code></li><li><time class="measured" datetime="2026-11-17T11:24+09:00"><span class="nb">11:24</span></time><span class="trail__what">지식을 만들고 첫 글을 넣음</span><code class="trail__got">벡터 저장소가 없어 503</code></li><li><time class="measured" datetime="2026-11-17T11:26+09:00"><span class="nb">11:26</span></time><span class="trail__what">pgvector와 웹 UI용 데이터베이스</span><code class="trail__got">pgvector <span class="nb">0.8.7</span></code></li><li><time class="measured" datetime="2026-11-17T11:27+09:00"><span class="nb">11:27</span></time><span class="trail__what">웹 UI를 다시 켬</span><code class="trail__got">8초</code></li><li><time class="measured" datetime="2026-11-17T11:29+09:00"><span class="nb">11:29</span></time><span class="trail__what">연재 글 10편을 넣음</span><code class="trail__got">95초, 조각 170개</code></li><li><time class="measured" datetime="2026-11-17T11:29+09:00"><span class="nb">11:29</span></time><span class="trail__what">노트북, 문서 없이 20개</span><code class="trail__got"><span class="nb">2/18</span></code></li><li><time class="measured" datetime="2026-11-17T11:33+09:00"><span class="nb">11:33</span></time><span class="trail__what">노트북, 조각 10개</span><code class="trail__got"><span class="nb">18/18,</span> 16초</code></li><li><time class="measured" datetime="2026-11-17T11:35+09:00"><span class="nb">11:35</span></time><span class="trail__what">Mac mini, 문서 없이</span><code class="trail__got"><span class="nb">3/18</span></code></li><li><time class="measured" datetime="2026-11-17T11:47+09:00"><span class="nb">11:47</span></time><span class="trail__what">Mac mini, 조각 10개</span><code class="trail__got"><span class="nb">17/18,</span> 77초</code></li><li><time class="measured" datetime="2026-11-17T11:57+09:00"><span class="nb">11:57</span></time><span class="trail__what">제 컴퓨터에서 Qwen <span class="nb">3.5</span> 4B 시험 학습</span><code class="trail__got">초당 27토큰</code></li><li><time class="measured" datetime="2026-11-17T12:12+09:00"><span class="nb">12:12</span></time><span class="trail__what">Qwen3 4B로 바꿔 다시</span><code class="trail__got">초당 180토큰</code></li><li><time class="measured" datetime="2026-11-17T12:14+09:00"><span class="nb">12:14</span></time><span class="trail__what">조각 3개로 두 모델에게 다시</span><code class="trail__got">Mac mini <span class="nb">17/18</span> 35초, 노트북 <span class="nb">18/18</span></code></li><li><time class="measured" datetime="2026-11-17T12:21+09:00"><span class="nb">12:21</span></time><span class="trail__what">시험 학습한 모델이 빈 생각 태그를 붙임</span><code class="trail__got">학습용 대화 형식 사본</code></li><li><time class="measured" datetime="2026-11-17T12:29+09:00"><span class="nb">12:29</span></time><span class="trail__what">MLX 서버를 작은 모델로 바꿔 끼움</span><code class="trail__got">1초 만에 바뀜</code></li><li><time class="measured" datetime="2026-11-17T12:32+09:00"><span class="nb">12:32</span></time><span class="trail__what">학습 전 작은 모델, 조각 3개</span><code class="trail__got"><span class="nb">17/18,</span> 5초</code></li><li><time class="measured" datetime="2026-11-17T12:34+09:00"><span class="nb">12:34</span></time><span class="trail__what">Mac mini에서 LoRA 400번</span><code class="trail__got">25분, 어댑터 132MB</code></li><li><time class="measured" datetime="2026-11-17T12:59+09:00"><span class="nb">12:59</span></time><span class="trail__what">학습한 모델, 문서 없이</span><code class="trail__got"><span class="nb">4/18,</span> 가짜 API 키</code></li><li><time class="measured" datetime="2026-11-17T12:59+09:00"><span class="nb">12:59</span></time><span class="trail__what">학습한 모델, 조각 3개</span><code class="trail__got"><span class="nb">17/18</span></code></li><li><time class="measured" datetime="2026-11-17T13:01+09:00"><span class="nb">13:01</span></time><span class="trail__what">MLX 서버를 27B로 되돌림</span><code class="trail__got">초당 6토큰, 그대로</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/agent-01-seven-models/" class="pager__next"><small>다음 글</small><strong>11단계 모델 일곱 개에게 맡겨 보기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-문제">시험 문제</a></li><li><a href="#문서-없이-물으면">문서 없이 물으면</a></li><li><a href="#찾아-읽게-하기">찾아 읽게 하기</a></li><li><a href="#임베딩-모델-고르기">임베딩 모델 고르기</a></li><li><a href="#세우기-6단계-설정이-막은-두-가지">세우기: 6단계 설정이 막은 두 가지</a></li><li><a href="#글-넣기">글 넣기</a></li><li><a href="#찾아-읽게-하면">찾아 읽게 하면</a></li><li><a href="#가르치기-미세조정">가르치기: 미세조정</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#연재를-마치며">연재를 마치며</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

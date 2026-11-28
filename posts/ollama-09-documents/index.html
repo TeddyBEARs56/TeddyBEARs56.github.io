@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>문서 검색을 Ollama로 | Cyborg</title><meta name="description" content="Ollama로 다시 돌려 보기 9편. 지난 연재 10단계의 문서 검색에서 임베딩 모델 bge-m3를 llama.cpp 서버 대신 Ollama로 돌렸습니다. 찾은 조각은 거의 같았고 글을 벡터로 바꾸는 속도는 3.6배 빨랐습니다. 다만 Ollama 서비스를 한 번에 모델 하나만 올리게 해 두어서, 질문마다 대화 모델이 내려갔다 올라와 답이 평균 16초 늦어졌습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/ollama-09-documents/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="문서 검색을 Ollama로 | Cyborg"><meta property="og:description" content="Ollama로 다시 돌려 보기 9편. 지난 연재 10단계의 문서 검색에서 임베딩 모델 bge-m3를 llama.cpp 서버 대신 Ollama로 돌렸습니다. 찾은 조각은 거의 같았고 글을 벡터로 바꾸는 속도는 3.6배 빨랐습니다. 다만 Ollama 서비스를 한 번에 모델 하나만 올리게 해 두어서, 질문마다 대화 모델이 내려갔다 올라와 답이 평균 16초 늦어졌습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/ollama-09-documents/"><meta property="article:published_time" content="2026-11-22T13:45:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"문서 검색을 Ollama로","description":"Ollama로 다시 돌려 보기 9편. 지난 연재 10단계의 문서 검색에서 임베딩 모델 bge-m3를 llama.cpp 서버 대신 Ollama로 돌렸습니다. 찾은 조각은 거의 같았고 글을 벡터로 바꾸는 속도는 3.6배 빨랐습니다. 다만 Ollama 서비스를 한 번에 모델 하나만 올리게 해 두어서, 질문마다 대화 모델이 내려갔다 올라와 답이 평균 16초 늦어졌습니다.","datePublished":"2026-11-22T13:45:00.000Z","dateModified":"2026-11-22T13:45:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/ollama-09-documents/","mainEntityOfPage":"https://teddybears56.github.io/posts/ollama-09-documents/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-ollama">연재</a></li><li>9편</li></ol></nav><h1 id="post-title">문서 검색을 Ollama로</h1><p class="post__lead">지난 연재 10단계에서 웹 UI에 연재 글을 넣고, 질문과 가까운 글 조각을 찾아 붙여 묻게 했습니다. 조각을 찾는 임베딩 모델은 Mac mini의 CPU에서 <span class="nb">llama.cpp</span> 서버로 따로 띄웠습니다. 이번에는 그 임베딩 모델을 Ollama로 돌리고, 같은 질문을 다시 물었습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-22"><span class="nb">2026-11-22</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 8분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>같은 <span class="nb">bge-m3를</span> 두 엔진으로 견준다.</strong> 지금 쓰는 <span class="nb">llama.cpp</span> 서버와 Ollama에서 글 조각을 찾은 순위와 속도를 잰다.</li>
+<li><strong>웹 UI가 Ollama로 질문을 벡터로 바꾸게 한다.</strong> 지난 연재 10단계의 질문 20개를 다시 묻는다.</li>
+<li><strong>대화 모델과 함께 올린다.</strong> 임베딩 모델이 대화 모델을 밀어내는지 보고, 밀어내지 않게 한다.</li>
+</ol>
+<p>모두 Mac <span class="nb">mini(24GB)에서</span> 했습니다. Ollama <span class="nb">0.40.16은</span> 7편에서 launchd에 맡긴 서비스 그대로입니다. 기억할 글 길이는 <span class="nb">32,768토큰이고,</span> 한 번에 모델 하나만 올리며, 쉬어도 모델을 내리지 않습니다. 대화 모델 <span class="nb">Qwen3.8</span> 27B가 늘 올라가 있습니다. 웹 UI는 Open WebUI <span class="nb">0.13.3입니다.</span></p>
+<p>글은 10단계에서 넣어 둔 지식 <span class="nb">「로컬</span> LLM <span class="nb">연재」입니다.</span> 지난 연재 글 10편이 조각 170개로 나뉘어 <span class="nb">PostgreSQL(pgvector)에</span> 들어 있습니다. 질문은 10단계의 20개입니다. 18개는 글에 답이 있고, 2개는 글에 없는 것을 묻습니다. 웹 UI는 질문마다 가까운 조각 3개를 붙입니다. 웹 UI의 API를 관리자 API 키로 불렀고, 시험이 끝난 뒤 웹 UI와 Ollama 서비스의 설정은 원래대로 돌려놓았습니다.</p>
+<h2 id="같은-bge-m3-두-엔진">같은 <span class="nb">bge-m3,</span> 두 엔진</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><span class="nb">llama.cpp</span> 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>파일</td>
+<td><span class="nb">Q8_0,</span> 635MB</td>
+<td>F16, <span class="nb">1.2GB</span></td>
+</tr>
+<tr>
+<td>계산</td>
+<td>CPU만</td>
+<td>GPU</td>
+</tr>
+<tr>
+<td>벡터</td>
+<td>숫자 <span class="nb">1,024개</span></td>
+<td>숫자 <span class="nb">1,024개</span></td>
+</tr>
+<tr>
+<td>글 전체 벡터</td>
+<td>첫 토큰의 값</td>
+<td>첫 토큰의 값</td>
+</tr>
+<tr>
+<td>글 하나</td>
+<td><span class="nb">2,048토큰까지</span></td>
+<td><span class="nb">2,048토큰까지</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Ollama의 <span class="nb">bge-m3는</span> 8편에서 웹 UI로 받아 둔 공식 라이브러리 태그입니다. 압축하지 않은 F16이라 <span class="nb">llama.cpp</span> 서버의 <span class="nb">Q8_0보다</span> 두 배쯤 큽니다. 글 전체를 벡터 하나로 줄이는 방식은 둘 다 첫 토큰의 값을 씁니다. 10단계에서 <span class="nb">llama.cpp에</span> <code><span class="nb">--pooling</span> cls</code>로 준 것과 같고, Ollama는 파일에 적힌 값을 따릅니다.</p>
+<p>Ollama 서비스는 기억할 글 길이를 <span class="nb">32,768로</span> 주는데, <span class="nb">bge-m3는</span> <span class="nb">8,192까지만</span> 배운 모델입니다. Ollama는 로그에 경고를 남기고 <span class="nb">8,192로</span> 줄여 올렸습니다. 그래도 글 하나를 한 번에 받는 한도는 따로 있어서, 실제로는 <span class="nb">llama.cpp</span> 서버와 같은 <span class="nb">2,048토큰이었습니다(아래</span> <span class="nb">「긴</span> 조각은 <span class="nb">2,048토큰까지였다」).</span></p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, Ollama 서비스 로그, <span class="nb">bge-m3를</span> 처음 올릴 때</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>level=WARN source=server.go:112 msg=&quot;requested context size too large for model&quot; num_ctx=32768 n_ctx_train=8192</span></span></code></pre></figure>
+<h2 id="찾은-조각은-거의-같았다">찾은 조각은 거의 같았다</h2>
+<p>조각 170개와 질문 20개를 두 엔진으로 벡터로 바꾸고, 답이 든 조각이 몇 위에 드는지 셌습니다. 10단계와 같은 방식입니다. <span class="nb">「저장된</span> <span class="nb">벡터」는</span> 10단계에서 웹 UI가 <span class="nb">llama.cpp</span> 서버로 만들어 데이터베이스에 넣어 둔 것입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>질문 벡터</th>
+<th>조각 벡터</th>
+<th>1위</th>
+<th>3위 안</th>
+<th>10위 안</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">llama.cpp</span></td>
+<td>저장된 벡터</td>
+<td>13</td>
+<td>17</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>Ollama</td>
+<td>13</td>
+<td>17</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>저장된 벡터</td>
+<td>13</td>
+<td>17</td>
+<td>17</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>10단계와 같은 13, 17, 17이 다시 나왔다.</strong> 같은 글을 두 엔진이 만든 벡터는 코사인 유사도가 가장 낮은 것도 <span class="nb">0.9986이었다.</span> 1이면 완전히 같은 방향이다.</li>
+<li><strong>엔진을 바꾸고 다시 색인하지 않아도 맞힌 개수는 같았다.</strong> Ollama로 만든 질문 벡터를 저장된 벡터에 대도 1위, 3위 안, 10위 안의 개수가 같았다. 붙는 조각 3개가 같은 질문은 20개 중 18개였다.</li>
+<li><strong>놓친 하나도 같다.</strong> 2단계의 기억할 글 길이 질문이다. 답이 든 조각이 <span class="nb">12위(Ollama</span> 질문 벡터와 저장된 벡터로는 <span class="nb">11위)여서</span> 3개 안에 들지 않는다.</li>
+</ul>
+<h2 id="빠르기">빠르기</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>일</th>
+<th><span class="nb">llama.cpp</span> 서버</th>
+<th>Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>조각 170개</td>
+<td><span class="nb">42.4초</span></td>
+<td><span class="nb">11.8초</span></td>
+</tr>
+<tr>
+<td>질문 하나</td>
+<td><span class="nb">0.03초</span></td>
+<td><span class="nb">0.02초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>조각은 웹 UI와 같이 8개씩 묶어 보냈습니다. GPU에서 도는 Ollama가 <span class="nb">3.6배</span> 빨랐습니다. <span class="nb">llama.cpp</span> 서버는 Ollama의 Qwen이 올라 있는 동안, Ollama는 Qwen이 내려간 <span class="nb">뒤(다음</span> <span class="nb">절)</span> 잰 값입니다. 10단계에서는 같은 <span class="nb">llama.cpp</span> 서버가 조각 전체에 33초, 질문 하나에 <span class="nb">0.02초였습니다.</span> 글을 넣을 때만 차이가 나고, 질문 하나를 벡터로 바꾸는 시간은 둘 다 사람이 느낄 수 없을 만큼 짧습니다.</p>
+<h2 id="임베딩을-부르자-qwen이-내려갔다">임베딩을 부르자 Qwen이 내려갔다</h2>
+<p>Ollama에 처음 임베딩을 부르자 <span class="nb">1.8초</span> 뒤 답이 왔습니다. 그 사이 Ollama는 늘 올려 두던 <span class="nb">Qwen3.8을</span> 내리고 <span class="nb">bge-m3를</span> 올렸습니다. 7편의 서비스가 한 번에 모델 하나만 <span class="nb">올리게(</span><code>OLLAMA_MAX_LOADED_MODELS=1</code>) 해 두었기 때문입니다. 쉬어도 내리지 않게 한 <span class="nb">설정(</span><code><span class="nb">OLLAMA_KEEP_ALIVE=-1</span></code><span class="nb">)은</span> 이 경우 모델을 지켜 주지 않았습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Ollama <span class="nb">0.40.16,</span> <span class="nb">server/sched.go,</span> 새 모델을 올리기 전</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="go"><code><span class="line"><span style="color:var(--astro-code-foreground)">} </span><span style="color:var(--astro-code-token-keyword)">else</span><span style="color:var(--astro-code-token-keyword)"> if</span><span style="color:var(--astro-code-foreground)"> maxRunners </span><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-token-constant)"> 0</span><span style="color:var(--astro-code-token-keyword)"> &amp;&amp;</span><span style="color:var(--astro-code-foreground)"> loadedCount </span><span style="color:var(--astro-code-token-keyword)">&gt;=</span><span style="color:var(--astro-code-token-keyword)"> int</span><span style="color:var(--astro-code-foreground)">(maxRunners) {</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">	slog.</span><span style="color:var(--astro-code-token-function)">Debug</span><span style="color:var(--astro-code-foreground)">(</span><span style="color:var(--astro-code-token-string-expression)">&quot;max runners achieved, unloading one to make room&quot;</span><span style="color:var(--astro-code-foreground)">, </span><span style="color:var(--astro-code-token-string-expression)">&quot;runner_count&quot;</span><span style="color:var(--astro-code-foreground)">, loadedCount)</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">	runnerToExpire </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)"> s.</span><span style="color:var(--astro-code-token-function)">findRunnerToUnload</span><span style="color:var(--astro-code-foreground)">()</span></span></code></pre></figure>
+<p>웹 UI에서 문서를 붙여 물으면 질문을 먼저 벡터로 바꾸고, 그다음 대화 모델에 묻습니다. 그 순서대로 세 번 불러 봤습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>차례</th>
+<th>임베딩</th>
+<th>이어서 대화</th>
+<th>그중 Qwen 올리기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="nb">1.1초</span></td>
+<td><span class="nb">14.6초</span></td>
+<td><span class="nb">8.4초</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="nb">0.8초</span></td>
+<td><span class="nb">13.2초</span></td>
+<td><span class="nb">8.5초</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td><span class="nb">0.9초</span></td>
+<td><span class="nb">11.3초</span></td>
+<td><span class="nb">9.6초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>대화는 한 단어로 답하게 한 짧은 질문입니다. 모델이 올라가 있으면 1초 안쪽에 끝나는 질문인데, Qwen을 다시 올리느라 매번 8초 넘게 더 걸렸습니다. 임베딩 쪽도 <span class="nb">bge-m3를</span> 다시 올리느라 1초쯤 걸렸습니다.</p>
+<h2 id="웹-ui로-다시-물었다">웹 UI로 다시 물었다</h2>
+<p>관리자 설정의 문서 화면에서 하는 것처럼, 웹 UI의 임베딩 엔진을 Ollama로 바꿨습니다. 답하는 모델은 세 번 모두 웹 UI의 Ollama 연결로 부른 <span class="nb">Qwen3.8이고,</span> 생각은 껐습니다. 마지막 줄은 Ollama 서비스를 모델 두 개까지 올리게 바꾼 <span class="nb">뒤입니다(다음</span> <span class="nb">절).</span></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>질문 벡터</th>
+<th>함께 올릴 모델</th>
+<th>맞힘</th>
+<th>답 하나 평균</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">llama.cpp</span></td>
+<td>1개</td>
+<td><span class="nb">17/18</span></td>
+<td><span class="nb">29.4초</span></td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>1개</td>
+<td><span class="nb">17/18</span></td>
+<td><span class="nb">45.7초</span></td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>2개</td>
+<td><span class="nb">17/18</span></td>
+<td><span class="nb">29.3초</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>맞힌 수는 셋 다 같다.</strong> 글에 없는 2개는 셋 다 없다고 답했다. 놓친 하나는 위의 2단계 질문이다. 세 번 모두 자료에 나와 있지 않아 정확히 답하기 어렵다고 하면서, 다른 조각에 있던 <span class="nb">16,384를</span> 함께 적었다. 10단계처럼 틀린 것으로 셌다. 숫자만 보는 기계 채점으로는 셋 다 <span class="nb">18/18이다.</span> 10단계에서도 Mac mini의 Qwen이 같은 질문을 같은 식으로 놓쳤다.</li>
+<li><strong>붙은 조각도 거의 같다.</strong> 웹 UI가 붙인 조각 3개는 지금 설정과 견줘 20개 중 19개에서 같았다.</li>
+<li><strong>모델 하나만 올리면 답이 평균 16초 늦다.</strong> 질문마다 Qwen이 내려갔다 올라왔다. 질문별로는 <span class="nb">7~24초</span> 늦었고, 가장 빠른 답도 <span class="nb">29.7초였다.</span></li>
+<li><strong>모델 둘을 올리면 <span class="nb">llama.cpp</span> 때와 같다.</strong> 질문 벡터를 어디서 만들든 답 시간은 Qwen이 글을 읽고 쓰는 시간이 거의 전부다.</li>
+</ul>
+<h2 id="둘을-함께-올리면">둘을 함께 올리면</h2>
+<p>7편에서 만든 서비스 시작 스크립트의 한 줄을 바꾸고 서비스를 다시 띄웠습니다. 다시 띄워 Qwen을 올리기까지 10초 걸렸습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, ~/llm-service/start-ollama-service.sh</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">export</span><span style="color:var(--astro-code-foreground)"> OLLAMA_MAX_LOADED_MODELS</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-constant)">2</span><span style="color:var(--astro-code-token-comment)">   # 1이었다</span></span></code></pre></figure>
+<p>이번에는 <span class="nb">bge-m3가</span> Qwen 옆에 올라갔습니다. Ollama가 보고한 크기는 Qwen <span class="nb">17.2GiB,</span> <span class="nb">bge-m3</span> <span class="nb">0.64GiB였고,</span> Qwen을 내리지 않았습니다. 바로 이어 물은 짧은 대화는 <span class="nb">0.5초에</span> 답했습니다.</p>
+<p>임베딩을 CPU에만 두는 길도 시험했습니다. 10단계의 <span class="nb">llama.cpp</span> 서버가 <code><span class="nb">--device</span> none</code>으로 CPU만 쓰는 것과 같은 모양입니다. GPU에 쓸 층 수를 0으로 정한 태그를 하나 만들었습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, CPU에서만 도는 <span class="nb">bge-m3</span> 태그 만들기</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:var(--astro-code-token-function)">curl</span><span style="color:var(--astro-code-token-string)"> http://127.0.0.1:11434/api/create</span><span style="color:var(--astro-code-token-string)"> -d</span><span style="color:var(--astro-code-token-string-expression)"> &#39;{&quot;model&quot;:&quot;bge-m3-cpu&quot;,&quot;from&quot;:&quot;bge-m3&quot;,&quot;parameters&quot;:{&quot;num_gpu&quot;:0}}&#39;</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th><span class="nb">bge-m3</span></th>
+<th>보고한 크기</th>
+<th>질문 하나</th>
+<th>조각 170개</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td><span class="nb">0.64GiB</span></td>
+<td><span class="nb">0.02초</span></td>
+<td><span class="nb">11.8초</span></td>
+</tr>
+<tr>
+<td>CPU 태그</td>
+<td><span class="nb">1.16GiB</span></td>
+<td><span class="nb">0.11~0.18초</span></td>
+<td><span class="nb">75.7초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>크기는 Ollama가 <code><span class="nb">/api/ps</span></code>로 보고한 값입니다. 적재 로그를 보면 GPU판도 모델의 520MiB는 CPU 쪽 메모리에 둡니다. GPU판의 시간은 Qwen이 내려간 뒤에, CPU 태그는 Qwen 옆에서 잰 값입니다.</p>
+<p>CPU 태그도 Qwen 옆에 올라갔지만, 조각을 벡터로 바꾸는 데 <span class="nb">llama.cpp</span> <span class="nb">서버(42.4초)보다도</span> 오래 걸렸습니다. 24GB Mac mini에서도 GPU 쪽에 함께 들어가므로 이번 시험에서는 GPU 그대로 두는 편이 나았습니다.</p>
+<p>한 가지가 달라졌습니다. 모델 하나만 올릴 때는 20문항 동안 스왑이 <span class="nb">1.2~1.5GiB에</span> 머물렀습니다. 모델 둘을 올리자 <span class="nb">1.4GiB에서</span> <span class="nb">8.8GiB로</span> 늘었습니다. 지금 <span class="nb">설정(llama.cpp)으로</span> 물을 때도 <span class="nb">1.1GiB에서</span> <span class="nb">8.0GiB로</span> 늘었습니다. 7편에서 본 대로 Ollama의 MLX 엔진은 대화를 할수록 메모리를 더 씁니다. 임베딩에 밀려 다시 올라온 Qwen은 <span class="nb">19.7GiB에서</span> <span class="nb">17.2GiB가</span> 됐습니다. 질문마다 Qwen을 다시 올리면 늘어난 메모리가 처음으로 돌아가서 스왑이 늘지 않은 것으로 보입니다.</p>
+<h2 id="긴-조각은-2048토큰까지였다">긴 조각은 <span class="nb">2,048토큰까지였다</span></h2>
+<p><span class="nb">bge-m3는</span> <span class="nb">8,192토큰까지</span> 배운 모델입니다. 10단계에서 <span class="nb">llama.cpp</span> 서버는 글 하나를 <span class="nb">2,048토큰까지로</span> <span class="nb">정했습니다(</span><code><span class="nb">-c</span> 8192 <span class="nb">-np</span> 4</code>, 묶음도 <code><span class="nb">-b</span> 2048 <span class="nb">-ub</span> 2048</code><span class="nb">).</span> Ollama는 로그에 <span class="nb">8,192로</span> 올렸다고 적었지만, 긴 글을 넣어 보니 같은 <span class="nb">2,048토큰에서</span> 멈췄습니다. 연재 글 앞부분 <span class="nb">4,000자와</span> <span class="nb">9,000자를</span> 넣었습니다. 표의 <span class="nb">「자름」은</span> 웹 UI가 보내는 <code>truncate: true</code>, <span class="nb">「안</span> <span class="nb">자름」은</span> <code>truncate: false</code>입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>토큰</th>
+<th><span class="nb">llama.cpp</span></th>
+<th>Ollama 자름</th>
+<th>Ollama 안 자름</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">2,060</span></td>
+<td>오류</td>
+<td>앞 <span class="nb">2,048만</span></td>
+<td>오류</td>
+</tr>
+<tr>
+<td><span class="nb">4,434</span></td>
+<td>오류</td>
+<td>앞 <span class="nb">2,048만</span></td>
+<td>오류</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong><span class="nb">llama.cpp</span> 서버는 오류를 낸다.</strong> 10단계에서 정한 대로다. <span class="nb">「input</span> <span class="nb">(2060</span> <span class="nb">tokens)</span> is too large to process. increase the physical batch <span class="nb">size」라고</span> 알려 준다.</li>
+<li><strong>Ollama는 묶음이 <span class="nb">2,048이다.</span></strong> 임베딩 모델이면 한 번에 계산하는 묶음을 <span class="nb">2,048로</span> <span class="nb">둔다(</span><code><span class="nb">llm/llama_server.go</span></code>의 <code>DefaultEmbeddingNumBatch</code><span class="nb">).</span> 기억할 글 길이 <span class="nb">8,192보다</span> 이 묶음에 먼저 걸린다.</li>
+<li><strong>웹 UI가 보내는 값으로는 오류 없이 자른다.</strong> 웹 UI는 Ollama에 <code>truncate: true</code>를 실어 보낸다. 그러면 Ollama는 앞의 <span class="nb">2,048토큰만</span> 벡터로 바꾸고 아무 말 없이 답한다. <code>truncate: false</code>로 보내면 <span class="nb">「the</span> input length exceeds the context <span class="nb">length」라며</span> 거절한다. 넘은 것은 기억할 글 길이가 아니라 묶음인데, 오류 문구는 길이라고 말한다.</li>
+</ul>
+<p>지금 웹 UI는 조각을 <span class="nb">1,024자</span> 안으로 자르므로 이 한도에 닿지 않습니다. 조각 크기를 크게 늘리면, Ollama로는 조각의 뒷부분이 검색에서 빠지고도 오류가 나지 않습니다.</p>
+<h2 id="웹-ui에서-바꾸려면">웹 UI에서 바꾸려면</h2>
+<p>관리자 설정의 문서 화면에서 임베딩 모델 엔진을 Ollama로, 주소를 Ollama 서비스로, 모델을 <code><span class="nb">bge-m3:latest</span></code>로 고르면 됩니다. API로는 아래 값을 보냈고, 나머지 값은 그대로 두었습니다. 묶음 <span class="nb">크기(8)는</span> 10단계 값 그대로입니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>Mac mini, 웹 UI의 임베딩 설정을 바꾼 요청(/api/v1/retrieval/embedding/update)</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="json"><code><span class="line"><span style="color:var(--astro-code-foreground)">{</span><span style="color:var(--astro-code-token-keyword)">&quot;RAG_EMBEDDING_ENGINE&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;ollama&quot;</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;RAG_EMBEDDING_MODEL&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;bge-m3:latest&quot;</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;RAG_EMBEDDING_BATCH_SIZE&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-constant)"> 8</span><span style="color:var(--astro-code-token-punctuation)">,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)"> &quot;ollama_config&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-foreground)"> {</span><span style="color:var(--astro-code-token-keyword)">&quot;url&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;http://localhost:11434&quot;</span><span style="color:var(--astro-code-token-punctuation)">,</span><span style="color:var(--astro-code-token-keyword)"> &quot;key&quot;</span><span style="color:var(--astro-code-token-punctuation)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;&quot;</span><span style="color:var(--astro-code-foreground)">}}</span></span></code></pre></figure>
+<p>바꾸면 웹 UI는 Ollama의 <code><span class="nb">/api/embed</span></code>에 글과 모델 이름, <code>truncate: true</code>만 보냅니다. 내리지 말라는 값은 보내지 않으므로, <span class="nb">bge-m3는</span> Ollama 서비스 설정대로 계속 올라가 있습니다. 함께 올릴 모델 수를 2로 바꾸지 않으면 위처럼 질문마다 대화 모델이 내려갑니다.</p>
+<p>시험이 끝난 뒤 웹 UI의 임베딩은 <span class="nb">llama.cpp</span> 서버로, Ollama 서비스는 모델 하나로 되돌렸습니다. CPU 태그는 Mac mini에 남겨 두었습니다. 어느 엔진을 늘 켜 둘지는 10편에서 정합니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong><span class="nb">bge-m3는</span> Ollama로 돌려도 거의 같은 조각을 찾는다.</strong> 질문 18개의 순위가 <span class="nb">llama.cpp와</span> 같았고, 이미 넣어 둔 벡터에 섞어 써도 맞힌 개수가 같았다.</li>
+<li><strong>글을 넣는 속도는 Ollama가 빠르다.</strong> GPU에서 돌아서 조각 170개에 <span class="nb">11.8초,</span> <span class="nb">llama.cpp</span> <span class="nb">서버(CPU만)는</span> <span class="nb">42.4초였다.</span></li>
+<li><strong>모델 하나만 올리는 서비스에서는 임베딩이 대화 모델을 내린다.</strong> 문서를 붙인 질문마다 Qwen을 다시 올려 답이 16초 늦었다. 쉬어도 내리지 않게 한 설정은 소용없었다.</li>
+<li><strong>문서 검색까지 Ollama에 맡기려면 모델을 두 개까지 올리게 한다.</strong> 24GB Mac mini에서도 <span class="nb">bge-m3는</span> GPU 쪽에 함께 들어갔고, 답 시간은 <span class="nb">llama.cpp</span> 때와 같았다. 대신 Qwen이 내려가지 않으니, 지금 설정에서처럼 대화마다 메모리가 쌓여 스왑이 는다.</li>
+<li><strong>한 조각은 <span class="nb">2,048토큰까지다.</span></strong> 두 엔진 모두 그렇다. <span class="nb">llama.cpp는</span> 오류를 내고, 웹 UI를 거친 Ollama는 말없이 자른다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-22"><li><time class="measured" datetime="2026-11-22T21:27+09:00"><span class="nb">21:27</span></time><span class="trail__what">저장된 조각 170개와 질문 20개를 꺼냄</span><code class="trail__got">답이 든 조각은 모두 있음</code></li><li><time class="measured" datetime="2026-11-22T21:28+09:00"><span class="nb">21:28</span></time><span class="trail__what"><span class="nb">llama.cpp</span> 서버로 조각 170개</span><code class="trail__got"><span class="nb">42.4초</span></code></li><li><time class="measured" datetime="2026-11-22T21:28+09:00"><span class="nb">21:28</span></time><span class="trail__what">Ollama에 첫 임베딩</span><code class="trail__got"><span class="nb">1.8초,</span> <span class="nb">Qwen3.8이</span> 내려감</code></li><li><time class="measured" datetime="2026-11-22T21:28+09:00"><span class="nb">21:28</span></time><span class="trail__what">Ollama로 조각 170개</span><code class="trail__got"><span class="nb">11.8초</span></code></li><li><time class="measured" datetime="2026-11-22T21:28+09:00"><span class="nb">21:28</span></time><span class="trail__what">두 엔진의 검색 순위</span><code class="trail__got">13, 17, 17로 같음</code></li><li><time class="measured" datetime="2026-11-22T21:29+09:00"><span class="nb">21:29</span></time><span class="trail__what">임베딩과 대화를 번갈아 세 번</span><code class="trail__got">대화마다 Qwen 올리기 <span class="nb">8.4~9.6초</span></code></li><li><time class="measured" datetime="2026-11-22T21:39+09:00"><span class="nb">21:39</span></time><span class="trail__what">웹 UI, 지금 설정으로 20문항</span><code class="trail__got"><span class="nb">17/18,</span> 평균 <span class="nb">29.4초</span></code></li><li><time class="measured" datetime="2026-11-22T21:54+09:00"><span class="nb">21:54</span></time><span class="trail__what">웹 UI, 임베딩을 Ollama로 20문항</span><code class="trail__got"><span class="nb">17/18,</span> 평균 <span class="nb">45.7초</span></code></li><li><time class="measured" datetime="2026-11-22T21:55+09:00"><span class="nb">21:55</span></time><span class="trail__what">Ollama 서비스를 모델 두 개까지로</span><code class="trail__got"><span class="nb">bge-m3가</span> Qwen 옆에 올라감</code></li><li><time class="measured" datetime="2026-11-22T21:56+09:00"><span class="nb">21:56</span></time><span class="trail__what">CPU 태그로 조각 170개</span><code class="trail__got"><span class="nb">75.7초</span></code></li><li><time class="measured" datetime="2026-11-22T22:07+09:00"><span class="nb">22:07</span></time><span class="trail__what">웹 UI, Ollama 임베딩과 모델 두 개로 20문항</span><code class="trail__got"><span class="nb">17/18,</span> 평균 <span class="nb">29.3초</span></code></li><li><time class="measured" datetime="2026-11-22T22:07+09:00"><span class="nb">22:07</span></time><span class="trail__what"><span class="nb">4,000자</span> 넘는 글을 두 엔진에</span><code class="trail__got"><span class="nb">llama.cpp는</span> 오류, Ollama는 <span class="nb">2,048토큰에서</span> 자름</code></li><li><time class="measured" datetime="2026-11-22T22:08+09:00"><span class="nb">22:08</span></time><span class="trail__what">Ollama 서비스를 모델 하나로 되돌림</span><code class="trail__got">Qwen만 올라감</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-ollama"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/ollama-10-decision/" class="pager__next"><small>다음 글</small><strong>10편 바꿀까, 말까</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#같은-bge-m3-두-엔진">같은 <span class="nb">bge-m3,</span> 두 엔진</a></li><li><a href="#찾은-조각은-거의-같았다">찾은 조각은 거의 같았다</a></li><li><a href="#빠르기">빠르기</a></li><li><a href="#임베딩을-부르자-qwen이-내려갔다">임베딩을 부르자 Qwen이 내려갔다</a></li><li><a href="#웹-ui로-다시-물었다">웹 UI로 다시 물었다</a></li><li><a href="#둘을-함께-올리면">둘을 함께 올리면</a></li><li><a href="#긴-조각은-2048토큰까지였다">긴 조각은 <span class="nb">2,048토큰까지였다</span></a></li><li><a href="#웹-ui에서-바꾸려면">웹 UI에서 바꾸려면</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

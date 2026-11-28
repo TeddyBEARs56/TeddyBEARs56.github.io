@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>서버로 띄우기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 4단계. 맥미니에 MLX 서버로 Qwen 3.8 27B를 띄웠습니다. 노트북과 내 컴퓨터에서 OpenAI와 같은 형식으로 질문을 보내 본 기록입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/04-server/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="서버로 띄우기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 4단계. 맥미니에 MLX 서버로 Qwen 3.8 27B를 띄웠습니다. 노트북과 내 컴퓨터에서 OpenAI와 같은 형식으로 질문을 보내 본 기록입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/04-server/"><meta property="article:published_time" content="2026-11-13T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"서버로 띄우기","description":"로컬 LLM 연재 4단계. 맥미니에 MLX 서버로 Qwen 3.8 27B를 띄웠습니다. 노트북과 내 컴퓨터에서 OpenAI와 같은 형식으로 질문을 보내 본 기록입니다.","datePublished":"2026-11-13T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/04-server/","mainEntityOfPage":"https://teddybears56.github.io/posts/04-server/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>4단계</li></ol></nav><h1 id="post-title">서버로 띄우기</h1><p class="post__lead">3단계까지는 모델을 그 기계 안에서만 불러서, 다른 기계에서는 쓸 수 없었습니다. 이번 단계에서는 3단계에서 빨랐던 MLX로 Qwen <span class="nb">3.8</span> 27B를 서버 프로그램으로 띄웁니다. 노트북과 내 컴퓨터에서 OpenAI와 같은 형식으로 질문을 보내 보고, 여럿이 동시에 물으면 어떻게 되는지도 봅니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-13"><span class="nb">2026-11-13</span></time></dd></div><div><dt>고친 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 7분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>서버에서 명령 한 줄로 MLX 서버를 띄운다.</strong> 같은 네트워크의 다른 기계가 질문을 보낼 수 있게 한다.</li>
+<li><strong>노트북에서 질문을 보낸다.</strong> 다른 기계에서 정말 답이 오는지, 답이 어떤 모양인지 본다.</li>
+<li><strong>이어서 물어, 서버가 앞의 대화를 아는지 본다.</strong> 챗봇처럼 쓰려면 대화가 이어져야 한다.</li>
+<li><strong>내 컴퓨터에서 OpenAI 공식 라이브러리로 묻는다.</strong> ChatGPT용 프로그램을 주소만 바꿔 붙일 수 있는지 본다.</li>
+<li><strong>여럿이 동시에 묻게 한다.</strong> 여러 사람이 쓰는 9단계를 미리 맛본다.</li>
+</ol>
+<h2 id="명령-한-줄로-서버-띄우기">명령 한 줄로 서버 띄우기</h2>
+<p>실습 화면은 셋으로 나눴습니다. 왼쪽은 Claude와 대화하는 창입니다. 오른쪽 위는 서버, 오른쪽 아래는 노트북 창이고, 둘 다 SSH로 원격 접속했습니다. 서버 창에서 한 줄을 쳤습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> mlx_lm.server</span><span style="color:var(--astro-code-token-string)"> --model</span><span style="color:var(--astro-code-token-string)"> ~/models/mlx/Qwen3.8-27B-4bit</span><span style="color:var(--astro-code-token-string)"> --host</span><span style="color:var(--astro-code-token-constant)"> 0.0.0.0</span><span style="color:var(--astro-code-token-string)"> --chat-template-args</span><span style="color:var(--astro-code-token-string-expression)"> &#39;{&quot;enable_thinking&quot;:false}&#39;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">UserWarning:</span><span style="color:var(--astro-code-token-string)"> mlx_lm.server</span><span style="color:var(--astro-code-token-string)"> is</span><span style="color:var(--astro-code-token-string)"> not</span><span style="color:var(--astro-code-token-string)"> recommended</span><span style="color:var(--astro-code-token-string)"> for</span><span style="color:var(--astro-code-token-string)"> production</span><span style="color:var(--astro-code-token-string)"> as</span><span style="color:var(--astro-code-token-string)"> it</span><span style="color:var(--astro-code-token-string)"> only</span><span style="color:var(--astro-code-token-string)"> implements</span><span style="color:var(--astro-code-token-string)"> basic</span><span style="color:var(--astro-code-token-string)"> security</span><span style="color:var(--astro-code-token-string)"> checks.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">INFO</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Starting</span><span style="color:var(--astro-code-token-string)"> httpd</span><span style="color:var(--astro-code-token-string)"> at</span><span style="color:var(--astro-code-token-constant)"> 0.0.0.0</span><span style="color:var(--astro-code-token-string)"> on</span><span style="color:var(--astro-code-token-string)"> port</span><span style="color:var(--astro-code-token-string)"> 8080...</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><span class="nb">--model</span></code></td>
+<td>띄울 모델. 3단계에서 받은 MLX용 Qwen</td>
+</tr>
+<tr>
+<td><code><span class="nb">--host</span> <span class="nb">0.0.0.0</span></code></td>
+<td>같은 네트워크의 어느 기계가 보내도 받는다. 빼면 서버 자신이 보낸 질문만 받는다</td>
+</tr>
+<tr>
+<td><code>--chat-template-args</code></td>
+<td>생각 모드를 끈다. 초당 7토큰짜리 모델이 답하기 전에 생각까지 하면, 답 하나에 <span class="nb">1~2분씩</span> 걸린다</td>
+</tr>
+<tr>
+<td>문 <span class="nb">번호(포트)</span></td>
+<td>적지 않아서 기본값 <code>8080</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>모델을 메모리에 올리는 데는 10초쯤 걸렸습니다. 처음에는 같은 명령을 노트북 창에 쳤다가 <span class="nb">「그런</span> 명령은 <span class="nb">없다」는</span> 답을 받았습니다. MLX는 애플 칩 전용이라 서버에만 있습니다.</p>
+<aside class="note" aria-labelledby="note-idrfzo"><h3 id="note-idrfzo">API 키를 확인하지 않는 서버</h3><p>경고문이 말하듯 이 서버는 기본적인 보안 검사만 합니다. API 키도 확인하지 않습니다. API 키는 서버에 질문을 보낼 때 함께 보내는 비밀 문자열로, 서버는 이 문자열이 맞는 요청에만 답합니다. 이 서버는 그 확인을 하지 않으니, 켜 둔 동안에는 같은 네트워크의 누구나 쓸 수 있습니다. 시험하는 동안만 열고, 끝나면 끄기로 했습니다. API 키 확인은 9단계에서 설정합니다.</p></aside>
+<h2 id="다른-기계에서-질문하기">다른 기계에서 질문하기</h2>
+<p>노트북 창에서 서버 주소로 두 가지를 보냈습니다. 하나는 <span class="nb">「무슨</span> 모델이 <span class="nb">있느냐」는</span> 물음이고, 하나는 실제 질문입니다. 윈도우 명령창은 한글을 그대로 넘기면 깨지기 쉽습니다. 그래서 손으로 직접 보내는 이 첫 시험은 영어로 했습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>명령 프롬프트, 노트북</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> curl http://192.168.x.x:8080/v1/models</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">{</span><span style="color:var(--astro-code-token-function)">&quot;object&quot;</span><span style="color:var(--astro-code-token-function)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;list&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;data&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-foreground)"> [{</span><span style="color:var(--astro-code-token-function)">&quot;id&quot;</span><span style="color:var(--astro-code-token-function)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;.../Qwen3.8-27B-4bit&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;object&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;model&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string)"> ...}]}</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">&gt;</span><span style="color:var(--astro-code-foreground)"> curl http://192.168.x.x:8080/v1/chat/completions -H </span><span style="color:var(--astro-code-token-string-expression)">&quot;Content-Type: application/json&quot;</span><span style="color:var(--astro-code-foreground)"> -d </span><span style="color:var(--astro-code-token-string-expression)">&quot;{\&quot;messages\&quot;:[{\&quot;role\&quot;:\&quot;user\&quot;,\&quot;content\&quot;:\&quot;What is 1+1? Answer in one short sentence.\&quot;}],\&quot;max_tokens\&quot;:40}&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">{</span><span style="color:var(--astro-code-token-function)">&quot;id&quot;</span><span style="color:var(--astro-code-token-function)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;chatcmpl-...&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;object&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;chat.completion&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;choices&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-foreground)"> [{</span><span style="color:var(--astro-code-token-function)">&quot;index&quot;</span><span style="color:var(--astro-code-token-function)">:</span><span style="color:var(--astro-code-token-string)"> 0,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;finish_reason&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;stop&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;message&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string)"> {</span><span style="color:var(--astro-code-token-string-expression)">&quot;role&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;assistant&quot;</span><span style="color:var(--astro-code-token-string)">,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;content&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;1+1 equals 2.&quot;</span><span style="color:var(--astro-code-token-string)">}}],</span><span style="color:var(--astro-code-token-string-expression)"> &quot;usage&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string)"> {</span><span style="color:var(--astro-code-token-string-expression)">&quot;prompt_tokens&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string)"> 25,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;completion_tokens&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-string)"> 8,</span><span style="color:var(--astro-code-token-string-expression)"> &quot;total_tokens&quot;</span><span style="color:var(--astro-code-token-string)">:</span><span style="color:var(--astro-code-token-constant)"> 33</span><span style="color:var(--astro-code-token-string)">}}</span></span></code></pre></figure>
+<p>주소는 <code><span class="nb">/v1/models</span></code>와 <code><span class="nb">/v1/chat/completions</span></code>이고, 질문은 <code>messages</code>에 싸서 보냅니다. 이 모양이 OpenAI API와 똑같습니다. API는 프로그램이 다른 프로그램에 일을 맡기는 정해진 창구입니다. 이 점이 4단계의 핵심입니다. 답장은 이렇게 읽습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>값</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code><span class="nb">1+1</span> equals 2.</code></td>
+<td>모델의 답</td>
+</tr>
+<tr>
+<td><code>finish_reason</code></td>
+<td><code>stop</code></td>
+<td>스스로 답을 끝냈다. 한도에 걸려 잘리면 <code>length</code></td>
+</tr>
+<tr>
+<td><code>usage</code></td>
+<td>질문 25 + 답 8 = 33토큰</td>
+<td>이번에 쓴 양을 글 조각인 토큰으로 셌다. 유료 API라면 이 숫자로 요금을 매긴다</td>
+</tr>
+</tbody>
+</table></div>
+<p>서버 창에는 질문이 올 때마다 기록이 한 줄씩 찍혔습니다. 어느 기계에서 왔는지, 질문을 몇 토큰까지 읽었는지가 보입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">192.168.x.x</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-foreground)"> [13/Nov/2026 </span><span style="color:var(--astro-code-token-string)">16:56:16]</span><span style="color:var(--astro-code-token-string-expression)"> &quot;POST /v1/chat/completions HTTP/1.1&quot;</span><span style="color:var(--astro-code-token-constant)"> 200</span><span style="color:var(--astro-code-token-string)"> -</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">INFO</span><span style="color:var(--astro-code-token-string)"> -</span><span style="color:var(--astro-code-token-string)"> Prompt</span><span style="color:var(--astro-code-token-string)"> processing</span><span style="color:var(--astro-code-token-string)"> progress:</span><span style="color:var(--astro-code-token-string)"> 25/25</span></span></code></pre></figure>
+<p>한국어 대화는 명령창 대신, 노트북에 만든 작은 도우미로 했습니다. PowerShell로 짠 파일입니다. 질문을 받아 서버에 보내고, 답과 속도를 보여 줍니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>질문</th>
+<th>답</th>
+<th>속도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>로컬 LLM이 뭔지 초등학생에게 설명하듯 세 문장으로 알려 줘</td>
+<td>인터넷 연결 없이 내 컴퓨터나 스마트폰 안에서 직접 작동하는 똑똑한 인공지능 친구야. <span class="nb">(…)</span> 내가 쓴 내용이 밖으로 새어 나가지 않아서 더 안전해.</td>
+<td>81토큰, <span class="nb">13.5초,</span> 초당 <code><span class="nb">6.0</span></code></td>
+</tr>
+</tbody>
+</table></div>
+<p>3단계에서 잰 초당 <span class="nb">6.9토큰보다</span> 조금 느립니다. 질문을 읽는 시간과 망을 오가는 시간까지 들어간 체감 속도라서 그렇습니다.</p>
+<h2 id="서버는-대화를-기억하지-않는다">서버는 대화를 기억하지 않는다</h2>
+<p>한 번 묻고 답하는 건 됐습니다. 이번에는 앞에서 한 말을 아는지 보려고, 같은 도우미로 바로 이어서 물었습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>질문</th>
+<th>답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>내가 방금 뭘 물어봤지?</td>
+<td>아니요, 이번 대화에서 아직 질문을 하신 적이 없습니다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>서버는 질문 하나를 받으면 답 하나를 주고 끝납니다. 앞의 대화는 남기지 않습니다. 그럼 챗봇은 어떻게 대화를 이어 갈까요? <strong>보내는 쪽이 지난 대화를 매번 통째로 다시 보냅니다.</strong> 그렇게 하는 도우미로 다시 해 봤습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>대화 도우미의 핵심, 노트북</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="powershell"><code><span class="line"><span style="color:var(--astro-code-foreground)">$messages </span><span style="color:var(--astro-code-token-keyword)">+=</span><span style="color:var(--astro-code-token-keyword)"> @</span><span style="color:var(--astro-code-foreground)">{ role </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &#39;user&#39;</span><span style="color:var(--astro-code-foreground)">; content </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)"> $q }</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$r </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-function)"> Invoke-RestMethod</span><span style="color:var(--astro-code-token-keyword)"> -</span><span style="color:var(--astro-code-foreground)">Uri </span><span style="color:var(--astro-code-token-string-expression)">&#39;http://192.168.x.x:8080/v1/chat/completions&#39;</span><span style="color:var(--astro-code-token-keyword)"> -</span><span style="color:var(--astro-code-foreground)">Method Post </span><span style="color:var(--astro-code-token-keyword)">-</span><span style="color:var(--astro-code-foreground)">Body ...</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">$messages </span><span style="color:var(--astro-code-token-keyword)">+=</span><span style="color:var(--astro-code-token-keyword)"> @</span><span style="color:var(--astro-code-foreground)">{ role </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)"> &#39;assistant&#39;</span><span style="color:var(--astro-code-foreground)">; content </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)"> $r.choices[</span><span style="color:var(--astro-code-token-constant)">0</span><span style="color:var(--astro-code-foreground)">].message.content }</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>차례</th>
+<th>내가 친 것</th>
+<th>보낸 양</th>
+<th>답</th>
+<th>걸린 시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>내 이름은 <span class="nb">○○야.</span> 기억해 줘</td>
+<td>23토큰</td>
+<td>이름을 잘 기억해 두겠습니다</td>
+<td><span class="nb">8.9초</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>내 이름이 뭐라고 했지?</td>
+<td><strong>94토큰</strong></td>
+<td><span class="nb">○○님이라고</span> 하셨죠!</td>
+<td><strong><span class="nb">2.6초</span></strong></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>보낸 양이 23토큰에서 94토큰으로 늘었다. 앞의 질문과 답까지 같이 보냈기 때문이다. 기억은 서버가 아니라 보내는 쪽이 한다. 2단계에서 정한 <span class="nb">「기억할</span> 글 <span class="nb">길이」가</span> 이 숫자의 한계다.</li>
+<li>더 많이 보냈는데 더 빨랐다. 서버에는 방금 읽은 앞부분을 잠시 붙잡아 두는 <strong>임시 <span class="nb">저장(prompt</span> <span class="nb">cache)</span></strong> 기능이 있다. 그래서 새로 붙은 부분만 읽었다. 서버 기록에는 <code>Prompt Cache: 3 sequences, <span class="nb">0.46</span> GB</code>처럼 찍혔다. 대화를 기억하는 게 아니라, 속도를 위해 잠시 두는 저장이다.</li>
+</ul>
+<h2 id="openai-라이브러리를-그대로">OpenAI 라이브러리를 그대로</h2>
+<p>앞에서 서버가 OpenAI API와 같은 모양으로 주고받는 걸 봤습니다. 실제 프로그램들은 보통 OpenAI 공식 라이브러리로 질문합니다. 라이브러리는 프로그램에 가져다 쓰는 코드 묶음입니다. 그래서 이번에는 내 컴퓨터에서 그 라이브러리로 물었습니다. 바꾼 건 서버 주소 하나뿐입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span><span class="nb">openai_hello.py의</span> 핵심, 내 컴퓨터</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="python"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">from</span><span style="color:var(--astro-code-foreground)"> openai </span><span style="color:var(--astro-code-token-keyword)">import</span><span style="color:var(--astro-code-foreground)"> OpenAI</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">client </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-function)"> OpenAI</span><span style="color:var(--astro-code-token-punctuation)">(base_url</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;http://192.168.x.x:8080/v1&quot;</span><span style="color:var(--astro-code-token-punctuation)">, api_key</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-string-expression)">&quot;none&quot;</span><span style="color:var(--astro-code-token-punctuation)">)</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">r </span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-foreground)"> client</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-foreground)">chat</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-foreground)">completions</span><span style="color:var(--astro-code-token-punctuation)">.</span><span style="color:var(--astro-code-token-function)">create</span><span style="color:var(--astro-code-token-punctuation)">(model</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-punctuation)">model, messages</span><span style="color:var(--astro-code-token-keyword)">=</span><span style="color:var(--astro-code-token-punctuation)">[{</span><span style="color:var(--astro-code-token-string-expression)">&quot;role&quot;</span><span style="color:var(--astro-code-token-punctuation)">: </span><span style="color:var(--astro-code-token-string-expression)">&quot;user&quot;</span><span style="color:var(--astro-code-token-punctuation)">, </span><span style="color:var(--astro-code-token-string-expression)">&quot;content&quot;</span><span style="color:var(--astro-code-token-punctuation)">: </span><span style="color:var(--astro-code-token-string-expression)">&quot;...&quot;</span><span style="color:var(--astro-code-token-punctuation)">}])</span></span></code></pre></figure>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 내 컴퓨터</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> run</span><span style="color:var(--astro-code-token-string)"> ~/llm-lab/openai_hello.py</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">서버의</span><span style="color:var(--astro-code-token-string)"> 모델:</span><span style="color:var(--astro-code-token-string)"> Qwen3.8-27B-4bit</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">[한 번에 받기] 안녕하세요, 오늘도 좋은 하루 보내세요</span><span style="color:var(--astro-code-token-keyword)">!</span><span style="color:var(--astro-code-foreground)"> (</span><span style="color:var(--astro-code-token-function)">답</span><span style="color:var(--astro-code-token-string)"> 12토큰</span><span style="color:var(--astro-code-foreground)">)</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">[흘려 받기] 따스한 햇살 아래 만물이 깨어나 꽃이 피어나는 봄,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">뜨거운</span><span style="color:var(--astro-code-token-string)"> 태양</span><span style="color:var(--astro-code-token-string)"> 아래</span><span style="color:var(--astro-code-token-string)"> 생명력이</span><span style="color:var(--astro-code-token-string)"> 가장</span><span style="color:var(--astro-code-token-string)"> 왕성하게</span><span style="color:var(--astro-code-token-string)"> 불타오르는</span><span style="color:var(--astro-code-token-string)"> 여름,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">풍성한</span><span style="color:var(--astro-code-token-string)"> 수확과</span><span style="color:var(--astro-code-token-string)"> 단풍으로</span><span style="color:var(--astro-code-token-string)"> 물든</span><span style="color:var(--astro-code-token-string)"> 대지가</span><span style="color:var(--astro-code-token-string)"> 아름다운</span><span style="color:var(--astro-code-token-string)"> 가을,</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">하얀</span><span style="color:var(--astro-code-token-string)"> 눈이</span><span style="color:var(--astro-code-token-string)"> 덮인</span><span style="color:var(--astro-code-token-string)"> 고요함</span><span style="color:var(--astro-code-token-string)"> 속에서</span><span style="color:var(--astro-code-token-string)"> 자연이</span><span style="color:var(--astro-code-token-string)"> 잠시</span><span style="color:var(--astro-code-token-string)"> 숨을</span><span style="color:var(--astro-code-token-string)"> 고르는</span><span style="color:var(--astro-code-token-string)"> 겨울.</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">---</span><span style="color:var(--astro-code-token-string)"> 첫</span><span style="color:var(--astro-code-token-string)"> 글자까지</span><span style="color:var(--astro-code-token-string)"> 1.0초,</span><span style="color:var(--astro-code-token-string)"> 조각</span><span style="color:var(--astro-code-token-string)"> 70개,</span><span style="color:var(--astro-code-token-string)"> 전체</span><span style="color:var(--astro-code-token-string)"> 11.4초</span></span></code></pre></figure>
+<ul>
+<li><strong>주소 한 줄만 바꿨는데 그대로 됐다.</strong> API 키를 넣는 칸인 <code><span class="nb">api_key</span></code>에는 아무 글자나 넣었다. 서버가 API 키를 확인하지 않기 때문이다. ChatGPT용으로 만든 프로그램 대부분을 이 서버에 붙일 수 있다는 뜻이다. 6단계의 웹 UI와 8단계에서 이 방법을 쓴다.</li>
+<li><strong>흘려 받으면 첫 글자가 1초 만에 나온다.</strong> 흘려 받기는 답이 다 만들어지길 기다리지 않고, 글자가 만들어지는 대로 조금씩 받는 방식이다. 이번에는 조각 70개로 나눠 받았다. 네 줄을 다 쓰는 데는 <span class="nb">11.4초가</span> 걸렸다. 사람이 느끼는 빠르기는 전체 시간보다 첫 글자까지의 시간이다.</li>
+</ul>
+<h2 id="여럿이-동시에-물으면">여럿이 동시에 물으면</h2>
+<p>9단계를 미리 맛보려고, 1명, 2명, 4명이 같은 순간에 같은 질문을 보내게 했습니다. 답 길이는 최대 80토큰입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>동시에 묻는 사람</th>
+<th>한 사람이 기다린 시간</th>
+<th>서버 전체 속도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1명</td>
+<td><span class="nb">7.0초</span></td>
+<td>초당 <code><span class="nb">5.7</span></code>토큰</td>
+</tr>
+<tr>
+<td>2명</td>
+<td><span class="nb">6.4초</span></td>
+<td>초당 <code><span class="nb">12.6</span></code>토큰</td>
+</tr>
+<tr>
+<td>4명</td>
+<td><span class="nb">7.9초</span></td>
+<td>초당 <code><span class="nb">20.2</span></code>토큰</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>4명이 한꺼번에 물어도 각자 기다린 시간은 거의 늘지 않았다.</strong> 서버가 네 질문을 묶어서 함께 답을 썼다. 한 토큰을 쓸 때마다 모델 16GB를 한 번 읽어야 한다. 서버는 한 번 읽은 김에 네 사람 몫을 같이 계산한다. 속도를 막는 건 읽기라서, 사람이 늘어도 읽는 횟수는 그대로다.</li>
+<li>이번에는 모두 같은 질문이라 임시 저장 덕도 봤다. 서버 기록을 보면 1명일 때는 질문을 <code><span class="nb">27/27</span></code>토큰 읽었다. 2명과 4명일 때는 <code><span class="nb">1/1</span></code>토큰만 읽었다. 서로 다른 긴 질문이 몰리면 이보다 느릴 것이다. 9단계에서 제대로 잰다.</li>
+</ul>
+<p>API 키를 확인하지 않는 서버라, 시험을 마치고 서버 창에서 <code>Ctrl + C</code>로 서버를 껐습니다. 네트워크에 열어 둔 8080번 포트도 함께 닫혔습니다.</p>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-13"><li><time class="measured" datetime="2026-11-13T16:53+09:00"><span class="nb">16:53</span></time><span class="trail__what">서버와 노트북에 SSH로 들어갔다</span><code class="trail__got">창 2개</code></li><li><time class="measured" datetime="2026-11-13T16:53+09:00"><span class="nb">16:53</span></time><span class="trail__what">서버를 띄웠다</span><code class="trail__got">8080</code></li><li><time class="measured" datetime="2026-11-13T16:56+09:00"><span class="nb">16:56</span></time><span class="trail__what">노트북에서 모델 목록을 물었다</span><code class="trail__got">200</code></li><li><time class="measured" datetime="2026-11-13T16:56+09:00"><span class="nb">16:56</span></time><span class="trail__what">노트북에서 첫 질문을 보냈다</span><code class="trail__got">33토큰</code></li><li><time class="measured" datetime="2026-11-13T16:57+09:00"><span class="nb">16:57</span></time><span class="trail__what">한국어로 물었다</span><code class="trail__got"><span class="nb">6.0</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T17:00+09:00"><span class="nb">17:00</span></time><span class="trail__what">방금 뭘 물었는지 물었다</span><code class="trail__got">모름</code></li><li><time class="measured" datetime="2026-11-13T17:01+09:00"><span class="nb">17:01</span></time><span class="trail__what">이어지는 대화로 이름을 물었다</span><code class="trail__got">기억함</code></li><li><time class="measured" datetime="2026-11-13T17:18+09:00"><span class="nb">17:18</span></time><span class="trail__what">OpenAI 라이브러리로 물었다</span><code class="trail__got">첫 글자 <span class="nb">1.0초</span></code></li><li><time class="measured" datetime="2026-11-13T17:21+09:00"><span class="nb">17:21</span></time><span class="trail__what">4명이 동시에 물었다</span><code class="trail__got"><span class="nb">20.2</span> <span class="nb">t/s</span></code></li><li><time class="measured" datetime="2026-11-13T17:52+09:00"><span class="nb">17:52</span></time><span class="trail__what">서버를 껐다</span><code class="trail__got">Ctrl + C</code></li></ol>
+<h2 id="배운-것">배운 것</h2>
+<ul>
+<li>서버는 명령 한 줄이면 뜬다. API 키를 확인하지 않으니 시험하는 동안만 연다.</li>
+<li>OpenAI와 같은 형식이라, ChatGPT용 프로그램을 주소만 바꿔 붙일 수 있다.</li>
+<li>서버는 대화를 기억하지 않는다. 보내는 쪽이 지난 대화를 매번 다시 보낸다.</li>
+<li>흘려 받으면 첫 글자가 1초 만에 나온다. 사람이 느끼는 빠르기는 이것이다.</li>
+<li>여럿이 동시에 물어도 한 사람이 기다리는 시간은 거의 같다. 모델을 한 번 읽어 여러 답을 함께 쓴다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 다른 기계에서도 모델을 쓸 수 있습니다. 하지만 서버는 터미널 창에 친 명령 하나로 돌았고, 창을 닫으면 함께 사라집니다. 그래서 5단계에서는 사람이 창을 열어 두지 않아도 서버가 늘 켜져 있게 합니다.</p></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/05-always-on/" class="pager__next"><small>다음 글</small><strong>5단계 늘 켜져 있게</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#명령-한-줄로-서버-띄우기">명령 한 줄로 서버 띄우기</a></li><li><a href="#다른-기계에서-질문하기">다른 기계에서 질문하기</a></li><li><a href="#서버는-대화를-기억하지-않는다">서버는 대화를 기억하지 않는다</a></li><li><a href="#openai-라이브러리를-그대로">OpenAI 라이브러리를 그대로</a></li><li><a href="#여럿이-동시에-물으면">여럿이 동시에 물으면</a></li><li><a href="#남긴-기록">남긴 기록</a></li><li><a href="#배운-것">배운 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

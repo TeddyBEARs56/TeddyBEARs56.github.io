@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>웹 UI 붙이기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 6단계. 늘 켜 둔 Mac mini의 로컬 LLM 앞에 Open WebUI라는 웹 UI를 붙여, 같은 네트워크의 누구나 브라우저로 로그인해 대화하게 만든 기록입니다. 구조, 설치, 관리자 설정 네 가지, 쓰는 법, 그리고 붙이자마자 서버가 두 번 멈춘 원인과 고친 설정을 담았습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/06-chat-web/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="웹 UI 붙이기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 6단계. 늘 켜 둔 Mac mini의 로컬 LLM 앞에 Open WebUI라는 웹 UI를 붙여, 같은 네트워크의 누구나 브라우저로 로그인해 대화하게 만든 기록입니다. 구조, 설치, 관리자 설정 네 가지, 쓰는 법, 그리고 붙이자마자 서버가 두 번 멈춘 원인과 고친 설정을 담았습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/06-chat-web/"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"웹 UI 붙이기","description":"로컬 LLM 연재 6단계. 늘 켜 둔 Mac mini의 로컬 LLM 앞에 Open WebUI라는 웹 UI를 붙여, 같은 네트워크의 누구나 브라우저로 로그인해 대화하게 만든 기록입니다. 구조, 설치, 관리자 설정 네 가지, 쓰는 법, 그리고 붙이자마자 서버가 두 번 멈춘 원인과 고친 설정을 담았습니다.","datePublished":"2026-11-16T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/06-chat-web/","mainEntityOfPage":"https://teddybears56.github.io/posts/06-chat-web/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>6단계</li></ol></nav><h1 id="post-title">웹 UI 붙이기</h1><p class="post__lead">5단계까지 만든 MLX 서버는 늘 켜져 있지만, 쓰려면 터미널이나 코드가 필요했습니다. 이번에는 그 앞에 웹 UI를 붙여, 같은 네트워크의 누구나 브라우저로 로그인해 대화하게 합니다. 웹 UI는 ChatGPT처럼 브라우저에서 대화하는 화면이고, 여기서는 Open WebUI를 씁니다. 구조를 먼저 정하고, 설치한 뒤, 관리자 설정을 하고, 함께 쓸 사람에게 보낼 쓰는 법을 정리합니다. 붙이자마자 서버가 두 번 멈췄는데, 그 원인과 고친 설정도 함께 남깁니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 12분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>구조를 정한다.</strong> 웹 UI를 어느 기계에 두고 모델 서버와 어떻게 잇는지 먼저 정해야, 설치할 곳과 바깥에 열어 둘 포트가 정해진다.</li>
+<li><strong>Open WebUI를 설치하고 띄운다.</strong> 늘 켜진 Mac mini에, MLX 서버와 같은 방식으로.</li>
+<li><strong>관리자 설정 네 가지를 한다.</strong> 기본값 그대로면 다른 사람은 가입도 못 하고, 가입해도 모델이 보이지 않는다.</li>
+<li><strong>쓰는 법을 정리한다.</strong> 함께 쓸 사람에게는 이 글의 <span class="nb">「쓰는</span> <span class="nb">법」만</span> 보내면 되게.</li>
+<li><strong>멈춘 원인을 고친다.</strong> 붙이자마자 서버가 두 번 멈췄다. 여러 사람이 쓰려면 이것부터 막아야 한다.</li>
+<li><strong>노트북 모델도 목록에 넣는다.</strong> 꼼꼼하지만 느린 Mac mini와 빠른 노트북 가운데 골라 쓰게.</li>
+</ol>
+<h2 id="구조">구조</h2>
+<p>웹 UI는 <strong>Mac mini에 둡니다.</strong> 늘 켜져 있고, 모델 서버와 같은 기계라 둘 사이가 가깝습니다. 모델 서버는 두 대입니다. Mac mini의 MLX 서버에 더해, 뒤에서 노트북의 <span class="nb">llama.cpp</span> 서버도 붙였습니다. 아래 그림과 표의 번호는 포트입니다. 포트는 한 기계 안에서 프로그램마다 나눠 받는 접속 번호입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>구조</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>같은 네트워크의 PC·휴대폰 브라우저</span></span>
+<span class="line"><span>        │  http://192.168.x.x:3000  (로그인)</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>Mac mini ── Open WebUI (3000번)</span></span>
+<span class="line"><span>            화면, 계정, 대화 기록</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              ├──▶ Mac mini MLX 서버 (8080번, Qwen 3.8 27B)</span></span>
+<span class="line"><span>              │    5단계에서 늘 켜 둔 모델 서버</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              └──▶ 노트북 llama.cpp 서버 (8081번, Gemma 4 26B)</span></span>
+<span class="line"><span>                   API 키를 함께 보내야 답한다</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>하는 일</th>
+<th>어디에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open WebUI</td>
+<td>채팅 화면, 로그인, 대화 기록 저장</td>
+<td>Mac mini 3000번 포트, 데이터는 <code>~/open-webui-data</code></td>
+</tr>
+<tr>
+<td>MLX 서버</td>
+<td>질문을 읽고 답을 쓴다</td>
+<td>Mac mini 8080번 포트 <span class="nb">(5단계에서</span> 늘 켜 <span class="nb">둠)</span></td>
+</tr>
+<tr>
+<td><span class="nb">llama.cpp</span> 서버</td>
+<td>질문을 읽고 답을 쓴다</td>
+<td>노트북 8081번 포트, Mac mini만 들어올 수 있음</td>
+</tr>
+</tbody>
+</table></div>
+<p>브라우저는 MLX 서버와 직접 이야기하지 않습니다. <strong>Open WebUI가 가운데서 전해 줍니다.</strong> 그래서 나중에는 MLX 서버를 바깥에서 막고 Open WebUI 하나만 열어 둘 수 있습니다. 지금 MLX 서버는 API 키를 확인하지 않아서 같은 네트워크의 누구나 질문을 보낼 수 있는데, 이걸 막을 길이 생기는 셈입니다.</p>
+<p>Open WebUI는 로컬 LLM용으로 가장 널리 쓰이는 공개 웹 UI입니다. 계정, 대화 기록, 모델 고르기, 마크다운과 코드 표시를 직접 만들지 않고 바로 얻으려고 골랐습니다.</p>
+<h2 id="설치하고-띄우기">설치하고 띄우기</h2>
+<p>5단계처럼 <code>uv</code>로 설치했습니다. 설치 크기는 <span class="nb">1.9GB이고</span> 몇 분 걸렸습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> tool</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> --python</span><span style="color:var(--astro-code-token-constant)"> 3.12</span><span style="color:var(--astro-code-token-string-expression)"> &quot;open-webui==0.13.3&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">Installed</span><span style="color:var(--astro-code-token-constant)"> 1</span><span style="color:var(--astro-code-token-string)"> executable:</span><span style="color:var(--astro-code-token-string)"> open-webui</span></span></code></pre></figure>
+<p>띄우는 일은 시작 스크립트 <code>~/llm-service/start-openwebui.sh</code>에 맡겼습니다. 핵심은 환경 변수입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>환경 변수</th>
+<th>값</th>
+<th>왜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><span class="nb">DATA_DIR</span></code></td>
+<td><code>~/open-webui-data</code></td>
+<td>계정과 대화 기록을 둘 폴더를 정해 둔다</td>
+</tr>
+<tr>
+<td><code>WEBUI_NAME</code></td>
+<td>원하는 이름</td>
+<td>화면 위에 보이는 서비스 이름</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_BASE_URLS</code></td>
+<td><code>http://127.0.0.1:8080/v1;http://192.168.x.x:8081/v1</code></td>
+<td>같은 기계의 MLX 서버와 노트북 서버를 모델로 쓴다. 노트북은 뒤에서 붙였다</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEYS</code></td>
+<td><code><span class="nb">none;(노트북</span> 서버의 API <span class="nb">키)</span></code></td>
+<td>위 주소와 같은 순서로 보낼 API 키. MLX 서버는 확인하지 않으니 아무 글자나</td>
+</tr>
+<tr>
+<td><code>AIOHTTP_CLIENT_TIMEOUT_MODEL_LIST</code></td>
+<td><code>3</code></td>
+<td>노트북이 꺼져 있어도 모델 목록을 3초 넘게 기다리지 않는다</td>
+</tr>
+<tr>
+<td><code>ENABLE_OLLAMA_API</code></td>
+<td><code>false</code></td>
+<td>Ollama는 없으니 찾지 않게</td>
+</tr>
+<tr>
+<td><code>DEFAULT_USER_ROLE</code></td>
+<td><code>pending</code></td>
+<td>새로 가입한 사람은 관리자가 승인해야 쓴다</td>
+</tr>
+<tr>
+<td><code>ENABLE_TAGS_GENERATION</code> 외 3개</td>
+<td><code>false</code></td>
+<td>답마다 따라붙는 <span class="nb">태그·후속</span> <span class="nb">질문·자동</span> 완성 요청을 끈다. 모델이 느려서 그만큼 다음 사람이 기다린다</td>
+</tr>
+<tr>
+<td><code>ANONYMIZED_TELEMETRY</code> 외 2개</td>
+<td>끔</td>
+<td>사용 통계를 바깥으로 보내지 않는다</td>
+</tr>
+<tr>
+<td><code>USE_SLIM_DOCKER</code></td>
+<td><code>true</code></td>
+<td>Open WebUI가 GPU를 쓰지 않게 한다. 아래 <span class="nb">「두</span> 번 멈춘 <span class="nb">서버」에서</span> 찾은 설정</td>
+</tr>
+</tbody>
+</table></div>
+<p>처음 켜기까지 약 70초 걸렸고, 메모리는 <span class="nb">0.9GB를</span> 썼습니다. 늘 켜 두는 방법은 5단계와 같은 launchd 데몬입니다. 이 글을 쓰는 지금은 손으로 띄워 둔 상태이고, 아래 한 줄로 맡깁니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> sudo</span><span style="color:var(--astro-code-token-string)"> ~/llm-service/install-openwebui.sh</span></span></code></pre></figure>
+<h2 id="처음-열기-관리자-계정">처음 열기: 관리자 계정</h2>
+<p>브라우저로 처음 열면 이름, 이메일, 비밀번호를 묻습니다. <strong>처음 가입한 사람이 관리자가 됩니다.</strong> 네트워크에 열려 있으니, 띄우자마자 직접 열어 관리자 계정부터 만들었습니다. 이메일은 로그인 아이디로만 쓰이고 메일은 가지 않습니다.</p>
+<figure class="shot shot--narrow"><img src="/_astro/admin-signup.Blv91VuB_12eO7m.webp" alt="Open WebUI 첫 화면. 이름, 이메일, 비밀번호 칸과 관리자 계정 생성 버튼" loading="lazy" decoding="async" width="520" height="260"><figcaption>처음 여는 사람에게만 나오는 화면. 여기서 만든 계정이 관리자가 됩니다.</figcaption></figure>
+<h2 id="관리자-설정-네-가지">관리자 설정 네 가지</h2>
+<p>관리자 계정으로 들어가 보니, 기본값으로는 <strong>다른 사람이 쓸 수 없는 상태</strong>였습니다. 왼쪽 아래 프로필에서 <strong>설정</strong>을 열고, 아래쪽 <span class="nb">「관리자」</span> 묶음에서 네 가지를 고쳤습니다.</p>
+<h3 id="1-가입-열기">1. 가입 열기</h3>
+<p>첫 관리자가 생기면 Open WebUI가 <strong>가입을 스스로 닫습니다.</strong> 모르는 사람이 관리자가 되는 일을 막는 안전장치입니다. 시작 스크립트에 가입 허용을 넣어 두었는데도 로그인 화면에 <span class="nb">「가입」</span> 링크가 없었던 이유입니다.</p>
+<p><strong>인증</strong>에서 <strong>신규 가입</strong>을 켰습니다. <span class="nb">「기본</span> 사용자 <span class="nb">역할」은</span> <strong>보류 중</strong> 그대로 둡니다. 가입은 누구나 하되, 쓰는 건 관리자가 승인한 사람만 하게 하려는 것입니다.</p>
+<figure class="shot"><img src="/_astro/signup-setting.DVnEwDKg_NW9m2.webp" alt="관리자 설정의 인증 화면. 기본 사용자 역할 보류 중, 신규 가입 켜짐" loading="lazy" decoding="async" width="945" height="280"><figcaption>인증: 신규 가입을 켜고, 기본 역할은 보류 중.</figcaption></figure>
+<h3 id="2-모델-이름과-공개">2. 모델 이름과 공개</h3>
+<p><strong>모델</strong>의 연필 아이콘을 누르면 모델 편집 화면이 나옵니다. 고칠 곳은 두 군데입니다.</p>
+<ul>
+<li><strong>이름:</strong> 기본 이름은 서버의 폴더 경로 <code><span class="nb">/Users/(내</span> 사용자 <span class="nb">이름)/models/mlx/…</span></code> 그대로입니다. 길기도 하고 사용자 이름까지 드러나서 <code>Mac mini · Qwen <span class="nb">3.8</span> 27B</code>로 바꿨습니다.</li>
+<li><strong>접근:</strong> 기본이 <strong>비공개</strong>라 관리자만 모델을 볼 수 있습니다. 오른쪽 위 <strong>접근</strong>에서 공개 범위를 <strong>공개</strong>로 바꿨습니다. 그대로 두면 승인받은 사용자의 모델 목록이 비어 있습니다.</li>
+</ul>
+<figure class="shot"><img src="/_astro/access.0drXHNqA_ZDbi1G.webp" alt="모델 편집 화면에서 접근 제어 창을 열어 공개 범위를 공개로 바꾼 모습" loading="lazy" decoding="async" width="935" height="460"><figcaption>모델 편집: 이름을 바꾸고, 접근에서 공개로.</figcaption></figure>
+<h3 id="3-기능-정리">3. 기능 정리</h3>
+<p>같은 편집 화면 아래 <strong>기능</strong>을 펼치면 스위치가 아홉 개 있습니다. 네 개를 끄고 하나를 켠 뒤 <strong>저장 및 업데이트</strong>를 눌렀습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>스위치</th>
+<th>바꾼 값</th>
+<th>왜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><span class="nb">내장(빌트인)</span> 도구</strong></td>
+<td>끔</td>
+<td>켜 두면 짧은 질문에도 도구 설명이 붙어 <strong><span class="nb">7,226토큰</span></strong>이 된다. 우리 서버는 1초에 60여 토큰을 읽으니 읽기만 2분</td>
+</tr>
+<tr>
+<td>코드 인터프리터</td>
+<td>끔</td>
+<td>이 서버에서 코드를 돌려 줄 곳이 없다</td>
+</tr>
+<tr>
+<td>비전</td>
+<td>끔</td>
+<td>MLX <span class="nb">서버(</span><code><span class="nb">mlx_lm</span></code><span class="nb">)는</span> 글만 읽는다. 켜 두면 그림을 올릴 수 있는 것처럼 보인다</td>
+</tr>
+<tr>
+<td>메모리</td>
+<td>끔</td>
+<td>기억해 둔 내용을 질문마다 덧붙인다. 느린 서버에서는 그만큼 늦어진다</td>
+</tr>
+<tr>
+<td>사용량</td>
+<td>켬</td>
+<td>답 아래 <span class="nb">ⓘ에</span> 읽은 토큰과 쓴 토큰이 나온다</td>
+</tr>
+</tbody>
+</table></div>
+<p>내장 도구를 끄자 같은 질문이 <strong><span class="nb">7,226토큰에서</span> 30토큰으로</strong> 줄었습니다. 2분 넘게 걸리던 답이 25초 안에 끝까지 나왔습니다.</p>
+<figure class="shot"><img src="/_astro/capabilities.BTou5oNH_1j5HwL.webp" alt="모델 편집 화면의 기능 목록. 비전, 코드 인터프리터, 메모리, 내장 도구는 꺼지고 파일 업로드, 사용량, 인용, 상태 업데이트는 켜진 모습" loading="lazy" decoding="async" width="935" height="260"><figcaption>기능: 내장 도구, 코드 인터프리터, 비전, 메모리를 끄고 사용량을 켰습니다.</figcaption></figure>
+<h3 id="4-가입한-사람-승인">4. 가입한 사람 승인</h3>
+<p>다른 사람이 가입하면 관리자 패널의 <strong>사용자</strong> 목록에 <strong>보류 중</strong>으로 올라옵니다. 그 글자를 누르면 편집 창이 열립니다. 역할을 <strong>사용자</strong>로 바꾸고 <strong>저장</strong>하면 바로 쓸 수 있습니다.</p>
+<figure class="shot"><img src="/_astro/approve.CMWaaxmH_Y1iVY.webp" alt="관리자 패널의 사용자 목록과 사용자 편집 창. 역할을 사용자로 바꾸는 중" loading="lazy" decoding="async" width="1025" height="560"><figcaption>사용자 목록: 보류 중을 눌러 역할을 사용자로 바꾸고 저장.</figcaption></figure>
+<h2 id="노트북-모델-붙이기">노트북 모델 붙이기</h2>
+<p>Mac mini 모델은 꼼꼼하지만 답을 1초에 6토큰쯤 씁니다. 짧게 빨리 묻고 싶을 때도 있어서, 노트북의 Gemma 4 26B도 모델 목록에 넣었습니다. 2단계에서 잰 대로 이 모델은 노트북에서 1초에 20토큰 가까이 씁니다. 노트북에는 2단계에서 쓴 <span class="nb">llama.cpp(Vulkan판)가</span> 이미 있어서, 거기 딸린 서버 프로그램 <code><span class="nb">llama-server</span></code>를 띄웠습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>노트북, 서버 시작 파일 <span class="nb">serve-gemma.cmd의</span> 핵심</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="bat"><code><span class="line"><span style="color:var(--astro-code-foreground)">llama-server.exe -m gemma-4-26B-A4B-it-UD-IQ4_XS.gguf --alias gemma-4-26b-a4b -ngl </span><span style="color:var(--astro-code-token-constant)">99</span><span style="color:var(--astro-code-foreground)"> -c </span><span style="color:var(--astro-code-token-constant)">32768</span><span style="color:var(--astro-code-foreground)"> -np </span><span style="color:var(--astro-code-token-constant)">2</span><span style="color:var(--astro-code-foreground)"> --reasoning-budget </span><span style="color:var(--astro-code-token-constant)">0</span><span style="color:var(--astro-code-foreground)"> --host 0.0.0.0 --port </span><span style="color:var(--astro-code-token-constant)">8081</span><span style="color:var(--astro-code-foreground)"> --api-key-file server-key.txt --no-webui</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><span class="nb">-ngl</span> 99</code></td>
+<td>모델 전부를 GPU에 올린다</td>
+</tr>
+<tr>
+<td><code><span class="nb">-c</span> 32768 <span class="nb">-np</span> 2</code></td>
+<td>기억할 글 길이 <span class="nb">32,768토큰을</span> 두 몫으로 나눠, 두 사람에게 동시에 답한다</td>
+</tr>
+<tr>
+<td><code>--reasoning-budget 0</code></td>
+<td>답하기 전에 길게 생각하는 단계를 건너뛴다. 채팅에서 첫 글자가 빨리 나오게</td>
+</tr>
+<tr>
+<td><code>--api-key-file</code></td>
+<td>아래의 API 키를 이 파일에서 읽고, 맞는 요청에만 답한다</td>
+</tr>
+<tr>
+<td><code>--no-webui</code></td>
+<td>llama.cpp에 딸린 채팅 화면은 끈다. 화면은 Open WebUI 하나로</td>
+</tr>
+</tbody>
+</table></div>
+<p>노트북은 개인 파일이 있는 컴퓨터라, 늘 네트워크에 열어 둔 Mac mini보다 더 막았습니다.</p>
+<ul>
+<li><strong>API 키:</strong> 서버에 질문을 보낼 때 함께 보내야 하는 비밀 문자열입니다. 48자리 무작위 문자열을 만들어 노트북 서버와 Mac mini의 Open WebUI 두 곳에만 파일로 넣었고, 화면에는 한 번도 출력하지 않았습니다. 이 문자열이 없는 요청은 서버가 <span class="nb">401(인증</span> <span class="nb">실패)로</span> 거절합니다.</li>
+<li><strong>방화벽:</strong> 윈도우 방화벽에 8081번 포트를 Mac mini 한 대에만 여는 규칙을 넣었습니다. 다른 컴퓨터에서 보내면 연결부터 되지 않습니다.</li>
+<li><strong>사람은 Open WebUI를 거쳐서:</strong> 사용자들은 노트북 서버에 직접 묻지 않습니다. API 키를 아는 건 Open WebUI뿐입니다.</li>
+</ul>
+<figure class="code"><figcaption class="code__bar"><span>터미널, 확인한 결과</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>Mac mini → 노트북, API 키 없이     401</span></span>
+<span class="line"><span>Mac mini → 노트북, API 키와 함께   [&#39;gemma-4-26b-a4b&#39;]</span></span>
+<span class="line"><span>내 컴퓨터 → 노트북                 연결 안 됨 (방화벽)</span></span></code></pre></figure>
+<p>늘 켜 두는 일은 윈도우 작업 스케줄러에 맡겼습니다. 노트북이 켜질 때 서버를 띄우고, 아무도 로그인하지 않아도 창 없이 뜹니다. 5단계의 launchd와 같은 역할입니다.</p>
+<p>Open WebUI에는 노트북 서버의 주소와 API 키를 연결로 더하고, 모델 이름을 <code>노트북 · Gemma 4 26B</code>로 붙여 공개했습니다. 관리자 설정의 <strong>연결</strong>과 <strong>모델</strong>에서 할 수 있는 일입니다. 이번에는 Open WebUI의 설정 데이터베이스를 백업한 뒤 직접 고치고 다시 띄웠습니다.</p>
+<h2 id="쓰는-법">쓰는 법</h2>
+<p>함께 쓸 사람에게는 이 단락만 보내면 됩니다.</p>
+<ol>
+<li><strong>가입:</strong> 브라우저에서 안내받은 <span class="nb">주소(</span><code><span class="nb">http://192.168.x.x:3000</span></code><span class="nb">)를</span> 열고, 로그인 화면 아래 <strong>가입</strong>을 누릅니다. 이름, 이메일, 비밀번호를 넣습니다. 이메일은 아이디로만 쓰이니 메일을 받을 수 있는 주소가 아니어도 됩니다.</li>
+<li><strong>승인 기다리기:</strong> <span class="nb">「계정</span> 활성화 <span class="nb">대기」</span> 화면이 나옵니다. 관리자에게 말한 뒤, 승인되면 <strong>다시 확인</strong>을 누릅니다.</li>
+<li><strong>모델 고르기:</strong> 위쪽 모델 이름을 눌러 고릅니다. 꼼꼼한 답이 필요하면 <strong>Mac mini · Qwen <span class="nb">3.8</span> 27B</strong>, 빨리 받고 싶으면 <strong>노트북 · Gemma 4 26B</strong>입니다.</li>
+<li><strong>대화:</strong> 아래 칸에 질문을 쓰고 Enter를 누릅니다. 왼쪽의 연필 아이콘은 새 대화이고, 지난 대화는 왼쪽 목록에 남습니다.</li>
+</ol>
+<figure class="shot shot--narrow"><img src="/_astro/signup.mZu_zCZ7_Z1F9J53.webp" alt="가입 화면. 이름, 이메일, 비밀번호 칸과 계정 생성 버튼" loading="lazy" decoding="async" width="520" height="286"><figcaption>가입 화면</figcaption></figure>
+<figure class="shot shot--narrow"><img src="/_astro/pending.D_n6RgPD_Z1o88Qv.webp" alt="계정 활성화 대기 화면. 관리자에게 연락하라는 안내와 다시 확인 버튼" loading="lazy" decoding="async" width="480" height="320"><figcaption>승인 전에는 이 화면이 나옵니다.</figcaption></figure>
+<figure class="shot"><img src="/_astro/chat.DBQY31xX_Z2l8ibR.webp" alt="채팅 화면. 회의록에 들어갈 항목 다섯 가지를 묻자 Mac mini · Qwen 3.8 27B가 번호 목록으로 답하고, 정보 아이콘에 입력 30토큰, 출력 102토큰이 보이는 모습" loading="lazy" decoding="async" width="930" height="440"><figcaption>첫 대화. <span class="nb">ⓘ에</span> 마우스를 올리면 읽은 <span class="nb">토큰(30)과</span> 쓴 <span class="nb">토큰(102)이</span> 나옵니다. 제목은 저절로 붙습니다.</figcaption></figure>
+<p>알아 둘 것도 있습니다.</p>
+<ul>
+<li><strong>Mac mini 모델은 느립니다.</strong> 답은 1초에 6토큰 정도로 나옵니다. 긴 글을 붙여 넣으면 읽는 데만 오래 <span class="nb">걸립니다(3천</span> 토큰이면 50초 <span class="nb">안팎).</span> 노트북 모델은 1초에 18토큰 정도입니다.</li>
+<li><strong>Mac mini는 한 번에 한 질문만 읽습니다.</strong> 누가 긴 글을 보내고 있으면, 짧은 질문도 그게 다 읽힐 때까지 기다립니다.</li>
+<li><strong>노트북이 꺼지거나 잠들면</strong> 목록에서 노트북 모델이 빠집니다.</li>
+<li><strong>비밀번호는 다른 곳과 다르게</strong> 정하세요. 주소가 <code>http</code>라서 네트워크 안에서는 비밀번호가 암호화되지 않은 채로 오갑니다.</li>
+<li><strong>관리자는 대화를 열어 볼 수 있습니다.</strong> Open WebUI의 기본값입니다. 막으려면 시작 스크립트에 <code>ENABLE_ADMIN_CHAT_ACCESS=false</code>를 넣습니다.</li>
+<li>대화 기록은 바깥 서비스가 아니라 <strong>Mac mini 안에만</strong> 저장됩니다.</li>
+</ul>
+<h2 id="붙이자마자-두-번-멈춘-서버">붙이자마자 두 번 멈춘 서버</h2>
+<p>관리자 계정을 만들고 처음 질문을 보낸 지 1분 만에 답이 끊겼습니다. 화면에는 <span class="nb">「generation</span> thread <span class="nb">died」가</span> 나왔고, 그 뒤로는 어떤 질문에도 답이 오지 않았습니다. MLX 서버 기록에 원인이 있었습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span class="measured">~/llm-logs/mlx-server.log</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>2026-11-16 11:08:18,060 - ERROR - mlx_lm.server generation thread died: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).</span></span></code></pre></figure>
+<p><strong>GPU 메모리가 모자라 답을 만드는 스레드가 죽은 것</strong>입니다. 24GB 가운데 모델이 15GB를 차지하고, 나머지에 세 가지가 겹쳤습니다.</p>
+<ul>
+<li><strong>프롬프트 캐시:</strong> MLX 서버는 지난 질문을 다시 읽지 않으려고 기억해 둡니다. 기본값에는 크기 한도가 없습니다.</li>
+<li><strong>동시 요청:</strong> Open WebUI는 답과 대화 제목을 동시에 요청합니다. 서버는 둘을 한꺼번에 읽습니다.</li>
+<li><strong>Open WebUI의 GPU 사용:</strong> Mac에서는 문서 검색용 작은 모델을 <span class="nb">GPU(Metal)에</span> 올립니다. 코드를 열어 보고 알았습니다. 같은 GPU 메모리를 MLX 서버와 나눠 쓴 셈입니다. 화면을 찍으려고 띄운 시험용 Open WebUI까지 한 벌 더 있었습니다.</li>
+</ul>
+<p>처음에는 MLX 서버 쪽만 고쳤습니다. 캐시 한도를 2GB로 걸고, 질문을 한 번에 하나씩 읽게 했습니다. 그런데 5분 뒤 같은 오류로 또 멈췄습니다. 두 번째에는 아래처럼 고쳤고, 그 뒤로는 멈추지 않았습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>고친 곳</th>
+<th>전</th>
+<th>후</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open WebUI</td>
+<td>GPU에 모델을 올림</td>
+<td><code>USE_SLIM_DOCKER=true</code>로 CPU만 쓴다 <span class="nb">(메모리</span> <span class="nb">0.9GB에서</span> <span class="nb">0.74GB)</span></td>
+</tr>
+<tr>
+<td>MLX 프롬프트 캐시</td>
+<td>한도 없음</td>
+<td><code>--prompt-cache-bytes 1073741824</code> <span class="nb">(1GB)</span></td>
+</tr>
+<tr>
+<td>한 번에 읽는 질문</td>
+<td>여러 개</td>
+<td><code>--prompt-concurrency 1</code></td>
+</tr>
+<tr>
+<td>한 번에 쓰는 답</td>
+<td>여러 개</td>
+<td><code>--decode-concurrency 2</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>고친 뒤 긴 <span class="nb">질문(2,423토큰)과</span> 짧은 <span class="nb">질문(28토큰)을</span> 동시에 보냈습니다. 둘 다 답이 왔고, 긴 질문은 <span class="nb">48.3초,</span> 짧은 질문은 <span class="nb">39.8초</span> 걸렸습니다. 짧은 질문이 오래 걸린 건 긴 질문이 다 읽힐 때까지 기다렸기 때문입니다. 한 번에 하나씩 읽게 한 대가입니다.</p>
+<aside class="note" aria-labelledby="note-x81bj2"><h3 id="note-x81bj2">죽어도 다시 뜨지 않는 죽음</h3><p>5단계의 launchd는 서버 프로그램이 꺼지면 다시 띄웁니다. 이번에는 프로그램은 살아 있고 그 안의 스레드만 죽었습니다. 그래서 launchd는 아무것도 하지 않았고, 서버는 살아 있는 채로 모든 질문에 실패했습니다. 직접 프로그램을 끝내자 launchd가 새 설정으로 4초 안에 다시 띄웠습니다. 이런 죽음을 알아채고 다시 띄우는 감시는 아직 없습니다.</p></aside>
+<h2 id="잰-것">잰 것</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>설치 크기</td>
+<td><span class="nb">1.9GB</span></td>
+</tr>
+<tr>
+<td>처음 켜기까지</td>
+<td>약 70초</td>
+</tr>
+<tr>
+<td>Open WebUI 메모리</td>
+<td><span class="nb">0.9GB,</span> GPU를 끈 뒤 <span class="nb">0.74GB</span></td>
+</tr>
+<tr>
+<td>짧은 질문, 내장 도구 켬</td>
+<td><span class="nb">7,226토큰을</span> 읽는 데 약 2분</td>
+</tr>
+<tr>
+<td>짧은 질문, 내장 도구 끔</td>
+<td>30토큰 읽고 102토큰 써서 25초 안에 끝</td>
+</tr>
+<tr>
+<td>긴 질문과 짧은 질문 동시에</td>
+<td><span class="nb">48.3초</span> / <span class="nb">39.8초,</span> 둘 다 성공</td>
+</tr>
+<tr>
+<td>노트북 모델, 짧은 질문 두 개</td>
+<td>답 쓰기 초당 <span class="nb">18.5</span> / <span class="nb">18.3토큰,</span> 150토큰 <span class="nb">8.6초</span> / 400토큰 <span class="nb">22.5초</span></td>
+</tr>
+<tr>
+<td>노트북 서버 메모리</td>
+<td>약 <span class="nb">15.3GB</span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 같은 네트워크의 누구나 브라우저로 로컬 LLM과 대화할 수 있습니다. 다만 모델은 학습이 끝난 시점까지만 압니다. 연재는 다음 7단계에서 이 웹 UI에 웹 검색을 붙여, 최근 정보를 찾아 읽고 답하게 합니다. 그 밖에 남은 일은 셋입니다.</p>
+<ul>
+<li><strong>MLX 서버 막기:</strong> 이제 질문은 Open WebUI를 거쳐 들어오니, API 키 없이 네트워크에 열려 있는 MLX 서버를 바깥에서 막을 차례입니다. 연재 9단계 <span class="nb">「여러</span> 사람 <span class="nb">대비」가</span> 이 일입니다.</li>
+<li><strong>노트북 대기 모드 확인:</strong> 노트북은 화면이 꺼지면 네트워크를 붙든 채 대기 모드로 들어갑니다. 그 상태에서도 노트북 서버가 답하는지 아직 보지 못했습니다.</li>
+<li><strong>스레드만 죽는 경우 감시:</strong> 위 상자의 죽음을 알아채고 다시 띄우는 장치가 필요합니다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-16"><li><time class="measured" datetime="2026-11-16T10:35+09:00"><span class="nb">10:35</span></time><span class="trail__what">Mac mini에 Open WebUI <span class="nb">0.13.3</span> 설치</span><code class="trail__got"><span class="nb">1.9GB</span></code></li><li><time class="measured" datetime="2026-11-16T10:36+09:00"><span class="nb">10:36</span></time><span class="trail__what">시작 스크립트로 손으로 띄움</span><code class="trail__got">약 70초 뒤 응답, <span class="nb">0.9GB</span></code></li><li><time class="measured" datetime="2026-11-16T11:05+09:00"><span class="nb">11:05</span></time><span class="trail__what">브라우저로 열어 관리자 계정 만듦</span><code class="trail__got">관리자 1명</code></li><li><time class="measured" datetime="2026-11-16T11:07+09:00"><span class="nb">11:07</span></time><span class="trail__what">첫 질문</span><code class="trail__got">답과 제목 요청 2건</code></li><li><time class="measured" datetime="2026-11-16T11:08+09:00"><span class="nb">11:08</span></time><span class="trail__what">MLX 서버 기록 확인</span><code class="trail__got">메모리 부족으로 멈춤</code></li><li><time class="measured" datetime="2026-11-16T11:11+09:00"><span class="nb">11:11</span></time><span class="trail__what">캐시 2GB, 한 번에 한 질문만 읽게 다시 띄움</span><code class="trail__got">동시 2건 시험 통과</code></li><li><time class="measured" datetime="2026-11-16T11:16+09:00"><span class="nb">11:16</span></time><span class="trail__what">MLX 서버 기록 확인</span><code class="trail__got">같은 오류로 다시 멈춤</code></li><li><time class="measured" datetime="2026-11-16T11:17+09:00"><span class="nb">11:17</span></time><span class="trail__what">Open WebUI GPU 끔, 캐시 1GB, 동시에 쓰는 답 2개</span><code class="trail__got">동시 2건 통과, 이후 멈춤 없음</code></li><li><time class="measured" datetime="2026-11-16T11:21+09:00"><span class="nb">11:21</span></time><span class="trail__what">시험용 Open WebUI에서 내장 도구 끄고 같은 질문</span><code class="trail__got"><span class="nb">7,226</span> → 30토큰, 25초 안에 답</code></li><li><time class="measured" datetime="2026-11-16T13:20+09:00"><span class="nb">13:20</span></time><span class="trail__what">Mac mini 모델 이름을 바꾸고 공개</span><code class="trail__got">Mac mini · Qwen <span class="nb">3.8</span> 27B</code></li><li><time class="measured" datetime="2026-11-16T13:30+09:00"><span class="nb">13:30</span></time><span class="trail__what">노트북에 <span class="nb">llama.cpp</span> 서버, 방화벽 규칙, 시작 작업 설치</span><code class="trail__got">API 키 없으면 401</code></li><li><time class="measured" datetime="2026-11-16T13:32+09:00"><span class="nb">13:32</span></time><span class="trail__what">Open WebUI에 노트북 서버 연결</span><code class="trail__got">모델 2개</code></li><li><time class="measured" datetime="2026-11-16T13:34+09:00"><span class="nb">13:34</span></time><span class="trail__what">노트북 모델로 질문 두 개</span><code class="trail__got">초당 18토큰</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/07-web-search/" class="pager__next"><small>다음 글</small><strong>7단계 웹 검색 붙이기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#구조">구조</a></li><li><a href="#설치하고-띄우기">설치하고 띄우기</a></li><li><a href="#처음-열기-관리자-계정">처음 열기: 관리자 계정</a></li><li><a href="#관리자-설정-네-가지">관리자 설정 네 가지</a></li><li><a href="#노트북-모델-붙이기">노트북 모델 붙이기</a></li><li><a href="#쓰는-법">쓰는 법</a></li><li><a href="#붙이자마자-두-번-멈춘-서버">붙이자마자 두 번 멈춘 서버</a></li><li><a href="#잰-것">잰 것</a></li><li><a href="#다음-단계로">다음 단계로</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

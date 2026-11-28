@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>두 Mac을 꽉 채운 122B는 27B보다 똑똑할까 | Cyborg</title><meta name="description" content="썬더볼트 활용기 5편. 두 Mac을 꽉 채우는 Qwen3.5 122B-A10B UD-Q3_K_XL(57.0GB)을 올려 수학, 한국어 지식, 영어 지식 140문제를 Qwen3.8 27B 4비트와 함께 풀게 했습니다. 맞힌 수는 71 대 68로 같은 수준이었고, 122B가 3배 빨랐습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/thunderbolt-05-smarter/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="두 Mac을 꽉 채운 122B는 27B보다 똑똑할까 | Cyborg"><meta property="og:description" content="썬더볼트 활용기 5편. 두 Mac을 꽉 채우는 Qwen3.5 122B-A10B UD-Q3_K_XL(57.0GB)을 올려 수학, 한국어 지식, 영어 지식 140문제를 Qwen3.8 27B 4비트와 함께 풀게 했습니다. 맞힌 수는 71 대 68로 같은 수준이었고, 122B가 3배 빨랐습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/thunderbolt-05-smarter/"><meta property="article:published_time" content="2026-11-26T10:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"두 Mac을 꽉 채운 122B는 27B보다 똑똑할까","description":"썬더볼트 활용기 5편. 두 Mac을 꽉 채우는 Qwen3.5 122B-A10B UD-Q3_K_XL(57.0GB)을 올려 수학, 한국어 지식, 영어 지식 140문제를 Qwen3.8 27B 4비트와 함께 풀게 했습니다. 맞힌 수는 71 대 68로 같은 수준이었고, 122B가 3배 빨랐습니다.","datePublished":"2026-11-26T10:00:00.000Z","dateModified":"2026-11-26T10:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/thunderbolt-05-smarter/","mainEntityOfPage":"https://teddybears56.github.io/posts/thunderbolt-05-smarter/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"><style>.pair[data-astro-cid-62jseu6t]{margin-inline:0;border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-card);background:var(--color-paper-3);margin-bottom:0;overflow:hidden}.pair__title[data-astro-cid-62jseu6t]{min-height:48px;padding-inline:var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule);font-size:var(--text-sm);color:var(--color-muted);align-items:center;display:flex}.pair__row[data-astro-cid-62jseu6t]{align-items:stretch;gap:var(--space-sm);padding:var(--space-lg);grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);display:grid}.pair__box[data-astro-cid-62jseu6t]{padding:var(--space-md);border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-card);background:var(--color-paper-2)}.pair__box[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t],.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin:0}.pair__name[data-astro-cid-62jseu6t]{color:var(--color-ink);font-weight:600}.pair__spec[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-muted)}.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin-top:var(--space-xs);font-size:var(--text-sm);color:var(--color-ink-2);padding-left:1.1em}.pair__link[data-astro-cid-62jseu6t]{justify-content:center;align-items:center;gap:var(--space-2xs);text-align:center;flex-direction:column;display:flex}.pair__link[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t]{margin:0}.pair__line[data-astro-cid-62jseu6t]{min-height:var(--space-sm);background:var(--color-accent);border-radius:1px;flex:1 1 0;width:2px}.pair__label[data-astro-cid-62jseu6t]{color:var(--color-accent);font-weight:600}.pair__flow[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-ink-2)}.pair__below[data-astro-cid-62jseu6t]{padding:0 var(--space-lg) var(--space-lg);font-size:var(--text-sm);color:var(--color-muted);margin:0}@media (width>=720px){.pair__link[data-astro-cid-62jseu6t]{flex-flow:wrap;align-content:center}.pair__line[data-astro-cid-62jseu6t]{flex:1 0 100%;width:auto;height:2px;min-height:2px}.pair__label[data-astro-cid-62jseu6t],.pair__flow[data-astro-cid-62jseu6t]{flex:1 0 100%}}@media (width<=719px){.pair__row[data-astro-cid-62jseu6t]{grid-template-columns:minmax(0,1fr)}}
+</style></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-thunderbolt">연재</a></li><li>5편</li></ol></nav><h1 id="post-title">두 Mac을 꽉 채운 122B는 27B보다 똑똑할까</h1><p class="post__lead">4편에서 122B 모델을 두 Mac에 나눠 올렸습니다. 이번에는 두 대를 꽉 채우는 더 큰 판으로 바꾸고, 크기가 4배 넘는 이 모델이 27B보다 정말 더 잘 푸는지 시험을 쳤습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-26"><span class="nb">2026-11-26</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 5분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>두 Mac에 올릴 수 있는 가장 큰 모델을 찾는다.</strong></li>
+<li><strong>4편의 122B를 더 큰 판으로 올려, 4편 판과 견준다.</strong></li>
+<li><strong>수학과 지식 문제 140개를 122B와 27B에 똑같이 낸다.</strong></li>
+</ol>
+<h2 id="더-큰-모델은-들어갈-자리가-없었다">더 큰 모델은 들어갈 자리가 없었다</h2>
+<p>두 Mac의 GPU 몫을 합치면 <span class="nb">59.4GiB(63.8GB)입니다.</span> 살펴본 두 모델은 가장 작게 줄인 <span class="nb">판(UD-IQ1_S)도</span> 이보다 컸습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>숫자</th>
+<th>가장 작은 판</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3.8-Flash-Next</td>
+<td>약 <span class="nb">1,770억</span></td>
+<td><span class="nb">66.4GB</span></td>
+</tr>
+<tr>
+<td><span class="nb">GLM-5.3-Flash</span></td>
+<td>약 <span class="nb">3,210억</span></td>
+<td><span class="nb">93.1GB</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>그래서 4편과 같은 <span class="nb">Qwen3.5</span> <span class="nb">122B-A10B를</span> 더 큰 판으로 올렸습니다. 한 단계 위인 <span class="nb">UD-IQ4_XS(60.2GB)는</span> 합계에서 3GiB 남짓만 남아, 계산에 쓸 메모리 자리가 빠듯해서 고르지 않았습니다.</p>
+<h2 id="같은-122b를-더-큰-판으로">같은 122B를 더 큰 판으로</h2>
+<p>unsloth의 <span class="nb">**UD-Q3_K_XL(57.0GB,</span> 파일 <span class="nb">3개)**입니다.</span> 4편의 <span class="nb">UD-IQ3_S(46.6GB)보다</span> <span class="nb">10.4GB</span> 크고, 숫자 하나에 평균 약 <span class="nb">3.7비트를</span> 씁니다. 마스터에서 받는 데 <span class="nb">51분(초당</span> <span class="nb">18.5MB)이</span> 걸렸습니다.</p>
+<figure class="pair" aria-label="구성" data-astro-cid-62jseu6t><figcaption class="pair__title" data-astro-cid-62jseu6t>구성</figcaption><div class="pair__row" data-astro-cid-62jseu6t><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>마스터 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M4, GPU <span class="nb">22.0GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">llama-server</span></li><li data-astro-cid-62jseu6t>모델 파일 <span class="nb">57.0GB</span></li><li data-astro-cid-62jseu6t>모델의 <span class="nb">37%</span></li></ul></div><div class="pair__link" data-astro-cid-62jseu6t><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span><p class="pair__label" data-astro-cid-62jseu6t>썬더볼트 <span class="nb">40Gb/s</span></p><p class="pair__flow" data-astro-cid-62jseu6t><span class="nb">가중치(처음</span> 한 <span class="nb">번)</span></p><p class="pair__flow" data-astro-cid-62jseu6t>계산 요청과 중간 결과</p><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span></div><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>워커 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M5 Pro, GPU <span class="nb">37.4GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">rpc-server</span></li><li data-astro-cid-62jseu6t><span class="nb">10.10.10.2:50052</span></li><li data-astro-cid-62jseu6t>모델의 <span class="nb">63%</span></li></ul></div></div></figure>
+<p>마스터의 GPU 몫을 4편과 비슷하게 채우도록 <span class="nb">7:12로</span> 나눴습니다. 셈으로는 마스터에 약 21GB, 워커에 약 36GB입니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ llama-server -m Qwen3.5-122B-A10B-UD-Q3_K_XL-00001-of-00003.gguf -ngl 99 -c 4096 \</span></span>
+<span class="line"><span>    --rpc 10.10.10.2:50052 --device MTL0,RPC0 -ts 7,12</span></span></code></pre></figure>
+<h3 id="속도">속도</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>판</th>
+<th>글 읽기</th>
+<th>답 쓰기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이번 판, <span class="nb">7:12</span></td>
+<td><span class="nb">232.6</span></td>
+<td><span class="nb">17.3</span></td>
+</tr>
+<tr>
+<td>4편 판, <span class="nb">9:11</span></td>
+<td><span class="nb">205.7</span></td>
+<td><span class="nb">17.0</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>초당 토큰 수이고, <code><span class="nb">llama-bench</span></code>로 세 번 잰 평균입니다. 파일이 10GB 커졌는데 오히려 조금 빨랐습니다. 더 빠른 <span class="nb">워커(M5</span> <span class="nb">Pro)가</span> 맡는 몫이 <span class="nb">55%에서</span> <span class="nb">63%로</span> 늘어난 덕이거나, 압축 <span class="nb">방식(IQ3_S와</span> <span class="nb">Q3_K)이</span> 달라서일 수 있지만, 따로 재지는 않았습니다.</p>
+<h3 id="두-판은-얼마나-다른가">두 판은 얼마나 다른가</h3>
+<p><a href="/posts/thunderbolt-03-bigger/">3편</a>과 같은 한국어 글과 영어 글을 읽히고, 다음 토큰을 얼마나 잘 <span class="nb">맞히는지(perplexity,</span> 낮을수록 <span class="nb">좋음)를</span> 쟀습니다. 압축하지 않은 <span class="nb">원본(약</span> <span class="nb">244GB)은</span> 올릴 수 없어서, 이번 판을 기준으로 4편 판이 얼마나 어긋나는지도 함께 봤습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>글</th>
+<th>이번 판</th>
+<th>4편 판</th>
+<th>1순위 같음</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>한국어</td>
+<td><span class="nb">10.42</span></td>
+<td><span class="nb">10.62</span></td>
+<td><span class="nb">86.3%</span></td>
+</tr>
+<tr>
+<td>영어</td>
+<td><span class="nb">3.49</span></td>
+<td><span class="nb">3.59</span></td>
+<td><span class="nb">91.3%</span></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>이번 판이 조금 나았다.</strong> 4편 판의 perplexity가 한국어는 <span class="nb">1.9%,</span> 영어는 <span class="nb">2.8%</span> 높았다.</li>
+<li><strong>두 판은 다음 토큰 예측이 꽤 다르다.</strong> 1순위가 같은 비율이 <span class="nb">86~91%였다.</span> 3편에서 27B의 4비트 판과 Q8 판은 <span class="nb">95%</span> 안팎이 같았다. <span class="nb">어긋남(KL)도</span> <span class="nb">0.064와</span> <span class="nb">0.086으로,</span> 3편의 <span class="nb">0.011과</span> <span class="nb">0.021보다</span> 크다. 다만 기준과 모델이 달라 그대로 견줄 수는 없다.</li>
+</ul>
+<h3 id="번역">번역</h3>
+<p><a href="/posts/korean-llm-08-translation/">국산 LLM 견주기 8편</a>의 FLORES 문장 100개입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>판</th>
+<th><span class="nb">영→한</span></th>
+<th><span class="nb">한→영</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이번 판</td>
+<td><span class="nb">37.3</span></td>
+<td><span class="nb">57.9</span></td>
+</tr>
+<tr>
+<td>4편 판</td>
+<td><span class="nb">37.3</span></td>
+<td><span class="nb">58.2</span></td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">chrF++</span> 점수입니다. 두 판이 같은 수준이고, 한 문장에 걸린 시간도 가운데 값으로 똑같이 <span class="nb">2.5초였습니다.</span> 100문장 모두 번역문 한 줄만 냈습니다.</p>
+<h2 id="워커가-버틸-수-있는-선">워커가 버틸 수 있는 선</h2>
+<p>이번 판에서는 워커에 실제로 <span class="nb">36.9GB가</span> <span class="nb">올라갔습니다(가장</span> 많을 때 <span class="nb">37.0GB).</span> 4편의 약 26GB보다 11GB 많습니다. macOS가 보는 남은 메모리는 번역하는 동안 한 번 읽었을 때 <span class="nb">10%였고(4편은</span> <span class="nb">29%),</span> 스왑은 측정 전 19GB 가까이에서 한때 30GB 남짓까지 늘었습니다.</p>
+<p>그리고 140문제 시험을 시작하고 31분 뒤, 워커의 <code><span class="nb">rpc-server</span></code>가 멈췄습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>워커 Mac mini, <span class="nb">rpc-server의</span> 마지막 출력 <span class="nb">(줄임)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>ggml_metal_synchronize: error: command buffer 0 failed with status 5</span></span>
+<span class="line"><span>error: Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)</span></span>
+<span class="line"><span>...</span></span>
+<span class="line"><span>ggml-rpc.cpp:2289: GGML_ASSERT(status == GGML_STATUS_SUCCESS &amp;&amp; &quot;Unsuccessful graph computations are not supported with RPC&quot;) failed</span></span></code></pre></figure>
+<ul>
+<li><strong>무슨 일이었나:</strong> macOS가 GPU 오류를 복구하면서 그때 돌던 계산을 버렸다. RPC는 계산이 한 번 실패하면 이어 가지 못해 <code><span class="nb">rpc-server</span></code>가 스스로 멈췄고, 마스터의 <code><span class="nb">llama-server</span></code>도 함께 멈췄다.</li>
+<li><strong>그때 워커에서는:</strong> 멈춘 직후 워커에는 GPU 메모리를 23GB쯤 쓰는 다른 프로그램이 올라와 있었다. 122B 몫 37GB와 합치면 60GB로, 48GB 기계에 넘친다. 마스터의 기록을 보면 답 쓰기는 멈추기 11분 <span class="nb">전(14:04쯤)부터</span> 몇 분씩 멈췄다가 초당 2토큰 남짓으로 기기를 되풀이했다. 워커 화면도 멈춘 듯 느려졌다. 다만 오류의 직접 원인을 시스템 기록에서 찾지는 못했다.</li>
+<li><strong>다시 돌린 방법:</strong> 그 프로그램을 내려 두고, 다시 올라오면 <code><span class="nb">rpc-server</span></code>를 바로 끄는 감시를 켰다. 두 번째에는 남은 메모리를 한 번 읽었을 때 <span class="nb">8%였지만</span> 27분 동안 멈추지 않고 끝났다.</li>
+</ul>
+<h2 id="140문제-시험">140문제 시험</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>세트</th>
+<th>문제</th>
+<th>내는 법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수학</td>
+<td>40</td>
+<td>풀이 뒤 정수 답</td>
+</tr>
+<tr>
+<td>한국어 지식</td>
+<td>60</td>
+<td>4지선다</td>
+</tr>
+<tr>
+<td>영어 지식</td>
+<td>40</td>
+<td>최대 10지선다</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>수학:</strong> <span class="nb">HRM8K(MIT)의</span> KSM에서 답이 정수인 <span class="nb">1,199문제</span> 가운데 40개. 수학 올림피아드 문제가 27개, 교원 임용시험의 전공수학이 9개, 수능과 모의고사가 3개, 대학생 수학경시대회가 1개다.</li>
+<li><strong>한국어 지식:</strong> <span class="nb">KMMLU-HARD(CC</span> <span class="nb">BY-ND</span> <span class="nb">4.0)</span> <span class="nb">4,104문제</span> 가운데 60개. 네 <span class="nb">모델(GPT-3.5</span> Turbo, Gemini Pro, HyperCLOVA X, <span class="nb">GPT-4)</span> 가운데 하나라도 틀린 문제를 과목마다 모은 세트다.</li>
+<li><strong>영어 지식:</strong> <span class="nb">MMLU-Pro(MIT)</span> <span class="nb">12,032문제</span> 가운데 40개.</li>
+<li><strong>조건:</strong> 생각 끔, temperature 0, 문맥 <span class="nb">8,192토큰.</span> 수학은 풀이를 <span class="nb">1,536토큰까지</span> 쓰고 마지막 줄에 답을 쓰게 했고, 객관식은 알파벳 하나만 답하게 했다.</li>
+<li><strong>모델:</strong> 122B는 이번 판을 두 대에, 27B는 <span class="nb">Qwen3.8</span> 27B <span class="nb">UD-Q4_K_M(16.6GB)을</span> 마스터 혼자 돌렸다.</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>세트</th>
+<th>122B</th>
+<th>27B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수학</td>
+<td>18</td>
+<td>18</td>
+</tr>
+<tr>
+<td>한국어 지식</td>
+<td>28</td>
+<td>25</td>
+</tr>
+<tr>
+<td>영어 지식</td>
+<td>25</td>
+<td>25</td>
+</tr>
+<tr>
+<td>합계</td>
+<td>71</td>
+<td>68</td>
+</tr>
+<tr>
+<td>답 시간 합</td>
+<td>46분</td>
+<td>2시간 18분</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>맞힌 수는 같은 수준이었다.</strong> 140문제 중 71과 68이다. 같은 문제를 한쪽만 맞힌 경우가 수학 4 대 4, 한국어 지식 8 대 5, 영어 지식 2 대 2로, 이 정도 차이는 우연으로도 생긴다.</li>
+<li><strong>122B는 3배 빨랐다.</strong> 답 시간 합은 답 140개에 걸린 시간을 더한 것으로, 122B가 멈춘 문제와 다시 띄운 시간은 뺐다. 수학 한 문제에 가운데 값으로 65초와 230초가 걸렸다. 풀이 길이는 평균 <span class="nb">1,033토큰과</span> <span class="nb">1,157토큰으로</span> 비슷했고, 쓰는 속도가 초당 <span class="nb">16.7토큰과</span> <span class="nb">6.0토큰이었다.</span></li>
+<li><strong>수학은 둘 다 한도에 자주 걸렸다.</strong> 풀이가 <span class="nb">1,536토큰에서</span> 잘린 문제가 122B 16개, 27B 19개다. 잘린 풀이는 마지막 숫자가 우연히 답과 같아도 틀린 것으로 <span class="nb">셌다(122B</span> <span class="nb">1문제).</span> 그러니 이 점수는 <span class="nb">「짧게</span> 풀 수 있는 문제를 <span class="nb">맞혔는가」에</span> 가깝다.</li>
+</ul>
+<h2 id="왜-비슷했을까">왜 비슷했을까</h2>
+<p>재지 않은 추정입니다.</p>
+<ul>
+<li><strong>토큰마다 쓰는 숫자:</strong> 122B는 약 <span class="nb">1,220억</span> 개를 갖고 있지만 토큰 하나에 약 100억 개만 쓴다. 27B는 약 270억 개를 매번 다 쓴다.</li>
+<li><strong>세대:</strong> 122B는 앞 세대인 <span class="nb">Qwen3.5,</span> 27B는 <span class="nb">Qwen3.8이다.</span></li>
+<li><strong>압축:</strong> 122B는 숫자 하나에 평균 약 <span class="nb">3.7비트,</span> 27B는 5비트 가까이로, 122B 쪽을 더 많이 줄였다.</li>
+<li><strong>생각 끔:</strong> 생각을 켜거나 토큰 한도를 늘리면 결과가 달라질 수 있다.</li>
+</ul>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>이번에 잡은 한계는 모델 파일 57GB 안팎이었다.</strong> <span class="nb">60.2GB</span> 판은 여유가 빠듯해 올려 보지 않았고, 살펴본 더 큰 두 모델은 가장 작게 줄여도 자리가 없었다.</li>
+<li><strong>큰 판은 perplexity가 <span class="nb">2~3%</span> 낮고 속도도 조금 빨랐지만, 번역 점수는 같았다.</strong></li>
+<li><strong>이 시험에서 122B는 27B보다 뚜렷하게 더 맞히지 못했다.</strong> 두 대로 얻은 것은 <span class="nb">「더</span> <span class="nb">똑똑함」이</span> 아니라 <span class="nb">「같은</span> 수준을 3배 <span class="nb">빨리」였다.</span></li>
+<li><strong>빌려주는 쪽은 다른 프로그램까지 셈해야 한다.</strong> 넘쳤을 때 GPU 오류가 났고, RPC는 오류 하나에 전체가 멈췄다.</li>
+<li><strong>이번 결과는 한 번씩 잰 것이다.</strong> 시험은 140문제, 속도는 <code><span class="nb">llama-bench</span></code> 세 번이다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-26"><li><time class="measured" datetime="2026-11-26T12:38+09:00"><span class="nb">12:38</span></time><span class="trail__what">마스터에 <span class="nb">UD-Q3_K_XL을</span> 다 받음</span><code class="trail__got"><span class="nb">57.0GB,</span> 51분</code></li><li><time class="measured" datetime="2026-11-26T12:42+09:00"><span class="nb">12:42</span></time><span class="trail__what">두 대에 나눠 속도 측정을 마침</span><code class="trail__got"><span class="nb">232.6</span> · <span class="nb">17.3토큰/초</span></code></li><li><time class="measured" datetime="2026-11-26T13:00+09:00"><span class="nb">13:00</span></time><span class="trail__what">4편 판과 어긋남 측정을 마침</span><code class="trail__got">1순위 같음 <span class="nb">86.3%</span> · <span class="nb">91.3%</span></code></li><li><time class="measured" datetime="2026-11-26T13:07+09:00"><span class="nb">13:07</span></time><span class="trail__what">번역 100문장을 마침</span><code class="trail__got"><span class="nb">37.3</span> · <span class="nb">57.9</span></code></li><li><time class="measured" datetime="2026-11-26T13:44+09:00"><span class="nb">13:44</span></time><span class="trail__what">122B로 140문제 시험을 시작</span><code class="trail__got">7 : 12</code></li><li><time class="measured" datetime="2026-11-26T14:15+09:00"><span class="nb">14:15</span></time><span class="trail__what">워커의 <span class="nb">rpc-server가</span> GPU 오류로 멈춤</span><code class="trail__got">19번째 문제에서</code></li><li><time class="measured" datetime="2026-11-26T14:52+09:00"><span class="nb">14:52</span></time><span class="trail__what">다른 프로그램을 내리고 감시를 켠 뒤 다시 시작</span><code class="trail__got">남은 122문제</code></li><li><time class="measured" datetime="2026-11-26T15:19+09:00"><span class="nb">15:19</span></time><span class="trail__what">122B가 140문제를 마침</span><code class="trail__got">71 / 140</code></li><li><time class="measured" datetime="2026-11-26T17:38+09:00"><span class="nb">17:38</span></time><span class="trail__what">27B가 140문제를 마침</span><code class="trail__got">68 / 140</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-thunderbolt"><small>처음으로</small><strong>연재 목차</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#더-큰-모델은-들어갈-자리가-없었다">더 큰 모델은 들어갈 자리가 없었다</a></li><li><a href="#같은-122b를-더-큰-판으로">같은 122B를 더 큰 판으로</a></li><li><a href="#워커가-버틸-수-있는-선">워커가 버틸 수 있는 선</a></li><li><a href="#140문제-시험">140문제 시험</a></li><li><a href="#왜-비슷했을까">왜 비슷했을까</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

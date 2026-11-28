@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>웹 검색 붙이기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 7단계. 웹 UI에 직접 띄운 검색 서버 SearXNG를 붙여, 웹 검색을 켠 질문은 인터넷 검색 결과를 읽고 답하게 한 기록입니다. 검색 엔진 고르기, 설치, 웹 UI 설정, 스위치를 켜도 검색하지 않던 원인, 두 모델의 속도를 담았습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/07-web-search/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="웹 검색 붙이기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 7단계. 웹 UI에 직접 띄운 검색 서버 SearXNG를 붙여, 웹 검색을 켠 질문은 인터넷 검색 결과를 읽고 답하게 한 기록입니다. 검색 엔진 고르기, 설치, 웹 UI 설정, 스위치를 켜도 검색하지 않던 원인, 두 모델의 속도를 담았습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/07-web-search/"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"웹 검색 붙이기","description":"로컬 LLM 연재 7단계. 웹 UI에 직접 띄운 검색 서버 SearXNG를 붙여, 웹 검색을 켠 질문은 인터넷 검색 결과를 읽고 답하게 한 기록입니다. 검색 엔진 고르기, 설치, 웹 UI 설정, 스위치를 켜도 검색하지 않던 원인, 두 모델의 속도를 담았습니다.","datePublished":"2026-11-16T00:00:00.000Z","dateModified":"2026-11-16T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/07-web-search/","mainEntityOfPage":"https://teddybears56.github.io/posts/07-web-search/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>7단계</li></ol></nav><h1 id="post-title">웹 검색 붙이기</h1><p class="post__lead">6단계에서 붙인 웹 UI의 모델은 학습이 끝난 시점까지만 압니다. 오늘이 며칠인지도 모릅니다. 이번에는 직접 띄우는 검색 서버 SearXNG를 붙여, 웹 검색을 켠 질문은 인터넷에서 찾은 결과를 읽고 답하게 합니다. 검색 엔진을 고르고, 설치하고, 웹 UI를 설정한 뒤, 날씨 질문으로 시험합니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-16"><span class="nb">2026-11-16</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 10분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>검색 엔진을 고른다.</strong> 질문에서 나온 검색어가 어느 검색 엔진으로 나가는지 정하는 일이라 먼저 정한다.</li>
+<li><strong>검색 서버를 Mac mini에 띄운다.</strong> 웹 UI가 부를 검색 창구를 Mac mini 안에 둔다.</li>
+<li><strong>웹 UI에 연결한다.</strong> 검색어는 모델이 만들고, 검색 결과는 요약만 답에 넣는다.</li>
+<li><strong>날씨 질문으로 시험한다.</strong> 오늘의 정보가 없으면 답할 수 없는 질문이다.</li>
+</ol>
+<h2 id="왜-웹-검색인가">왜 웹 검색인가</h2>
+<p>처음 시험에서 <span class="nb">「금주</span> 안양 날씨 <span class="nb">알려줘」라고</span> 물었습니다. Mac mini 모델은 실시간 날씨를 볼 수 없다면서 <span class="nb">「2024년</span> 5월 <span class="nb">기준」이라고</span> 하더니, 5월 중순의 날씨를 늘어놓았습니다. 오늘은 11월 16일입니다.</p>
+<figure class="shot"><img src="/_astro/no-search.BTkCwHGx_ZjRuuf.webp" alt="Mac mini · Qwen 3.8 27B의 답. 실시간 날씨에 접근할 수 없다며 현재 날짜를 2024년 5월로 짐작하고, 5월 중순 안양 날씨의 일반적 특징을 나열한 모습" loading="lazy" decoding="async" width="1400" height="650"><figcaption>검색 없이 나온 답. 오늘 날짜를 몰라 5월 날씨를 지어냈습니다.</figcaption></figure>
+<p>모델이 아는 것은 학습이 끝난 시점까지입니다. 그 뒤의 일도, 오늘이 며칠인지도 모릅니다. 그래서 날씨, 뉴스, 가격, 최신 버전처럼 지금의 정보가 필요한 질문에는 인터넷에서 찾은 결과를 함께 넣어 줘야 합니다.</p>
+<h2 id="검색-엔진-고르기">검색 엔진 고르기</h2>
+<p>처음에는 DuckDuckGo 하나만 쓰려고 했습니다. 가입하거나 API 키를 받지 않아도 되기 때문입니다. API 키는 서비스에 요청할 때 함께 보내는 비밀 문자열입니다. 그런데 Mac mini에서 보낸 검색에는 결과가 하나도 오지 않았습니다. 그래서 다른 길을 견줘 봤습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>방법</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DuckDuckGo</td>
+<td>프로그램이 보낸 검색에 사람인지 확인하는 <span class="nb">응답(202)만</span> 돌려줬다. 몇 시간 뒤에 다시 해도 같았다</td>
+</tr>
+<tr>
+<td>Bing 결과 페이지 읽기</td>
+<td>결과는 왔다. 하지만 사람이 보는 결과 페이지를 프로그램이 읽는 방식이라, DuckDuckGo처럼 언제 막힐지 모른다</td>
+</tr>
+<tr>
+<td>공식 검색 API <span class="nb">(Tavily,</span> <span class="nb">Brave)</span></td>
+<td>프로그램이 쓰라고 내준 창구라 안정적이다. 대신 가입하고 API 키를 받아야 하고, 곳에 따라 카드도 등록해야 한다</td>
+</tr>
+<tr>
+<td><strong>SearXNG</strong></td>
+<td>직접 띄우는 메타 검색 서버. API 키 없이 검색어를 여러 검색 엔진에 보내고 결과를 모은다</td>
+</tr>
+</tbody>
+</table></div>
+<p>DuckDuckGo의 사람 확인을 피하려고 브라우저인 척하는 방법은 쓰지 않았습니다. 상대가 막아 둔 것을 우회하는 일이기 때문입니다.</p>
+<p>고른 것은 <strong>SearXNG입니다.</strong> 메타 검색은 여러 검색 엔진의 결과를 모아 보여 주는 검색입니다. 한 엔진이 막아도 다른 엔진의 결과로 답할 수 있습니다. 가입이나 API 키도 필요 없고, Open WebUI의 검색 엔진 목록에 들어 있어서 고른 뒤 주소만 넣으면 연결됩니다.</p>
+<h2 id="구조">구조</h2>
+<figure class="code"><figcaption class="code__bar"><span>구조</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>같은 네트워크의 PC·휴대폰 브라우저</span></span>
+<span class="line"><span>        │  웹 검색을 켠 질문</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>Open WebUI (Mac mini 3000번 포트)</span></span>
+<span class="line"><span>        │ ① 모델에게 질문을 짧은 검색어로 바꿔 달라고 한다</span></span>
+<span class="line"><span>        │ ② 검색어마다 SearXNG에 묻는다</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>SearXNG (Mac mini 8888번 포트, Mac mini 안에서만 받음)</span></span>
+<span class="line"><span>        │ 검색어를 여러 검색 엔진에 보내고 결과를 모은다</span></span>
+<span class="line"><span>        ▼</span></span>
+<span class="line"><span>Google, Brave, Bing, DuckDuckGo …</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>③ Open WebUI가 검색 결과 요약을 질문과 함께 모델에게 넘기고,</span></span>
+<span class="line"><span>   모델이 출처를 달아 답한다</span></span></code></pre></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>부분</th>
+<th>하는 일</th>
+<th>어디에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open WebUI</td>
+<td>모델에게 검색어를 만들게 하고, 검색하고, 결과를 모델에게 넘긴다</td>
+<td>Mac mini 3000번 포트 <span class="nb">(6단계)</span></td>
+</tr>
+<tr>
+<td>SearXNG</td>
+<td>검색어를 여러 검색 엔진에 보내고 결과를 모은다</td>
+<td>Mac mini 8888번 포트, 바깥에서는 들어올 수 없음</td>
+</tr>
+<tr>
+<td>모델</td>
+<td>검색어를 만들고, 결과를 읽고 답한다</td>
+<td>Mac mini의 MLX 서버, 노트북의 <span class="nb">llama.cpp</span> 서버</td>
+</tr>
+</tbody>
+</table></div>
+<p>포트는 한 기계 안에서 프로그램마다 나눠 받는 접속 번호입니다. SearXNG는 Mac mini 안에서만 받게 해서, 사람들은 Open WebUI를 거쳐서만 검색할 수 있습니다.</p>
+<h2 id="searxng-설치">SearXNG 설치</h2>
+<p>SearXNG는 보통 컨테이너로 띄웁니다. 하지만 Mac mini에는 컨테이너 도구가 없습니다. 컨테이너를 돌릴 가상 머신을 띄우면 모델이 쓸 메모리를 그만큼 빼앗깁니다. 그래서 Python으로 직접 설치했습니다. 5단계처럼 <code>uv</code>를 썼고, 설치 크기는 약 110MB입니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>터미널, 서버</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> git</span><span style="color:var(--astro-code-token-string)"> clone</span><span style="color:var(--astro-code-token-string)"> --depth</span><span style="color:var(--astro-code-token-constant)"> 1</span><span style="color:var(--astro-code-token-string)"> https://github.com/searxng/searxng.git</span><span style="color:var(--astro-code-token-string)"> ~/searxng/src</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> venv</span><span style="color:var(--astro-code-token-string)"> --python</span><span style="color:var(--astro-code-token-constant)"> 3.12</span><span style="color:var(--astro-code-token-string)"> ~/searxng/venv</span></span>
+<span class="line"><span style="color:var(--astro-code-token-function)">$</span><span style="color:var(--astro-code-token-string)"> uv</span><span style="color:var(--astro-code-token-string)"> pip</span><span style="color:var(--astro-code-token-string)"> install</span><span style="color:var(--astro-code-token-string)"> --python</span><span style="color:var(--astro-code-token-string)"> ~/searxng/venv/bin/python</span><span style="color:var(--astro-code-token-string)"> -r</span><span style="color:var(--astro-code-token-string)"> ~/searxng/src/requirements.txt</span><span style="color:var(--astro-code-token-string)"> -r</span><span style="color:var(--astro-code-token-string)"> ~/searxng/src/requirements-server.txt</span></span></code></pre></figure>
+<p>설정 파일에서 기본값과 다른 것은 두 가지뿐입니다. 비밀 값 <code><span class="nb">secret_key</span></code>와, Open WebUI가 결과를 받는 JSON 형식입니다. 나머지 줄은 기본값과 같은 값을 눈에 보이게 적어 둔 것입니다. 아래 주석은 설명을 위해 한국어로 옮겼습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span><span class="nb">~/searxng/settings.yml</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:var(--astro-code-token-keyword)">use_default_settings</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> true</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">server</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  secret_key</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;(임의의 긴 문자열)&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  bind_address</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;127.0.0.1&quot;</span><span style="color:var(--astro-code-token-comment)">   # Mac mini 안에서만 받는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  port</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> 8888</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  limiter</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> false</span><span style="color:var(--astro-code-token-comment)">              # 내부에서만 쓰니 요청 수를 제한하지 않는다</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  image_proxy</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> false</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  public_instance</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> false</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">search</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  safe_search</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-constant)"> 0</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  default_lang</span><span style="color:var(--astro-code-token-keyword)">:</span><span style="color:var(--astro-code-token-string-expression)"> &quot;auto&quot;</span></span>
+<span class="line"><span style="color:var(--astro-code-token-keyword)">  formats</span><span style="color:var(--astro-code-token-keyword)">:</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">    - </span><span style="color:var(--astro-code-token-string-expression)">html</span></span>
+<span class="line"><span style="color:var(--astro-code-foreground)">    - </span><span style="color:var(--astro-code-token-string-expression)">json</span><span style="color:var(--astro-code-token-comment)">                    # Open WebUI는 결과를 JSON으로 받는다</span></span></code></pre></figure>
+<p>서버 프로그램은 공식 컨테이너와 같은 <code>granian</code>입니다. 시작 스크립트 <code>~/llm-service/start-searxng.sh</code>가 띄우고, 메모리는 약 190MB를 씁니다. 띄운 뒤 Mac mini 안에서 직접 검색해 봤습니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>SearXNG에 직접 검색한 결과 <span class="nb">(요약)</span></span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>「서울 날씨」              결과 41개   Brave, Google   응답 없음: DuckDuckGo</span></span>
+<span class="line"><span>「Open WebUI web search」  결과 39개   Brave, Google   응답 없음: DuckDuckGo</span></span></code></pre></figure>
+<p>DuckDuckGo는 여기서도 사람 확인을 내밀었습니다. SearXNG는 그 엔진을 알아서 빼고, Brave와 Google의 결과로 답했습니다.</p>
+<h2 id="웹-ui-설정">웹 UI 설정</h2>
+<p>관리자 패널의 <strong>설정</strong>과 모델 편집 화면에서 아래 값을 바꿨습니다. 이번에는 Open WebUI 데이터베이스를 백업한 뒤 같은 값을 직접 넣고 웹 UI를 다시 켰습니다. 처음 설치할 때를 위해 같은 값을 시작 스크립트의 환경 변수에도 적어 두었습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>어디서</th>
+<th>항목</th>
+<th>값</th>
+<th>왜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>웹 검색</td>
+<td>켬</td>
+<td></td>
+</tr>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>웹 검색 엔진</td>
+<td><code>searxng</code></td>
+<td></td>
+</tr>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>Searxng 쿼리 URL</td>
+<td><code>http://127.0.0.1:8888/search?q=&lt;query&gt;</code></td>
+<td>같은 Mac mini 안의 SearXNG</td>
+</tr>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>검색 결과 수</td>
+<td>5</td>
+<td>검색어 하나에 결과 5개</td>
+</tr>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>웹 콘텐츠 불러오기 생략</td>
+<td>켬</td>
+<td>결과 페이지를 열지 않고, 검색 결과의 제목과 요약만 쓴다. Mac mini 모델은 1초에 60토큰 남짓 읽어서, 페이지 전체를 넣으면 읽기만 몇 분이다</td>
+</tr>
+<tr>
+<td>설정 → 웹 검색</td>
+<td>임베딩 검색 우회</td>
+<td>켬</td>
+<td>요약을 그대로 넣는다. 그래서 글을 숫자로 바꿔 비슷한 대목을 찾는 임베딩 모델이 필요 없다</td>
+</tr>
+<tr>
+<td>설정 → 인터페이스</td>
+<td>웹 검색 쿼리 생성</td>
+<td>켬</td>
+<td>질문 전체가 아니라 모델이 만든 짧은 검색어만 밖으로 나간다</td>
+</tr>
+<tr>
+<td>모델 편집 → 기능</td>
+<td>웹 검색</td>
+<td>켬</td>
+<td>6단계에서 꺼 둔 것. 켜야 스위치가 보인다</td>
+</tr>
+<tr>
+<td>모델 편집 → 고급 매개변수</td>
+<td>함수 호출</td>
+<td>레거시</td>
+<td>아래 <span class="nb">「스위치를</span> 켜도 검색하지 <span class="nb">않았다」</span></td>
+</tr>
+<tr>
+<td>모델 편집</td>
+<td>시스템 프롬프트</td>
+<td>아래</td>
+<td>아래 <span class="nb">「오늘</span> 날짜를 <span class="nb">모른다」</span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="막힌-곳-두-가지">막힌 곳 두 가지</h2>
+<h3 id="1-스위치를-켜도-검색하지-않았다">1. 스위치를 켜도 검색하지 않았다</h3>
+<p>웹 검색 스위치를 켜고 물었는데, 받은 답이 위의 <span class="nb">「2024년</span> 5월 <span class="nb">기준」이었습니다.</span> 노트북 모델도 마찬가지였습니다. 기록을 보니 검색 자체가 없었습니다.</p>
+<ul>
+<li>모델이 읽은 입력이 <strong>18토큰, 질문 한 줄뿐이었다.</strong></li>
+<li>답에 붙은 출처가 0개였다.</li>
+<li>웹 검색을 하면 먼저 가야 할 <span class="nb">「검색어</span> <span class="nb">만들기」</span> 요청이 모델 서버에 오지 않았다.</li>
+</ul>
+<p>원인은 Open WebUI <span class="nb">0.13.3의</span> <strong>함수 호출 방식이었습니다.</strong> 함수 호출은 모델이 검색 같은 도구를 쓰게 하는 방식이고, 두 가지가 있습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>방식</th>
+<th>웹 검색 스위치를 켜면</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>네이티브 <span class="nb">(기본값)</span></td>
+<td>웹 UI는 검색하지 않는다. 모델이 스스로 검색 도구를 부르기를 기다린다</td>
+</tr>
+<tr>
+<td>레거시</td>
+<td>웹 UI가 먼저 검색하고, 결과를 질문과 함께 모델에게 넘긴다</td>
+</tr>
+</tbody>
+</table></div>
+<p>6단계에서 모델의 <span class="nb">「내장</span> <span class="nb">도구」를</span> 껐습니다. 켜 두면 짧은 질문에도 도구 설명이 붙어 <span class="nb">7,226토큰이</span> 됐기 때문입니다. 그래서 모델에게는 부를 검색 도구가 없었고, 네이티브 방식에서는 아무도 검색하지 않았습니다. 두 모델의 함수 호출을 레거시로 바꾸자 바로 검색했습니다. Open WebUI 코드를 봐도, 답하기 전에 검색하는 부분은 함수 호출이 레거시일 때만 실행됩니다.</p>
+<aside class="note" aria-labelledby="note-mj53fv"><h3 id="note-mj53fv">스위치는 켜졌는데 아무 일도 없을 때</h3><p>화면에는 스위치도 지구본도 정상으로 보이고, 오류도 나지 않습니다. 답 위에 <span class="nb">「N개의</span> 소스 <span class="nb">검색됨」이</span> 없으면 검색하지 않은 것입니다. 내장 도구를 끈 모델이라면 함수 호출이 레거시인지 먼저 확인하세요.</p></aside>
+<h3 id="2-오늘-날짜를-모른다">2. 오늘 날짜를 모른다</h3>
+<p>검색 결과가 없으면 모델은 오늘 날짜를 모릅니다. 그래서 학습한 무렵인 <span class="nb">「2024년</span> <span class="nb">5월」을</span> 오늘로 짐작했습니다. 두 모델의 시스템 프롬프트에 두 문장을 넣었습니다. 시스템 프롬프트는 모든 대화 앞에 붙는 지시문입니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>두 모델의 시스템 프롬프트</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>오늘은 {{CURRENT_DATE}} ({{CURRENT_WEEKDAY}})입니다. 날씨, 뉴스, 가격, 최신 버전처럼 지금 시점의 정보가 필요한 질문인데 검색 결과가 주어지지 않았다면, 짐작해서 답하지 말고 입력창 왼쪽 + 메뉴에서 「웹 검색」을 켜고 다시 물어봐 달라고 짧게 안내하세요.</span></span></code></pre></figure>
+<p><code><span class="nb">{{CURRENT_DATE}}</span></code>와 <code><span class="nb">{{CURRENT_WEEKDAY}}</span></code>는 Open WebUI가 질문을 보낼 때마다 오늘 날짜와 요일로 바꿔 넣습니다. 이 두 문장 때문에 질문마다 입력이 80토큰쯤 늘었습니다. Mac mini에서 1초 남짓입니다. 검색 결과가 없을 때는 이제 짐작하지 않고 웹 검색을 켜라고 안내합니다.</p>
+<figure class="shot"><img src="/_astro/guide.cuNk8Azy_Z24iazH.webp" alt="노트북 · Gemma 4 26B의 답. 검색 결과가 주어지지 않아 정확히 답하기 어려우니, 입력창 왼쪽 + 메뉴에서 웹 검색을 켜고 다시 물어봐 달라고 안내하는 모습" loading="lazy" decoding="async" width="1400" height="189"><figcaption>검색 결과가 없을 때의 답. 날씨를 짐작하지 않고 웹 검색을 켜라고 안내합니다.</figcaption></figure>
+<h2 id="쓰는-법">쓰는 법</h2>
+<p>함께 쓸 사람에게는 이 단락을 보내면 됩니다.</p>
+<ol>
+<li>입력창 왼쪽 <strong>+ 버튼을</strong> 누르고, 메뉴 맨 아래 <strong>웹 검색</strong> 스위치를 켭니다.</li>
+<li>입력창에 파란 지구본이 생기면, 그 메시지는 검색해서 답합니다.</li>
+<li>답 위에 <span class="nb">「13개의</span> 소스 <span class="nb">검색됨」처럼</span> 찾은 결과 수가 나오고, 문장 끝에는 출처가 붙습니다.</li>
+</ol>
+<figure class="shot shot--narrow"><img src="/_astro/switch.CYlbzIWP_gWVHh.webp" alt="입력창의 + 메뉴. 파일 업로드, Add Context 아래에 웹 검색 스위치가 켜져 있는 모습" loading="lazy" decoding="async" width="585" height="295"><figcaption>+ 메뉴 맨 아래의 웹 검색 스위치</figcaption></figure>
+<p>알아 둘 것도 있습니다.</p>
+<ul>
+<li><strong>스위치는 메시지마다</strong> 켭니다. 검색하면 더 오래 걸리니, 날씨, 뉴스, 가격, 최신 버전처럼 지금의 정보가 필요할 때만 켜세요.</li>
+<li><strong>검색어는 바깥 검색 엔진으로 나갑니다.</strong> 질문 전체가 아니라 모델이 만든 검색어지만, 질문에 밖에 알리면 안 되는 이름이나 숫자가 있으면 검색어에 섞일 수 있습니다. 그런 질문에는 웹 검색을 켜지 마세요.</li>
+<li><span class="nb">「+</span> → Add Context → 웹페이지 <span class="nb">첨부」에도</span> 지구본이 있습니다. 주소를 직접 넣어 페이지 하나를 붙이는 다른 기능입니다.</li>
+</ul>
+<h2 id="두-모델로-시험">두 모델로 시험</h2>
+<p>웹 검색을 켜고 <span class="nb">「금주</span> 안양 날씨 <span class="nb">보고」를</span> 두 모델에 물었습니다.</p>
+<figure class="shot"><img src="/_astro/laptop-answer.CjjDczuj_Zdwb0z.webp" alt="노트북 · Gemma 4 26B의 답. 5개의 소스를 검색해 2026년 11월 16일 안양의 현재 기온, 오늘 최저·최고 기온, 하늘 상태를 출처와 함께 답한 모습" loading="lazy" decoding="async" width="1320" height="405"><figcaption>노트북 모델: 검색어 1개, 결과 5개. 오늘 날씨만 답했습니다.</figcaption></figure>
+<figure class="shot"><img src="/_astro/mini-answer.LsrbRP3D_ZI2L4w.webp" alt="Mac mini · Qwen 3.8 27B의 답. 13개의 소스를 검색해 11월 16일부터 18일까지 날짜별 날씨, 기온, 강수를 출처와 함께 정리한 모습" loading="lazy" decoding="async" width="1400" height="786"><figcaption>Mac mini 모델: 검색어 3개, 결과 13개. 사흘치 예보를 날짜별로 정리했습니다.</figcaption></figure>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Mac mini · Qwen <span class="nb">3.8</span> 27B</th>
+<th>노트북 · Gemma 4 26B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>모델이 만든 검색어</td>
+<td><span class="nb">「2026년</span> 11월 16일 안양 <span class="nb">날씨」,</span> <span class="nb">「안양</span> 금주 날씨 <span class="nb">예보」,</span> <span class="nb">「안양</span> 7일 <span class="nb">날씨」</span></td>
+<td><span class="nb">「2026년</span> 11월 16일 주간 안양 <span class="nb">날씨」</span></td>
+</tr>
+<tr>
+<td>모은 결과</td>
+<td>13개</td>
+<td>5개</td>
+</tr>
+<tr>
+<td>검색어 만들기와 검색</td>
+<td>약 23초</td>
+<td>약 7초</td>
+</tr>
+<tr>
+<td>결과 읽기</td>
+<td><span class="nb">2,526토큰,</span> 39초</td>
+<td><span class="nb">1,085토큰,</span> <span class="nb">4.7초</span></td>
+</tr>
+<tr>
+<td>답 쓰기</td>
+<td>407토큰, 약 62초</td>
+<td>136토큰, <span class="nb">8.2초</span></td>
+</tr>
+<tr>
+<td>모두</td>
+<td>124초</td>
+<td>21초</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Qwen은 느리지만 질문을 더 잘 알아들었다.</strong> <span class="nb">「금주」를</span> 보고 검색어를 세 갈래로 나눴고, 날짜별로 정리했다. Gemma는 검색어 하나로 오늘 날씨만 답했다.</li>
+<li><strong>Mac mini 시간의 대부분은 읽기와 쓰기다.</strong> 검색 자체는 <span class="nb">1~3초였다.</span> 결과 요약 13개가 <span class="nb">2,500토큰이</span> 넘어서, 읽는 데만 39초가 걸렸다.</li>
+<li><strong>검색어를 만들 때 지난 대화도 같이 읽는다.</strong> Mac mini는 앞서 받은 긴 답까지 806토큰을 읽느라 13초를 썼다. 새 채팅에서 물으면 더 짧다.</li>
+<li><strong>출처마다 숫자가 조금씩 다르다.</strong> 오늘 최저 기온을 Gemma는 <span class="nb">7°,</span> Qwen은 <span class="nb">8°로</span> 답했다. 서로 다른 출처를 읽었기 때문이다. 중요한 숫자는 출처를 눌러 확인하는 게 좋다.</li>
+</ul>
+<h2 id="검색어는-어디로-가나">검색어는 어디로 가나</h2>
+<ul>
+<li>웹 검색 스위치를 켠 메시지만 검색합니다.</li>
+<li>밖으로 나가는 것은 모델이 만든 검색어입니다. 위의 <span class="nb">「안양</span> 금주 날씨 <span class="nb">예보」</span> 같은 것입니다.</li>
+<li>SearXNG가 이 검색어를 Google, Brave, Bing, DuckDuckGo 같은 여러 검색 엔진에 보냅니다. 검색 엔진 쪽에는 이 네트워크가 인터넷에 나갈 때 쓰는 주소가 보입니다.</li>
+<li>SearXNG 기록에는 검색어가 남지 않고, 오류만 남습니다.</li>
+<li>대화와 검색어는 Open WebUI 데이터베이스, 곧 Mac mini 안에만 남습니다.</li>
+</ul>
+<h2 id="다음-단계로">다음 단계로</h2>
+<p>이제 웹 UI의 모델은 웹 검색을 켜면 지금의 정보를 찾아 읽고 답합니다. 연재는 다음 8단계에서 이 서버를 제 프로젝트에 실제로 붙여 씁니다. 커밋 메시지 초안을 로컬 모델에게 맡기고 Claude와 비교합니다. 그 밖에 남은 일은 둘입니다.</p>
+<ul>
+<li><strong>SearXNG 늘 켜 두기:</strong> 지금은 손으로 띄워 둔 상태입니다. <code>sudo ~/llm-service/install-searxng.sh</code> 한 줄이면 5단계처럼 Mac mini가 켜질 때 저절로 뜹니다.</li>
+<li><strong>제목 생성 끄기 검토:</strong> 새 채팅의 첫 질문마다 대화 제목을 만드는 요청이 함께 갑니다. Mac mini는 질문을 한 번에 하나씩 읽어서, 첫 답이 4초 남짓 늦게 시작합니다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-16"><li><time class="measured" datetime="2026-11-16T11:58+09:00"><span class="nb">11:58</span></time><span class="trail__what">DuckDuckGo만 쓰는 검색 중계 서버로 시험</span><code class="trail__got">결과 없음</code></li><li><time class="measured" datetime="2026-11-16T14:10+09:00"><span class="nb">14:10</span></time><span class="trail__what">Mac mini에 SearXNG를 Python으로 설치하고 띄움</span><code class="trail__got">결과 40개 안팎</code></li><li><time class="measured" datetime="2026-11-16T14:12+09:00"><span class="nb">14:12</span></time><span class="trail__what">웹 UI에 웹 검색을 켜고 SearXNG 연결</span><code class="trail__got">스위치 보임</code></li><li><time class="measured" datetime="2026-11-16T14:21+09:00"><span class="nb">14:21</span></time><span class="trail__what">스위치를 켜고 금주 안양 날씨를 물음</span><code class="trail__got">검색 없이 5월 날씨</code></li><li><time class="measured" datetime="2026-11-16T14:26+09:00"><span class="nb">14:26</span></time><span class="trail__what">두 모델의 시스템 프롬프트에 오늘 날짜와 안내</span><code class="trail__got">짐작 대신 안내</code></li><li><time class="measured" datetime="2026-11-16T14:32+09:00"><span class="nb">14:32</span></time><span class="trail__what">노트북 모델로 다시 물음</span><code class="trail__got">검색 없이 안내만</code></li><li><time class="measured" datetime="2026-11-16T14:32+09:00"><span class="nb">14:32</span></time><span class="trail__what">두 모델의 함수 호출을 레거시로</span><code class="trail__got">스위치가 검색함</code></li><li><time class="measured" datetime="2026-11-16T14:35+09:00"><span class="nb">14:35</span></time><span class="trail__what">노트북 모델, 웹 검색 켜고 물음</span><code class="trail__got">결과 5개, 21초</code></li><li><time class="measured" datetime="2026-11-16T14:36+09:00"><span class="nb">14:36</span></time><span class="trail__what">Mac mini 모델, 웹 검색 켜고 물음</span><code class="trail__got">결과 13개, 124초</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/08-commit-message/" class="pager__next"><small>다음 글</small><strong>8단계 커밋 메시지 맡겨 보기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#왜-웹-검색인가">왜 웹 검색인가</a></li><li><a href="#검색-엔진-고르기">검색 엔진 고르기</a></li><li><a href="#구조">구조</a></li><li><a href="#searxng-설치">SearXNG 설치</a></li><li><a href="#웹-ui-설정">웹 UI 설정</a></li><li><a href="#막힌-곳-두-가지">막힌 곳 두 가지</a></li><li><a href="#쓰는-법">쓰는 법</a></li><li><a href="#두-모델로-시험">두 모델로 시험</a></li><li><a href="#검색어는-어디로-가나">검색어는 어디로 가나</a></li><li><a href="#다음-단계로">다음 단계로</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>혼자서는 안 들어가는 판을 두 Mac으로 올리면 | Cyborg</title><meta name="description" content="썬더볼트 활용기 3편. 마스터 Mac mini의 GPU(22GiB)에 들어가지 않는 Qwen3.8 27B Q8_0(29GB)을 워커 Mac mini의 메모리를 빌려 올리고, 마스터가 혼자 돌리는 4비트 판(UD-Q4_K_M)과 속도, Q8 기준의 어긋남, 번역 점수를 견줬습니다. Q8은 두 대로 돌아갔고 글 읽기는 4비트보다 빨랐지만 답 쓰기는 느렸으며, 4비트는 Q8과 다음 토큰 1순위가 95% 같았고 번역 점수도 같은 수준이었습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/thunderbolt-03-bigger/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="혼자서는 안 들어가는 판을 두 Mac으로 올리면 | Cyborg"><meta property="og:description" content="썬더볼트 활용기 3편. 마스터 Mac mini의 GPU(22GiB)에 들어가지 않는 Qwen3.8 27B Q8_0(29GB)을 워커 Mac mini의 메모리를 빌려 올리고, 마스터가 혼자 돌리는 4비트 판(UD-Q4_K_M)과 속도, Q8 기준의 어긋남, 번역 점수를 견줬습니다. Q8은 두 대로 돌아갔고 글 읽기는 4비트보다 빨랐지만 답 쓰기는 느렸으며, 4비트는 Q8과 다음 토큰 1순위가 95% 같았고 번역 점수도 같은 수준이었습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/thunderbolt-03-bigger/"><meta property="article:published_time" content="2026-11-25T08:37:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"혼자서는 안 들어가는 판을 두 Mac으로 올리면","description":"썬더볼트 활용기 3편. 마스터 Mac mini의 GPU(22GiB)에 들어가지 않는 Qwen3.8 27B Q8_0(29GB)을 워커 Mac mini의 메모리를 빌려 올리고, 마스터가 혼자 돌리는 4비트 판(UD-Q4_K_M)과 속도, Q8 기준의 어긋남, 번역 점수를 견줬습니다. Q8은 두 대로 돌아갔고 글 읽기는 4비트보다 빨랐지만 답 쓰기는 느렸으며, 4비트는 Q8과 다음 토큰 1순위가 95% 같았고 번역 점수도 같은 수준이었습니다.","datePublished":"2026-11-25T08:37:00.000Z","dateModified":"2026-11-25T08:37:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/thunderbolt-03-bigger/","mainEntityOfPage":"https://teddybears56.github.io/posts/thunderbolt-03-bigger/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"><style>.pair[data-astro-cid-62jseu6t]{margin-inline:0;border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-card);background:var(--color-paper-3);margin-bottom:0;overflow:hidden}.pair__title[data-astro-cid-62jseu6t]{min-height:48px;padding-inline:var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule);font-size:var(--text-sm);color:var(--color-muted);align-items:center;display:flex}.pair__row[data-astro-cid-62jseu6t]{align-items:stretch;gap:var(--space-sm);padding:var(--space-lg);grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);display:grid}.pair__box[data-astro-cid-62jseu6t]{padding:var(--space-md);border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-card);background:var(--color-paper-2)}.pair__box[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t],.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin:0}.pair__name[data-astro-cid-62jseu6t]{color:var(--color-ink);font-weight:600}.pair__spec[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-muted)}.pair__box[data-astro-cid-62jseu6t] ul[data-astro-cid-62jseu6t]{margin-top:var(--space-xs);font-size:var(--text-sm);color:var(--color-ink-2);padding-left:1.1em}.pair__link[data-astro-cid-62jseu6t]{justify-content:center;align-items:center;gap:var(--space-2xs);text-align:center;flex-direction:column;display:flex}.pair__link[data-astro-cid-62jseu6t] p[data-astro-cid-62jseu6t]{margin:0}.pair__line[data-astro-cid-62jseu6t]{min-height:var(--space-sm);background:var(--color-accent);border-radius:1px;flex:1 1 0;width:2px}.pair__label[data-astro-cid-62jseu6t]{color:var(--color-accent);font-weight:600}.pair__flow[data-astro-cid-62jseu6t]{font-size:var(--text-sm);color:var(--color-ink-2)}.pair__below[data-astro-cid-62jseu6t]{padding:0 var(--space-lg) var(--space-lg);font-size:var(--text-sm);color:var(--color-muted);margin:0}@media (width>=720px){.pair__link[data-astro-cid-62jseu6t]{flex-flow:wrap;align-content:center}.pair__line[data-astro-cid-62jseu6t]{flex:1 0 100%;width:auto;height:2px;min-height:2px}.pair__label[data-astro-cid-62jseu6t],.pair__flow[data-astro-cid-62jseu6t]{flex:1 0 100%}}@media (width<=719px){.pair__row[data-astro-cid-62jseu6t]{grid-template-columns:minmax(0,1fr)}}
+</style></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-thunderbolt">연재</a></li><li>3편</li></ol></nav><h1 id="post-title">혼자서는 안 들어가는 판을 두 Mac으로 올리면</h1><p class="post__lead">2편에서 두 Mac에 모델을 나눠 올리면 빠른 워커 혼자보다 느려진다는 것을 봤습니다. 나누는 쓸모는 메모리에 있습니다. 이번에는 마스터 Mac mini 혼자서는 올릴 수 없는 판을 워커의 메모리를 빌려 올리고, 그만한 값이 있는지 봤습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-25"><span class="nb">2026-11-25</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 4분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>마스터 혼자서는 안 들어가는 판을 고른다.</strong> 웹 UI가 쓰는 <span class="nb">Qwen3.8</span> 27B의 <span class="nb">Q8_0</span> <span class="nb">GGUF(29.05GB)다.</span> 웹 UI는 같은 모델을 Ollama의 MLX <span class="nb">판(NVFP4)으로</span> 돌린다. 마스터 Mac mini의 GPU 몫은 22GiB다.</li>
+<li><strong>워커의 메모리를 빌려 올린다.</strong> 2편과 같이 <span class="nb">llama.cpp의</span> RPC로 나눠 올린다.</li>
+<li><strong>4비트 판과 견준다.</strong> <a href="/posts/01-model-file/">1단계</a>에서 골랐던 <span class="nb">UD-Q4_K_M(16.56GB)을</span> 이번에 다시 받아 마스터가 혼자 돌린 것과 속도, 원래 모델과의 어긋남, 번역 점수를 견준다.</li>
+</ol>
+<h2 id="구성">구성</h2>
+<figure class="pair" aria-label="구성" data-astro-cid-62jseu6t><figcaption class="pair__title" data-astro-cid-62jseu6t>구성</figcaption><div class="pair__row" data-astro-cid-62jseu6t><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>마스터 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M4, GPU <span class="nb">22.0GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">llama-server,</span> <span class="nb">llama-bench</span></li><li data-astro-cid-62jseu6t>모델 파일 두 개</li><li data-astro-cid-62jseu6t>Q8의 3분의 2</li></ul></div><div class="pair__link" data-astro-cid-62jseu6t><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span><p class="pair__label" data-astro-cid-62jseu6t>썬더볼트 <span class="nb">40Gb/s</span></p><p class="pair__flow" data-astro-cid-62jseu6t><span class="nb">가중치(처음</span> 한 <span class="nb">번)</span></p><p class="pair__flow" data-astro-cid-62jseu6t>계산 요청과 중간 결과</p><span class="pair__line" aria-hidden="true" data-astro-cid-62jseu6t></span></div><div class="pair__box" data-astro-cid-62jseu6t><p class="pair__name" data-astro-cid-62jseu6t>워커 Mac mini</p><p class="pair__spec" data-astro-cid-62jseu6t>M5 Pro, GPU <span class="nb">37.4GiB</span></p><ul data-astro-cid-62jseu6t><li data-astro-cid-62jseu6t><span class="nb">rpc-server</span></li><li data-astro-cid-62jseu6t><span class="nb">10.10.10.2:50052</span></li><li data-astro-cid-62jseu6t>Q8의 3분의 1</li></ul></div></div></figure>
+<ul>
+<li><strong>나눈 비율은 <span class="nb">2:1과</span> <span class="nb">1:1이다.</span></strong> 워커 Mac mini는 다른 일도 하고 있어, 이날 남은 메모리가 25GB 남짓이었고 스왑을 11GB 쓰고 있었다. 그래서 워커 몫을 작게 잡은 <span class="nb">2:1을</span> 주로 썼다. <span class="nb">2:1이면</span> 셈으로는 마스터에 약 19GB, 워커에 약 10GB가 간다.</li>
+<li><strong>압축하지 않은 <span class="nb">원본(BF16,</span> 약 <span class="nb">55GB)은</span> 하지 않았다.</strong> 두 대의 GPU 몫을 합치면 59GiB라 셈으로는 들어가지만, 워커에 32GB 넘게 올려야 해서 이날 워커 메모리로는 무리였다.</li>
+<li><strong>모델 파일은 마스터에만 둔다.</strong> 두 <span class="nb">파일(46GB)을</span> Hugging Face에서 받는 데 20분이 <span class="nb">걸렸다(초당</span> 38MB <span class="nb">안팎).</span></li>
+</ul>
+<h2 id="시험-방법">시험 방법</h2>
+<ol>
+<li><strong>속도:</strong> <code><span class="nb">llama-bench</span></code>로 글 <span class="nb">읽기(512토큰)와</span> 답 <span class="nb">쓰기(128토큰)를</span> 세 번씩 쟀다.</li>
+<li><strong>Q8 기준의 어긋남:</strong> <a href="/posts/14-quantization/">14단계</a>와 같은 방법이다. 같은 글을 읽히고 다음 토큰의 확률을 견준다. 이번에는 원본을 올릴 수 없어서 <strong>Q8을 기준</strong>으로 삼았다. 14단계에서 Q8은 원본과 다음 토큰 1순위가 <span class="nb">99%</span> 같았다. 글은 14단계와 같은 한국어 <span class="nb">글(이</span> <span class="nb">블로그)과</span> 영어 <span class="nb">글(공개</span> <span class="nb">문서)로,</span> 각각 2만 480토큰이다.</li>
+<li><strong>번역:</strong> <a href="/posts/korean-llm-08-translation/">국산 LLM 견주기 8편</a>의 FLORES 문장 100개를 <code><span class="nb">llama-server</span></code>로 맡기고 <span class="nb">chrF++로</span> 쟀다. 지시문과 온도 0은 8편과 같고, 생각은 껐다.</li>
+</ol>
+<h2 id="속도">속도</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>판</th>
+<th>기계</th>
+<th>글 읽기</th>
+<th>답 쓰기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4비트</td>
+<td>마스터 혼자</td>
+<td><span class="nb">62.2</span></td>
+<td><span class="nb">6.1</span></td>
+</tr>
+<tr>
+<td>Q8</td>
+<td>두 대, <span class="nb">2:1</span></td>
+<td><span class="nb">83.3</span></td>
+<td><span class="nb">4.4</span></td>
+</tr>
+<tr>
+<td>Q8</td>
+<td>두 대, <span class="nb">1:1</span></td>
+<td><span class="nb">100.0</span></td>
+<td><span class="nb">5.1</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>초당 토큰 수입니다.</p>
+<ul>
+<li><strong>답 쓰기는 4비트가 빨랐다.</strong> Q8은 파일이 <span class="nb">1.75배</span> 커서, 토큰 하나를 쓸 때마다 읽을 양이 그만큼 많다. 두 대에 나눠도 2편에서 본 대로 차례로 계산하므로 빨라지지 않았다. 워커가 더 많이 맡은 <span class="nb">1:1이</span> <span class="nb">2:1보다</span> 조금 빨랐다.</li>
+<li><strong>글 읽기는 Q8이 빨랐다.</strong> 글을 한꺼번에 읽을 때는 계산이 먼저 막히는데, 계산이 빠른 <span class="nb">워커(M5</span> <span class="nb">Pro)가</span> 일을 나눠 맡았기 때문으로 보인다.</li>
+<li><strong>올리는 시간:</strong> <code><span class="nb">llama-server</span></code>가 4비트를 마스터 혼자 올리는 데 12초, Q8을 두 대에 나눠 올리는 데 48초가 걸렸다. Q8은 앞의 속도 측정에서 워커에 보낸 가중치가 <span class="nb">캐시(</span><code><span class="nb">-c</span></code><span class="nb">)에</span> 남은 뒤의 시간이다. 워커의 RPC 캐시는 27GB에서 40GB로 늘었다.</li>
+</ul>
+<h2 id="q8-기준의-어긋남">Q8 기준의 어긋남</h2>
+<p>4비트를 Q8 기준으로 잰 값입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>글</th>
+<th>KL 발산</th>
+<th>1순위 일치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>한국어 글</td>
+<td><span class="nb">0.0112</span></td>
+<td><span class="nb">94.8%</span></td>
+</tr>
+<tr>
+<td>영어 글</td>
+<td><span class="nb">0.0212</span></td>
+<td><span class="nb">95.6%</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>혼잡도는 한국어 글에서 Q8 <span class="nb">8.18,</span> 4비트 <span class="nb">8.24,</span> 영어 글에서 <span class="nb">3.77과</span> <span class="nb">3.77이었습니다.</span></p>
+<p>14단계에서 9B 모델의 <span class="nb">Q4_K_M은</span> 원본 기준으로 한국어 글 KL <span class="nb">0.0188,</span> 1순위 일치 <span class="nb">92.6%였습니다.</span> 이번 27B의 4비트는 한국어 글에서 그보다 기준에 가까웠지만, 영어 글에서는 KL이 <span class="nb">0.0212로</span> <span class="nb">14단계(0.0160)보다</span> 컸습니다. <span class="nb">기준(원본과</span> <span class="nb">Q8)과</span> 압축 <span class="nb">판(Q4_K_M과</span> <span class="nb">UD-Q4_K_M)도</span> 달라 그대로 견줄 수는 없습니다.</p>
+<h2 id="번역-점수">번역 점수</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>판</th>
+<th><span class="nb">영→한</span></th>
+<th><span class="nb">한→영</span></th>
+<th>문장 하나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4비트, 마스터 혼자</td>
+<td><span class="nb">36.8</span></td>
+<td><span class="nb">58.4</span></td>
+<td><span class="nb">6.2초</span></td>
+</tr>
+<tr>
+<td>Q8, 두 대 <span class="nb">2:1</span></td>
+<td><span class="nb">36.3</span></td>
+<td><span class="nb">58.0</span></td>
+<td><span class="nb">7.6초</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>8편에서 정한 대로 2점 안쪽은 같은 수준으로 봅니다. 문장 하나에 걸린 시간은 가운데 값입니다. 100문장 모두 번역문 한 줄만 냈고, 답 한도에서 끊긴 것도 없었습니다.</p>
+<h2 id="걸린-곳">걸린 곳</h2>
+<p>2편과 같은 빌드로 돌렸는데, 두 군데서 처음 시도가 빠졌습니다.</p>
+<ul>
+<li><strong><code><span class="nb">llama-perplexity</span></code>를 빌드하지 않았다.</strong> 2편에서 RPC를 켜고 빌드한 대상은 <code><span class="nb">ggml-rpc-server</span></code>, <code><span class="nb">llama-server</span></code>, <code><span class="nb">llama-bench</span></code>뿐이었다. 어긋남 측정이 실행 파일이 <span class="nb">없어(종료</span> 코드 <span class="nb">127)</span> 바로 끝나, 대상을 더해 빌드했다.</li>
+<li><strong>장치를 적는 방법이 도구마다 달랐다.</strong> <code><span class="nb">llama-bench</span></code>는 장치를 <code><span class="nb">-dev</span> <span class="nb">MTL0/RPC0</span></code>처럼 빗금으로 받지만, <code><span class="nb">llama-server</span></code>와 <code><span class="nb">llama-perplexity</span></code>는 <code><span class="nb">--device</span> <span class="nb">MTL0,RPC0</span></code>처럼 쉼표로 받는다. 나누는 <span class="nb">비율(</span><code><span class="nb">-ts</span></code><span class="nb">)은</span> 빗금과 쉼표를 다 받는다. 장치를 빗금으로 넘긴 <code><span class="nb">llama-server</span></code>는 <code><span class="nb">--device</span></code> 사용법만 출력하고 시작하지 않았다.</li>
+</ul>
+<figure class="code"><figcaption class="code__bar"><span>마스터 Mac mini: Q8을 두 대에 나눠 띄우기</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>$ llama-server -m Qwen3.8-27B-Q8_0.gguf -ngl 99 -c 4096 --host 127.0.0.1 --port 8091 \</span></span>
+<span class="line"><span>    --rpc 10.10.10.2:50052 -dev MTL0,RPC0 -ts 2,1</span></span></code></pre></figure>
+<p>시험하는 동안 마스터의 웹 UI <span class="nb">모델(Ollama의</span> <span class="nb">Qwen3.8)은</span> 내려 두었고, 끝난 뒤 다시 올렸습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>두 대로 묶으면 한 대에 크기로 안 들어가는 판이 돌아간다.</strong> 마스터 Mac mini의 GPU 몫보다 큰 Q8이 워커의 메모리를 빌려 <span class="nb">돌아갔다(2:1이면</span> 셈으로 워커에 <span class="nb">10GB쯤).</span> 마스터 혼자 띄워 보지는 않았다.</li>
+<li><strong>이 모델에서는 얻은 것과 잃은 것이 갈렸다.</strong> Q8 두 대는 글 읽기가 <span class="nb">1.3~1.6배</span> 빨랐지만 답 쓰기는 느렸다. 4비트는 Q8과 다음 토큰 1순위가 <span class="nb">95%</span> 같았고 번역 점수도 같았다. 다만 14단계에서 본 대로 번역 점수는 작은 차이를 잘 드러내지 못한다.</li>
+<li><strong>나눠 올리기는 더 큰 모델에서 더 쓸모 있을 것이다.</strong> 27B는 4비트면 한 대에 들어가니 다른 길이 있었다. 한 대에 어떤 압축 판도 안 들어가는 모델은 다음에 워커의 메모리가 넉넉할 때 해 본다.</li>
+<li><strong>이번 결과는 한 번씩 잰 것이다.</strong> 원본이 아니라 Q8을 기준으로 삼았고, 번역 문장은 100개다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-25"><li><time class="measured" datetime="2026-11-25T16:04+09:00"><span class="nb">16:04</span></time><span class="trail__what">마스터에 <span class="nb">Qwen3.8</span> 27B 두 판을 받기 시작</span><code class="trail__got">4비트 <span class="nb">16.56GB,</span> Q8 <span class="nb">29.05GB</span></code></li><li><time class="measured" datetime="2026-11-25T16:23+09:00"><span class="nb">16:23</span></time><span class="trail__what">두 파일을 다 받음</span><code class="trail__got">20분</code></li><li><time class="measured" datetime="2026-11-25T16:31+09:00"><span class="nb">16:31</span></time><span class="trail__what">속도를 다 잼</span><code class="trail__got">답 쓰기 4비트 <span class="nb">6.1,</span> Q8 <span class="nb">4.4~5.1</span></code></li><li><time class="measured" datetime="2026-11-25T16:31+09:00"><span class="nb">16:31</span></time><span class="trail__what">어긋남 측정이 바로 끝남</span><code class="trail__got"><span class="nb">llama-perplexity를</span> 빌드하지 않았음</code></li><li><time class="measured" datetime="2026-11-25T16:48+09:00"><span class="nb">16:48</span></time><span class="trail__what">첫 실행이 끝남</span><code class="trail__got">4비트 번역 100문장은 마침, Q8 서버는 장치 표기가 틀려 시작 못 함</code></li><li><time class="measured" datetime="2026-11-25T17:11+09:00"><span class="nb">17:11</span></time><span class="trail__what">빌드를 더하고 어긋남을 다시 잼</span><code class="trail__got">1순위 일치 <span class="nb">94.8%,</span> <span class="nb">95.6%</span></code></li><li><time class="measured" datetime="2026-11-25T17:25+09:00"><span class="nb">17:25</span></time><span class="trail__what">Q8 두 대로 번역 100문장을 마침</span><code class="trail__got"><span class="nb">36.3</span> · <span class="nb">58.0,</span> 4비트와 같은 수준</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-thunderbolt"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/thunderbolt-04-giant/" class="pager__next"><small>다음 글</small><strong>4편 두 Mac을 합쳐야 들어가는 122B 모델</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#구성">구성</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#속도">속도</a></li><li><a href="#q8-기준의-어긋남">Q8 기준의 어긋남</a></li><li><a href="#번역-점수">번역 점수</a></li><li><a href="#걸린-곳">걸린 곳</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

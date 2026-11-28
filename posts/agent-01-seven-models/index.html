@@ -1,0 +1,356 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>모델 일곱 개에게 맡겨 보기 | Cyborg</title><meta name="description" content="로컬 LLM 연재 11단계. 코딩 에이전트 Claude Code의 모델을 Mac mini와 노트북의 로컬 모델로 바꿔, 이 블로그의 코드로 만든 과제 세 개를 풀게 했습니다. 모델 일곱 개를 Mac mini에서 두 번씩, 그중 네 개를 노트북에서 세 번씩 돌린 결과입니다."><link rel="canonical" href="https://teddybears56.github.io/posts/agent-01-seven-models/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="모델 일곱 개에게 맡겨 보기 | Cyborg"><meta property="og:description" content="로컬 LLM 연재 11단계. 코딩 에이전트 Claude Code의 모델을 Mac mini와 노트북의 로컬 모델로 바꿔, 이 블로그의 코드로 만든 과제 세 개를 풀게 했습니다. 모델 일곱 개를 Mac mini에서 두 번씩, 그중 네 개를 노트북에서 세 번씩 돌린 결과입니다."><meta property="og:url" content="https://teddybears56.github.io/posts/agent-01-seven-models/"><meta property="article:published_time" content="2026-11-18T00:00:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"모델 일곱 개에게 맡겨 보기","description":"로컬 LLM 연재 11단계. 코딩 에이전트 Claude Code의 모델을 Mac mini와 노트북의 로컬 모델로 바꿔, 이 블로그의 코드로 만든 과제 세 개를 풀게 했습니다. 모델 일곱 개를 Mac mini에서 두 번씩, 그중 네 개를 노트북에서 세 번씩 돌린 결과입니다.","datePublished":"2026-11-18T00:00:00.000Z","dateModified":"2026-11-18T00:00:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/agent-01-seven-models/","mainEntityOfPage":"https://teddybears56.github.io/posts/agent-01-seven-models/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-local-llm">연재</a></li><li>11단계</li></ol></nav><h1 id="post-title">모델 일곱 개에게 맡겨 보기</h1><p class="post__lead">10단계까지 Mac mini와 노트북에 로컬 LLM 서버를 세웠습니다. 11단계부터는 그 모델에게 코딩을 맡깁니다. Claude Code는 파일을 찾아 읽고, 고치고, 명령을 실행해 확인까지 하는 코딩 에이전트입니다. 여기서 모델만 로컬 모델로 바꿔, 이 블로그의 코드로 만든 과제 세 개를 풀게 했습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-18"><span class="nb">2026-11-18</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 12분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>과제를 만든다.</strong> 이 블로그의 코드로 찾기, 고치기, 더하기 세 가지를 만든다. 맞았는지는 시험 프로그램이 가린다.</li>
+<li><strong>모델을 고른다.</strong> Mac mini의 GPU 메모리에 들어가는 모델 일곱 개를 고르고, 그중 넷은 노트북에서도 돌린다.</li>
+<li><strong>여러 번 돌린다.</strong> 같은 과제를 Mac mini에서 두 번, 노트북에서 세 번 돌린다. 매번 새 사본에서 시작한다.</li>
+<li><strong>실패를 읽는다.</strong> 대화 기록을 열어 어디서 틀렸는지 본다.</li>
+</ol>
+<h2 id="과제-세-개">과제 세 개</h2>
+<p>과제마다 이 블로그의 원본을 새로 복사해 주었습니다. 11월 17일의 원본이라 연재 글 11편과 Cybug 버그 기록 8개가 들어 있습니다. 고치기 과제를 위해 한 곳은 일부러 틀리게 해 두었습니다. Cybug 목록 페이지가 상태별 건수를 셀 때 <code><span class="nb">b.data.status</span></code>를 읽어야 하는데 <code><span class="nb">b.status</span></code>를 읽게 바꿨습니다. 그러면 건수가 모두 0이 됩니다.</p>
+<p>Claude Code에게는 아래 말을 그대로 보냈습니다.</p>
+<ul>
+<li><strong>찾기:</strong> <span class="nb">「이</span> 블로그에서 글을 읽는 데 걸리는 <span class="nb">시간(읽기</span> <span class="nb">시간)은</span> 어느 파일에서 어떻게 계산하나요? 파일 경로와 계산 방식을 알려 주세요. 파일은 고치지 <span class="nb">마세요.」</span></li>
+<li><strong>고치기:</strong> <span class="nb">「Cybug</span> 목록 <span class="nb">페이지(/bugs/)</span> 위쪽의 상태 설명에 건수가 모두 0건으로 나옵니다. 실제 상태별 건수가 나오도록 원인을 찾아 고쳐 주세요. 고친 뒤 npm run build로 확인해 <span class="nb">주세요.」</span></li>
+<li><strong>더하기:</strong> <span class="nb">「RSS</span> <span class="nb">피드(/rss.xml)에는</span> 지금 연재 글만 들어갑니다. Cybug 버그 기록도 함께 넣어 주세요. 글과 버그 기록을 날짜가 최신인 것부터 섞어서 넣어 주세요. 고친 뒤 npm run build로 확인해 <span class="nb">주세요.」</span></li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>과제</th>
+<th>맞았다고 본 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>찾기</td>
+<td>답에 <code><span class="nb">posts.ts</span></code>, 500, 220이 모두 나오고, 바뀐 파일이 없다</td>
+</tr>
+<tr>
+<td>고치기</td>
+<td>다시 빌드한 목록 페이지에 상태별로 0건, 6건, 2건이 나온다</td>
+</tr>
+<tr>
+<td>더하기</td>
+<td>다시 빌드한 피드에 글 11편과 버그 기록 8개의 주소가 모두 있고, 최신순이며, 날짜가 RSS 형식이다</td>
+</tr>
+</tbody>
+</table></div>
+<p>읽기 시간은 <code><span class="nb">src/lib/posts.ts</span></code>에서 한글은 1분에 500자, 영어는 1분에 220단어로 계산합니다. 고치기와 더하기는 에이전트가 무엇이라고 답하든, 시험 프로그램이 사본을 처음부터 다시 빌드해서 확인했습니다. <span class="nb">「빌드가</span> <span class="nb">성공했다」고</span> 답해도 결과물이 틀리면 실패입니다.</p>
+<h2 id="어떻게-돌렸나">어떻게 돌렸나</h2>
+<p>Claude Code는 원래 Anthropic의 Claude와 이야기합니다. 보낼 주소를 9단계에서 세운 게이트웨이로 바꾸면, 게이트웨이가 요청을 로컬 모델 서버가 알아듣는 형식으로 바꿔 전해 줍니다. 자세한 설정은 12단계에 씁니다.</p>
+<figure class="code"><figcaption class="code__bar"><span>구조</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>Mac mini ── Claude Code 2.1.326 (과제마다 블로그 사본 하나)</span></span>
+<span class="line"><span>              │  Claude 형식 요청</span></span>
+<span class="line"><span>              ▼</span></span>
+<span class="line"><span>Mac mini ── 게이트웨이 LiteLLM (4000번 포트)</span></span>
+<span class="line"><span>              │  OpenAI 형식으로 바꿔 전달</span></span>
+<span class="line"><span>              ├──▶ Mac mini MLX 서버 (8080번 포트): 모델 일곱 개를 차례로 올림</span></span>
+<span class="line"><span>              └──▶ 노트북 llama.cpp 서버 (8081번 포트): 모델 네 개를 차례로 띄움</span></span></code></pre></figure>
+<p>Claude Code는 늘 Mac mini에서 돌았고, 노트북 차례에는 모델만 노트북에서 돌았습니다. 결과에 넣은 시도는 두 기계가 겹치지 않게 차례로 돌렸습니다. 다만 노트북 1회차는 Mac mini가 결과에서 뺀 시도를 돌리던 때와 겹쳤습니다. Claude Code와 빌드는 Mac mini에서 돌기 때문에, 노트북 1회차는 조금 느려졌을 수 있습니다. 시험하는 동안 Mac mini의 웹 UI, 웹 검색, 임베딩 서버는 멈춰 메모리를 비웠고, 노트북의 웹 UI용 모델 서버도 내렸다가 끝난 뒤 다시 켰습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>설정</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기억할 글 길이</td>
+<td><span class="nb">49,152토큰,</span> 그중 답 한 번에 <span class="nb">4,096토큰까지</span></td>
+</tr>
+<tr>
+<td>쓸 수 있는 도구</td>
+<td>명령 실행, 파일 찾기·읽기·고치기·쓰기</td>
+</tr>
+<tr>
+<td>막은 것</td>
+<td>인터넷, 웹 검색, MCP, 서버의 설정 폴더</td>
+</tr>
+<tr>
+<td>한도</td>
+<td>모델이 40번 답하거나 45분이 지나면 멈춤</td>
+</tr>
+<tr>
+<td><span class="nb">생각(추론)</span></td>
+<td>두 기계 모두 끄는 설정</td>
+</tr>
+</tbody>
+</table></div>
+<p>처음 일곱 번은 결과에서 뺐습니다. 끝까지 돈 다섯 번과 도중에 멈춘 두 번입니다. 기억할 글 길이를 <span class="nb">32,768로</span> 두었더니 대화가 1만 1천 토큰쯤 쌓일 때마다 요약을 해서, <span class="nb">49,152로</span> <span class="nb">늘렸습니다(12단계).</span> 그다음에는 Mac mini의 메모리가 빠듯하고 시스템 프로세스 <span class="nb">둘(audiomxd,</span> <span class="nb">configd)이</span> CPU를 붙잡고 있어서, 다시 켠 뒤 처음부터 돌렸습니다. 다시 켠 뒤에도 두 프로세스는 CPU를 계속 썼습니다. Mac mini는 한 바퀴에 세 시간쯤 걸려 두 번까지 돌렸습니다.</p>
+<h2 id="고른-모델">고른 모델</h2>
+<p>Mac mini는 GPU가 쓸 수 있는 몫이 <span class="nb">22GB입니다(2단계).</span> 4비트로 줄인 파일이 그 안에 들어가고, 기억할 글을 담을 자리가 남는 모델 가운데 일곱 개를 골랐습니다. 다섯 개는 <span class="nb">MoE(전문가</span> <span class="nb">혼합)</span> 모델입니다. 안에 작은 <span class="nb">신경망(전문가)을</span> 여러 개 두고 토큰마다 몇 개만 골라 계산해서, 전체 크기보다 훨씬 가볍게 돕니다. 나머지 둘은 토큰마다 숫자 전부를 계산하는 dense 모델입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>전체 숫자</th>
+<th>토큰마다</th>
+<th>Mac mini 파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B</span></td>
+<td>350억</td>
+<td>30억</td>
+<td>19GB</td>
+</tr>
+<tr>
+<td>Gemma 4 <span class="nb">26B-A4B</span></td>
+<td>260억</td>
+<td>40억</td>
+<td>14GB</td>
+</tr>
+<tr>
+<td><span class="nb">GLM-4.7-Flash</span></td>
+<td>300억</td>
+<td>30억</td>
+<td>16GB</td>
+</tr>
+<tr>
+<td>Laguna XS <span class="nb">2.1</span></td>
+<td>330억</td>
+<td>30억</td>
+<td>18GB</td>
+</tr>
+<tr>
+<td>Qwen3-Coder <span class="nb">30B-A3B</span></td>
+<td>300억</td>
+<td>30억</td>
+<td>16GB</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>270억</td>
+<td>270억</td>
+<td>15GB</td>
+</tr>
+<tr>
+<td>Devstral Small 2 24B</td>
+<td>240억</td>
+<td>240억</td>
+<td>14GB</td>
+</tr>
+</tbody>
+</table></div>
+<p>숫자 개수는 모델 이름에 적힌 값입니다. 파일 크기와 GPU 몫은 1GB를 <span class="nb">1,024MB로</span> 센 값입니다.</p>
+<ul>
+<li><strong><span class="nb">Qwen3.8</span> 27B와 Gemma 4 <span class="nb">26B-A4B</span></strong>는 10단계까지 각각 Mac mini와 노트북이 늘 돌리던 모델이다.</li>
+<li><strong><span class="nb">Qwen3-Coder,</span> Devstral Small 2, Laguna XS <span class="nb">2.1</span></strong>은 코딩용으로 나온 모델이다. Laguna는 로컬 기계에서 에이전트 코딩을 하라고 만든 모델이라고 소개돼 있다. <span class="nb">Qwen3-Coder는</span> 2025년 7월에 나와 이번 모델 가운데 가장 오래됐다.</li>
+<li><strong><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B와</span> <span class="nb">GLM-4.7-Flash</span></strong>는 코딩도 하는 범용 모델이다.</li>
+</ul>
+<p>Mac mini에는 <span class="nb">mlx-community가</span> 변환한 4비트 MLX 파일을 받아 <span class="nb">지문(SHA-256)을</span> 맞춰 보고 썼습니다. 노트북에는 같은 모델의 GGUF 파일을 썼고, 압축 방식은 <span class="nb">Qwen3.6과</span> Gemma가 <span class="nb">UD-IQ4_XS,</span> <span class="nb">Qwen3.8이</span> <span class="nb">UD-Q4_K_M,</span> Devstral이 <span class="nb">Q4_K_M입니다.</span> 노트북에는 Mac mini와 견줄 네 개만 올렸습니다. 10단계까지 쓰던 두 모델, MoE 대표인 <span class="nb">Qwen3.6,</span> 코딩용 dense인 Devstral입니다.</p>
+<h2 id="결과">결과</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>Mac mini <span class="nb">(6번)</span></th>
+<th>노트북 <span class="nb">(9번)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B</span></td>
+<td><strong>5</strong> <span class="nb">(6)</span></td>
+<td><strong>9</strong></td>
+</tr>
+<tr>
+<td>Gemma 4 <span class="nb">26B-A4B</span></td>
+<td>5</td>
+<td>9</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>3</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Devstral Small 2 24B</td>
+<td>2 <span class="nb">(6)</span></td>
+<td>7</td>
+</tr>
+<tr>
+<td><span class="nb">GLM-4.7-Flash</span></td>
+<td>3 <span class="nb">(5)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>Laguna XS <span class="nb">2.1</span></td>
+<td>3</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Qwen3-Coder <span class="nb">30B-A3B</span></td>
+<td>1</td>
+<td>-</td>
+</tr>
+</tbody>
+</table></div>
+<p>칸의 숫자는 통과한 횟수입니다. 결과물이 맞고, 에이전트가 스스로 일을 끝내야 통과입니다. 괄호는 끝이 어떻든 마지막 파일이 맞았던 횟수이고, 통과와 다를 때만 적었습니다. Devstral은 대화 형식을 고친 사본의 결과입니다. 원래 파일로는 두 기계 모두 세 과제가 다 첫 요청에서 오류로 <span class="nb">끝났습니다(12단계).</span></p>
+<ul>
+<li><strong><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B가</span> 가장 나았다.</strong> 결과물은 두 기계에서 15번 모두 맞았다. Mac mini에서 한 번은 결과물을 다 만든 뒤 서버가 메모리 부족으로 멈춰 통과로 세지 않았다.</li>
+<li><strong>노트북이 더 안정적이었다.</strong> 같은 모델 넷으로 견주면 노트북은 36번 중 34번, Mac mini는 24번 중 15번 통과했다. 결과물만 보면 Mac mini도 24번 중 20번 맞았다.</li>
+<li><strong>Mac mini에서는 고치기와 더하기가 어려웠다.</strong> 일곱 모델이 각 과제를 14번씩 풀어, 찾기는 11번, 고치기는 6번, 더하기는 5번 통과했다. 노트북은 고치기와 더하기 24번이 모두 통과했고, 찾기에서만 두 번 실패했다.</li>
+</ul>
+<h2 id="걸린-시간">걸린 시간</h2>
+<p>과제 세 개를 한 바퀴 도는 데 걸린 <span class="nb">시간(분)입니다.</span> 실패한 시도도 들어 있고, 45분 한도에 걸린 시도는 45분으로 셌습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>Mac mini</th>
+<th>노트북</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Qwen3.6</span> <span class="nb">35B-A3B</span></td>
+<td>6, 4</td>
+<td>8, 12, 6</td>
+</tr>
+<tr>
+<td>Gemma 4 <span class="nb">26B-A4B</span></td>
+<td>17, 34</td>
+<td>10, 10, 12</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.8</span> 27B</td>
+<td>53, 42</td>
+<td>36, 23, 27</td>
+</tr>
+<tr>
+<td>Devstral Small 2 24B</td>
+<td>62, 36</td>
+<td>37, 40, 32</td>
+</tr>
+<tr>
+<td><span class="nb">GLM-4.7-Flash</span></td>
+<td>13, 15</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Laguna XS <span class="nb">2.1</span></td>
+<td>24, 25</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Qwen3-Coder <span class="nb">30B-A3B</span></td>
+<td>11, 9</td>
+<td>-</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">Qwen3.8</span> 27B의 Mac mini 1회차 53분에는 45분 한도에 걸린 고치기와 서버가 멈춘 더하기가 들어 있어, 셋 중 하나만 통과했습니다.</p>
+<ul>
+<li><strong>MoE가 빨랐다.</strong> Mac mini에서 MoE 다섯은 한 바퀴에 <span class="nb">4~34분,</span> dense 둘은 <span class="nb">36~62분</span> 걸렸다. 양 끝에는 끊긴 시도가 들어 있다. 62분과 53분에는 45분 한도에 걸린 고치기가, 4분에는 서버가 멈춘 고치기가 있다. <span class="nb">Qwen3-Coder가</span> 빨랐던 데는 같은 일을 빠르게 되풀이하다 40번 한도에 일찍 닿은 탓도 크다.</li>
+<li><strong>같은 모델이라도 기계마다 달랐다.</strong> 통과한 고치기만 보면 <span class="nb">Qwen3.6은</span> Mac mini 3분 <span class="nb">28초(1번),</span> 노트북 2분 <span class="nb">25초~8분</span> 12초로 비슷했다. Gemma는 Mac mini에서 5분과 19분, 노트북에서 3분 <span class="nb">28초~3분</span> 42초였다. 까닭은 아래 <span class="nb">「두</span> 기계의 <span class="nb">차이」에</span> 적었다.</li>
+</ul>
+<h2 id="어떻게-실패했나">어떻게 실패했나</h2>
+<p>원래 형식의 Devstral을 빼고, Mac mini는 42번 중 20번, 노트북은 36번 중 2번 통과하지 못했습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모양</th>
+<th>Mac mini</th>
+<th>노트북</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>결과물은 맞음, 서버 멈춤</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>결과물은 맞음, 끝내지 못함</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>40번 한도</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>45분 한도</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>서버 멈춤</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>틀린 결과</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>파일을 안 보고 답함</td>
+<td>1</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">「서버</span> <span class="nb">멈춤」은</span> MLX 서버가 메모리 부족으로 멈춘 경우입니다. 대화 기록을 열어 보니 실패에는 몇 가지 모양이 있었습니다.</p>
+<h3 id="같은-일을-되풀이했다">같은 일을 되풀이했다</h3>
+<p>실패로 센 40번 한도 여섯 번 가운데 다섯 번은 글자까지 같은 명령을 <span class="nb">18~176번</span> 되풀이했습니다.</p>
+<ul>
+<li><strong><span class="nb">Qwen3-Coder</span></strong>는 고치기에서 <code><span class="nb">**/BugListPage.tsx</span></code>라는 파일을 176번 찾았다. 한 번 답할 때마다 같은 찾기를 여러 개씩 보냈다. 이 블로그는 Astro로 만들어 <code><span class="nb">.tsx</span></code> 파일이 하나도 없다. 다른 고치기에서도 없는 <code><span class="nb">.tsx</span></code> 파일을 29번 찾았고, 찾기에서는 있지도 않은 도구 <code>Ggrep</code>을 32번 불렀다.</li>
+<li><strong><span class="nb">Qwen3.8</span> 27B</strong>는 Mac mini의 고치기 두 번 모두, 빌드된 HTML에서 class 이름을 뽑는 grep을 조금씩 바꿔 가며 한 번은 22번, 한 번은 27번 실행했다. 앞의 것은 45분 한도에, 뒤의 것은 40번 한도에 걸렸다. 고칠 곳은 빌드 결과가 아니라 원본 코드에 있었다.</li>
+<li><strong><span class="nb">GLM-4.7-Flash</span></strong>는 작업 폴더 이름을 <code><span class="nb">agent-glm-4.7-flash</span></code>가 아니라 <code><span class="nb">agent-glm-7-flash</span></code>로 잘못 적은 명령을 19번 실행했다.</li>
+<li><strong>Laguna XS <span class="nb">2.1</span></strong>은 되풀이 없이 이것저것 35가지를 하다가 40번에 닿았다.</li>
+</ul>
+<h3 id="다-해-놓고-끝내지-못했다">다 해 놓고 끝내지 못했다</h3>
+<p><strong>Devstral</strong>은 Mac mini에서 결과물을 6번 모두 맞게 만들었지만, 스스로 끝낸 것은 찾기 두 번뿐이었습니다. 고치기 한 번은 시작 9분 만에 고쳐 놓고도 확인을 이어 가다가, 마지막 요청 하나가 30분 동안 끝나지 않아 45분 한도에 걸렸습니다. 더하기 한 번은 피드의 항목 수를 세는 <code>grep <span class="nb">-c</span> <span class="nb">&quot;&lt;item&gt;&quot;</span> <span class="nb">dist/rss.xml</span></code>을 18번 실행하다 40번 한도에 걸렸습니다. 빌드된 피드는 줄바꿈이 없는 한 줄짜리 파일이라, 몇 번을 세도 1이 나왔습니다. 나머지 두 번은 서버가 멈췄습니다.</p>
+<h3 id="틀리고도-됐다고-했다">틀리고도 됐다고 했다</h3>
+<ul>
+<li><strong>Laguna XS <span class="nb">2.1</span></strong>은 버그 기록 8개를 피드에 넣었지만 주소를 모두 글 <span class="nb">주소(</span><code><span class="nb">/posts/…</span></code><span class="nb">)로</span> 만들었다. 버그 기록인지 가리는 조건이 실제 데이터와 맞지 않았다. 그러고는 <span class="nb">「RSS</span> 피드가 성공적으로 <span class="nb">업데이트되었습니다」라고</span> 답했다.</li>
+<li><strong><span class="nb">Qwen3-Coder</span></strong>는 한 번은 빌드가 읽지 않는 곳에 피드 파일을 따로 만들어, 실제 피드는 그대로였다. 다른 한 번은 사이트의 피드 코드를 두고 따로 스크립트를 짜서 고정된 피드 파일을 만들었다. 그 피드에는 없는 주소 <code><span class="nb">https://cybug.com</span></code>, RSS가 아닌 날짜 형식, 버그 기록의 <span class="nb">틀(</span><code><span class="nb">_template</span></code><span class="nb">)까지</span> 들어갔고, 사본 안에 <code><span class="nb">MEMORY.md</span></code>와 <code><span class="nb">memory/</span></code> 폴더도 만들었다. 두 번 다 영어로 성공했다고 답했다.</li>
+<li><strong>Gemma 4</strong>는 Mac mini에서 한 번, 읽기 시간을 묻자 <code>src/components/Reading.astro</code>라고 답했다. 이 파일은 홈 화면의 <span class="nb">「대표</span> <span class="nb">기록」</span> 상자에서 글자 너비를 재는 코드다. 이름에 Reading이 들어간 다른 파일을 짚고, 그 코드를 읽기 시간 계산이라고 설명했다.</li>
+</ul>
+<h3 id="파일을-안-보고-답했다">파일을 안 보고 답했다</h3>
+<ul>
+<li><strong>Devstral</strong>은 노트북에서 두 번, 파일을 하나도 열지 않고 답했다. 한 번은 <span class="nb">「파일</span> itself를 고치지 말라고 하셨기 때문에 파일 내용을 확인하지 <span class="nb">않겠습니다」라며</span> 흔한 <span class="nb">계산법(1분에</span> <span class="nb">200~250단어)을</span> 늘어놓았다. <span class="nb">「고치지</span> <span class="nb">마세요」를</span> <span class="nb">「보지</span> <span class="nb">마세요」로</span> 받아들인 셈이다. 다른 한 번은 <span class="nb">「일반적으로</span> 콘텐츠 길이를 바탕으로 <span class="nb">계산한다」는</span> 두 문장으로 끝냈다.</li>
+<li><strong>Laguna XS <span class="nb">2.1</span></strong>은 Mac mini에서 한 번, 찾아보지 않고 파일 경로를 알려 달라고 되물었다. 답에는 생각을 끝내는 표시인 <code><span class="nb">&lt;/think&gt;</span></code>가 섞여 같은 문단이 두 번 나왔다.</li>
+</ul>
+<h3 id="서버가-멈췄다">서버가 멈췄다</h3>
+<p>Mac mini의 MLX 서버는 시험 동안 메모리가 모자라 6번 멈췄습니다. 그중 5번은 결과물을 이미 맞게 만든 뒤였습니다. 멈춘 서버는 프로세스가 살아 있는 채로 모든 요청에 404를 돌려주고, Claude Code는 <span class="nb">「There’s</span> an issue with the selected <span class="nb">model」이라고</span> 띄웁니다. 노트북은 한 번도 멈추지 않았습니다. 왜 그런지는 13단계에 씁니다.</p>
+<h2 id="두-기계의-차이">두 기계의 차이</h2>
+<p>같은 모델이라도 두 기계는 <span class="nb">엔진(MLX와</span> <span class="nb">llama.cpp),</span> 파일의 압축 방식, 메모리를 잡는 방식이 다릅니다. 기록을 읽다가 하나를 더 찾았습니다.</p>
+<ul>
+<li><strong>노트북의 Gemma만 생각했다.</strong> <span class="nb">생각(추론)은</span> 두 기계 모두 끄게 했다. 끄는 방법은 엔진마다 달라서, MLX에는 <code><span class="nb">enable_thinking:</span> false</code>를, <span class="nb">llama.cpp에는</span> <code><span class="nb">--reasoning-budget</span> 0</code>을 줬다. 그런데 노트북의 Gemma는 과제마다 <span class="nb">1,400~9,900자씩</span> 생각한 글을 남겼고, Mac mini의 Gemma는 많아야 156자였다.</li>
+<li><strong>생각하지 않은 Gemma는 더 많이 헤맸다.</strong> Mac mini의 Gemma는 고치기에서 25번과 39번 답했고, 노트북의 Gemma는 <span class="nb">11~13번이었다.</span> Mac mini에서는 한 파일을 고치려다 열 번 이상 거절당한 시도가 셋 있었다. 바꿀 부분을 파일에 없는 모양으로 적거나 바뀌는 것이 없는 수정을 보냈고, 결국 파일을 통째로 다시 썼다.</li>
+</ul>
+<p>생각한 쪽이 덜 헤맸다고 볼 수도 있지만, 엔진과 파일도 달라서 이것 하나로 가리지는 못했습니다. 두 기계에서 함께 돌린 나머지 <span class="nb">셋(Qwen3.6,</span> <span class="nb">Qwen3.8,</span> <span class="nb">Devstral)은</span> 어느 쪽에서도 생각한 글이 없었습니다. 한 칸에 두세 번씩만 돌려서, 한 번의 차이는 우연일 수도 있습니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>Mac mini에서도 코딩 에이전트가 돈다.</strong> <span class="nb">Qwen3.6</span> <span class="nb">35B-A3B는</span> Mac mini에서 과제 세 개를 6분 만에 모두 끝냈다. 결과물은 Mac mini 6번, 노트북 9번 모두 맞았다.</li>
+<li><strong>MoE가 빨랐다.</strong> Mac mini에서 토큰마다 <span class="nb">30억~40억</span> 개만 계산하는 모델은 한 바퀴를 <span class="nb">4~34분에,</span> 전부 계산하는 dense 모델은 <span class="nb">36~62분에</span> 돌았다.</li>
+<li><strong>코딩용이라는 이름이 결과를 정하지 않았다.</strong> 코딩용 셋 가운데 <span class="nb">Qwen3-Coder는</span> 6번 중 1번, Laguna는 3번 통과했고, Devstral은 대화 형식을 고쳐야 돌았다.</li>
+<li><strong><span class="nb">「성공했다」는</span> 답을 믿으면 안 된다.</strong> 틀린 결과 네 번 가운데 세 번은 성공했다고 답했다. 결과물은 빌드해서 기계로 확인해야 한다.</li>
+<li><strong>실패에는 모양이 있다.</strong> 같은 명령 되풀이, 파일을 안 보고 답하기, 엉뚱한 파일 짚기, 다 해 놓고 끝내지 못하기.</li>
+<li><strong>Mac mini는 메모리가 먼저 모자랐다.</strong> 노트북은 한 번도, Mac mini는 6번 멈췄다.</li>
+<li><strong>기계를 견줄 때는 생각 설정까지 확인한다.</strong> 두 기계 모두 생각을 끄게 했지만 끄는 방법이 엔진마다 달랐고, 노트북의 Gemma만 생각했다.</li>
+</ul>
+<aside class="note" aria-labelledby="note-iss3k5"><h3 id="note-iss3k5">시험 도중에 바꾼 것</h3><p>Mac mini 1회차 뒤에 시험 스크립트를 고쳤습니다. 과제마다 서버가 살아 있는지 먼저 묻고 멈췄으면 다시 켜게 했고, 45분 한도에 걸린 과제 뒤에도 서버를 다시 켜게 했습니다. 1회차에는 모델을 바꿀 때만 확인했습니다. 1회차의 <span class="nb">Qwen3.8</span> 27B 더하기는 고치기가 45분 한도에 걸린 바로 뒤에 시작해 2분 만에 서버가 멈췄는데, 끝나지 않은 고치기의 요청이 서버에 남아 있었을 수 있습니다. 모델과 한도는 바꾸지 않았습니다. 또 <span class="nb">Qwen3-Coder의</span> 더하기 2회차는 검사 코드가 RSS가 아닌 날짜를 읽다가 오류를 내서 기록이 빠졌습니다. 대화 기록으로 <span class="nb">되살리고(결과는</span> <span class="nb">실패),</span> 검사 코드도 고쳤습니다.</p></aside>
+<h2 id="다음-글">다음 글</h2>
+<ul>
+<li><strong>12단계 Claude Code를 로컬 모델에 붙이기:</strong> 게이트웨이가 Claude 형식을 OpenAI 형식으로 바꾸는 설정, 기억할 글 길이를 <span class="nb">32,768에서</span> <span class="nb">49,152로</span> 늘린 이유, Devstral이 처음에 한 번도 돌지 못한 대화 형식 문제.</li>
+<li><strong>13단계 Mac mini가 도중에 멈춘 이유:</strong> MLX 서버가 메모리 부족으로 멈추는 과정과, 멈춰도 시험이 이어지게 한 방법.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<h3 id="11월-17일">11월 17일</h3>
+<ol class="trail" aria-label="작업 기록, 2026-11-17"><li><time class="measured" datetime="2026-11-17T17:55+09:00"><span class="nb">17:55</span></time><span class="trail__what">Mac mini에 Claude Code 설치</span><code class="trail__got"><span class="nb">2.1.326</span></code></li><li><time class="measured" datetime="2026-11-17T17:59+09:00"><span class="nb">17:59</span></time><span class="trail__what">블로그 사본에 틀린 곳 하나를 심고 빌드</span><code class="trail__got">0건, 0건, 0건</code></li><li><time class="measured" datetime="2026-11-17T18:00+09:00"><span class="nb">18:00</span></time><span class="trail__what"><span class="nb">Qwen3.8</span> 27B로 첫 시도, 기억할 글 <span class="nb">32,768</span></span><code class="trail__got">찾기 통과</code></li><li><time class="measured" datetime="2026-11-17T18:12+09:00"><span class="nb">18:12</span></time><span class="trail__what">같은 설정으로 고치기</span><code class="trail__got">42분, 요약 세 번 뒤 오류</code></li><li><time class="measured" datetime="2026-11-17T18:47+09:00"><span class="nb">18:47</span></time><span class="trail__what">MLX 모델 다섯 개를 더 받고 지문 확인</span><code class="trail__got">모두 일치</code></li><li><time class="measured" datetime="2026-11-17T19:03+09:00"><span class="nb">19:03</span></time><span class="trail__what">기억할 글을 <span class="nb">49,152로</span> 늘려 다시 시작</span><code class="trail__got">찾기 통과</code></li><li><time class="measured" datetime="2026-11-17T19:05+09:00"><span class="nb">19:05</span></time><span class="trail__what">노트북 1회차, 웹 UI용 서버를 내리고 시험 모델을 띄움</span><code class="trail__got">23초 만에 뜸</code></li><li><time class="measured" datetime="2026-11-17T19:30+09:00"><span class="nb">19:30</span></time><span class="trail__what">Mac mini 고치기가 40번 한도</span><code class="trail__got">메모리 압박</code></li><li><time class="measured" datetime="2026-11-17T20:10+09:00"><span class="nb">20:10</span></time><span class="trail__what">노트북 1회차 끝</span><code class="trail__got"><span class="nb">9/9,</span> Devstral은 형식 오류</code></li><li><time class="measured" datetime="2026-11-17T20:15+09:00"><span class="nb">20:15</span></time><span class="trail__what">Mac mini를 다시 켬</span><code class="trail__got"><span class="nb">20:15:44에</span> 켜짐</code></li><li><time class="measured" datetime="2026-11-17T20:17+09:00"><span class="nb">20:17</span></time><span class="trail__what">Mac mini 1회차 시작</span><code class="trail__got"><span class="nb">Qwen3.8</span> 27B부터</code></li><li><time class="measured" datetime="2026-11-17T21:10+09:00"><span class="nb">21:10</span></time><span class="trail__what">MLX 서버가 메모리 부족으로 멈춤</span><code class="trail__got"><span class="nb">Qwen3.8</span> 27B 더하기</code></li><li><time class="measured" datetime="2026-11-17T21:42+09:00"><span class="nb">21:42</span></time><span class="trail__what">MLX 서버가 다시 멈춤</span><code class="trail__got">GLM 더하기, 결과물은 맞음</code></li><li><time class="measured" datetime="2026-11-17T22:25+09:00"><span class="nb">22:25</span></time><span class="trail__what">Mac mini 1회차 끝</span><code class="trail__got"><span class="nb">Qwen3.6</span> 6분, <span class="nb">3/3</span></code></li><li><time class="measured" datetime="2026-11-17T22:30+09:00"><span class="nb">22:30</span></time><span class="trail__what">과제마다 서버를 먼저 확인하게 고침</span><code class="trail__got">모의 실행 통과</code></li><li><time class="measured" datetime="2026-11-17T23:29+09:00"><span class="nb">23:29</span></time><span class="trail__what">형식을 고친 Devstral, Mac mini</span><code class="trail__got">결과물 <span class="nb">3/3,</span> 스스로 끝낸 것 1</code></li></ol>
+<h3 id="11월-18일">11월 18일</h3>
+<ol class="trail" aria-label="작업 기록, 2026-11-18"><li><time class="measured" datetime="2026-11-18T00:07+09:00"><span class="nb">00:07</span></time><span class="trail__what">형식을 고친 Devstral, 노트북</span><code class="trail__got"><span class="nb">3/3</span></code></li><li><time class="measured" datetime="2026-11-18T01:34+09:00"><span class="nb">01:34</span></time><span class="trail__what">노트북 2회차 끝</span><code class="trail__got"><span class="nb">11/12</span></code></li><li><time class="measured" datetime="2026-11-18T03:14+09:00"><span class="nb">03:14</span></time><span class="trail__what">멈춘 MLX 서버를 다시 켬</span><code class="trail__got">Devstral 고치기, 결과물은 맞음</code></li><li><time class="measured" datetime="2026-11-18T03:29+09:00"><span class="nb">03:29</span></time><span class="trail__what">멈춘 MLX 서버를 다시 켬</span><code class="trail__got">Devstral 더하기, 결과물은 맞음</code></li><li><time class="measured" datetime="2026-11-18T03:45+09:00"><span class="nb">03:45</span></time><span class="trail__what">멈춘 MLX 서버를 다시 켬</span><code class="trail__got">GLM 더하기, 결과물은 맞음</code></li><li><time class="measured" datetime="2026-11-18T04:24+09:00"><span class="nb">04:24</span></time><span class="trail__what">멈춘 MLX 서버를 다시 켬</span><code class="trail__got"><span class="nb">Qwen3.6</span> 고치기, 결과물은 맞음</code></li><li><time class="measured" datetime="2026-11-18T04:26+09:00"><span class="nb">04:26</span></time><span class="trail__what">Mac mini 2회차 끝</span><code class="trail__got"><span class="nb">Qwen3.6</span> 4분</code></li><li><time class="measured" datetime="2026-11-18T05:45+09:00"><span class="nb">05:45</span></time><span class="trail__what">노트북 3회차 끝, 웹 UI용 서버를 되살림</span><code class="trail__got"><span class="nb">11/12</span></code></li><li><time class="measured" datetime="2026-11-18T09:53+09:00"><span class="nb">09:53</span></time><span class="trail__what">시험 모드를 끄고 웹 UI, 웹 검색, 임베딩 서버를 다시 켬</span><code class="trail__got">세 서비스 모두 200</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-local-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/agent-02-setup/" class="pager__next"><small>다음 글</small><strong>12단계 Claude Code를 로컬 모델에 붙이기</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#과제-세-개">과제 세 개</a></li><li><a href="#어떻게-돌렸나">어떻게 돌렸나</a></li><li><a href="#고른-모델">고른 모델</a></li><li><a href="#결과">결과</a></li><li><a href="#걸린-시간">걸린 시간</a></li><li><a href="#어떻게-실패했나">어떻게 실패했나</a></li><li><a href="#두-기계의-차이">두 기계의 차이</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#다음-글">다음 글</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>

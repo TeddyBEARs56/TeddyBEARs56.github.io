@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>국산 LLM에게 코딩을 맡겨 보니 | Cyborg</title><meta name="description" content="국산 LLM 견주기 5편. 노트북의 Ollama에 Claude Code를 바로 붙이고, 지난 연재의 코딩 과제 세 개를 국산 모델 넷에게 두 번씩 맡겼습니다. 과제를 푼 것은 EXAONE 4.5뿐이었습니다. Mi:dm 2.0과 Tri-21B-Think는 대부분 파일을 열지 않고 끝냈고, Kanana-2는 대부분 도구 호출을 생각 속에 써서 실행되지 않았습니다."><link rel="canonical" href="https://teddybears56.github.io/posts/korean-llm-05-coding/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="alternate" type="application/rss+xml" title="Cyborg" href="https://teddybears56.github.io/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><meta property="og:type" content="article"><meta property="og:site_name" content="Cyborg"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="국산 LLM에게 코딩을 맡겨 보니 | Cyborg"><meta property="og:description" content="국산 LLM 견주기 5편. 노트북의 Ollama에 Claude Code를 바로 붙이고, 지난 연재의 코딩 과제 세 개를 국산 모델 넷에게 두 번씩 맡겼습니다. 과제를 푼 것은 EXAONE 4.5뿐이었습니다. Mi:dm 2.0과 Tri-21B-Think는 대부분 파일을 열지 않고 끝냈고, Kanana-2는 대부분 도구 호출을 생각 속에 써서 실행되지 않았습니다."><meta property="og:url" content="https://teddybears56.github.io/posts/korean-llm-05-coding/"><meta property="article:published_time" content="2026-11-22T09:52:00.000Z"><meta name="robots" content="index, follow"><meta name="google-site-verification" content="tWX2LDikntR4DSGiEUTB1fZBP-nLWVIOFEh1AFBm1Wg"><meta name="generator" content="Astro v7.4.11"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"국산 LLM에게 코딩을 맡겨 보니","description":"국산 LLM 견주기 5편. 노트북의 Ollama에 Claude Code를 바로 붙이고, 지난 연재의 코딩 과제 세 개를 국산 모델 넷에게 두 번씩 맡겼습니다. 과제를 푼 것은 EXAONE 4.5뿐이었습니다. Mi:dm 2.0과 Tri-21B-Think는 대부분 파일을 열지 않고 끝냈고, Kanana-2는 대부분 도구 호출을 생각 속에 써서 실행되지 않았습니다.","datePublished":"2026-11-22T09:52:00.000Z","dateModified":"2026-11-22T09:52:00.000Z","inLanguage":"ko","url":"https://teddybears56.github.io/posts/korean-llm-05-coding/","mainEntityOfPage":"https://teddybears56.github.io/posts/korean-llm-05-coding/","author":{"@type":"Person","name":"TeddyBEARs56","url":"https://github.com/TeddyBEARs56"},"isPartOf":{"@type":"Blog","name":"Cyborg","url":"https://teddybears56.github.io/"}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-8W7XDWBK2X"></script><script>(function(){const gaId = "G-8W7XDWBK2X";
+
+					window.dataLayer = window.dataLayer || [];
+					function gtag() { dataLayer.push(arguments); }
+					gtag('js', new Date());
+					gtag('config', gaId);
+				})();</script><link rel="stylesheet" href="/_astro/Base.CxCjDJr2.css"></head><body><a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-header"><div class="container site-header__inner"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><nav class="site-nav" aria-label="주 메뉴"><ul><li class="site-nav__wide"><a href="/#latest" aria-current="page">최신 글</a></li><li><a href="/#series">연재</a></li><li><a href="/bugs/">Cybug</a></li></ul></nav></div></header><main id="main"><div class="container post"><article aria-labelledby="post-title"><header class="post__head"><nav aria-label="현재 위치"><ol class="crumbs"><li><a href="/#series-korean-llm">연재</a></li><li>5편</li></ol></nav><h1 id="post-title">국산 LLM에게 코딩을 맡겨 보니</h1><p class="post__lead">4편까지는 국산 모델에게 글을 읽고 쓰는 일을 맡겼습니다. 이번에는 코딩입니다. <span class="nb">「로컬</span> LLM <span class="nb">처음부터」</span> 11단계에서 쓴 과제 세 개를, Claude Code를 노트북의 Ollama에 바로 붙여 국산 모델에게 풀게 했습니다.</p><dl class="post__meta"><div><dt>올린 날</dt><dd><time class="measured" datetime="2026-11-22"><span class="nb">2026-11-22</span></time></dd></div><div><dt>읽는 시간</dt><dd>약 8분</dd></div></dl></header><div class="prose"><h2 id="이번에-할-일">이번에 할 일</h2>
+<ol>
+<li><strong>지난 연재의 과제 세 개를 그대로 쓴다.</strong> <span class="nb">「로컬</span> LLM <span class="nb">처음부터」</span> 11단계의 찾기, 고치기, 더하기다.</li>
+<li><strong>Claude Code를 노트북의 Ollama에 바로 붙인다.</strong> 게이트웨이 없이, Ollama 4편과 같은 조건으로 붙인다.</li>
+<li><strong>국산 모델 넷을 두 번씩 돌린다.</strong> 해외 모델 둘은 Ollama 4편에서 같은 노트북, 같은 조건으로 돌린 결과와 견준다.</li>
+</ol>
+<h2 id="시험-방법">시험 방법</h2>
+<p><span class="nb">노트북(Arc</span> 140V 내장 GPU, 메모리 <span class="nb">32GB)의</span> Ollama <span class="nb">0.40.16에,</span> Mac mini의 Claude Code <span class="nb">2.1.326을</span> 같은 네트워크로 바로 붙였습니다. 조건은 Ollama 4편과 같습니다.</p>
+<ul>
+<li><strong>Ollama:</strong> 기억할 글 길이 <span class="nb">49,152토큰,</span> 한 번에 요청 하나, 모델 하나.</li>
+<li><strong>Claude Code:</strong> <code>ollama launch claude</code>가 넣는 설정에, 기억할 글 길이 <span class="nb">49,152토큰과</span> 한 번에 쓰는 답 <span class="nb">4,096토큰을</span> 더했다. 40번 주고받거나 45분이 지나면 멈춘다.</li>
+<li><strong>과제:</strong> 과제마다 이 블로그의 11월 17일 원본을 새로 복사해 주었다. 지난 연재 1편과 같은 복사본이다.</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>과제</th>
+<th>하라고 한 <span class="nb">일(줄임)</span></th>
+<th>맞았다고 본 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>찾기</td>
+<td>읽기 시간을 어디서 어떻게 계산하는지 알려 달라</td>
+<td>답에 <code><span class="nb">posts.ts</span></code>, 500, 220이 모두 나오고 바뀐 파일이 없다</td>
+</tr>
+<tr>
+<td>고치기</td>
+<td><span class="nb">/bugs/의</span> 상태별 건수가 0건이니 고쳐 달라</td>
+<td>상태별 건수가 맞게 나온다</td>
+</tr>
+<tr>
+<td>더하기</td>
+<td>RSS에 Cybug 버그 기록도 넣어 달라</td>
+<td>글과 버그 기록이 날짜순으로 섞여 들어간다</td>
+</tr>
+</tbody>
+</table></div>
+<p>Claude Code에 보낸 말의 원문은 지난 연재 1편에 있습니다.</p>
+<p>모델은 <span class="nb">2~4편과</span> 같은 국산 넷입니다. <span class="nb">Mi:dm</span> <span class="nb">2.0</span> <span class="nb">Base(KT),</span> <span class="nb">Kanana-2</span> <span class="nb">30B(카카오),</span> EXAONE <span class="nb">4.5</span> <span class="nb">33B(LG),</span> <span class="nb">Tri-21B-Think(트릴리온랩스)이고,</span> 모두 <span class="nb">Q4_K_M으로</span> 양자화한 GGUF입니다. 해외 모델은 Ollama 4편의 <span class="nb">Qwen3.6</span> 35B와 Gemma 4 <span class="nb">26B(둘</span> 다 <span class="nb">UD-IQ4_XS)</span> 결과를 썼고, 다시 돌리지는 않았습니다.</p>
+<ul>
+<li><strong><span class="nb">Mi:dm,</span> Kanana, Tri는 <span class="nb">32,768토큰으로</span> 돌았다.</strong> 모델이 배운 길이가 <span class="nb">32,768토큰이라</span> Ollama가 <span class="nb">49,152를</span> 그만큼으로 줄였다. 실행마다 Ollama 기록에서 프롬프트를 자른 <span class="nb">줄(</span><code>truncating input prompt</code><span class="nb">)을</span> 셌는데, 한 번도 없었다.</li>
+<li><strong>EXAONE은 그림 처리 부분을 뺀 판으로 돌렸다.</strong> EXAONE <span class="nb">4.5는</span> 그림도 읽는 모델이라, 모델 파일 말고 그림 처리 <span class="nb">부분(projector)이</span> <span class="nb">2.4GiB(2편의</span> <span class="nb">2.6GB)</span> 따로 붙어 있다. 처음 <span class="nb">49,152토큰으로</span> 올릴 때 GPU 메모리가 모자라 실패했다. Ollama가 그림 처리 부분을 CPU로 옮겨 다시 해 보기 전에 멈췄다. 다시 시도하는 대신, 같은 모델 파일, 같은 대화 틀, 같은 멈춤 낱말로 그림 처리 부분만 뺀 태그를 만들어 썼다.</li>
+</ul>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>노트북, Ollama의 답, EXAONE <span class="nb">4.5를</span> <span class="nb">49,152토큰으로</span> 올렸을 때</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>llama-server startup failed before projector CPU offload retry: llama-server reported out-of-memory during startup: ggml_backend_buft_alloc_buffer_n_default: failed to allocate Vulkan0 buffer of size 1070645248</span></span></code></pre></figure>
+<h2 id="돌리기-전에-도구를-부르는지">돌리기 전에, 도구를 부르는지</h2>
+<p>Claude Code는 파일을 찾고 읽고 고치는 일을 모두 도구 호출로 시킵니다. 모델이 도구를 부르지 못하면 아무 일도 못 합니다. 그래서 먼저 Read 도구 하나만 주고 <span class="nb">「/tmp/a.txt</span> 파일을 읽어서 무슨 내용인지 알려 줘. 반드시 Read 도구를 <span class="nb">써.」라고</span> 물었습니다. 한 번은 생각을 끄고, 한 번은 Claude Code가 보내는 것처럼 생각을 켜고 보냈습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>생각 끔</th>
+<th>생각 켬</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span></td>
+<td>불렀다</td>
+<td>불렀다</td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span></td>
+<td>부르겠다는 글만</td>
+<td>생각만 쓰고 끝</td>
+</tr>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td>메모리 부족</td>
+<td>불렀다</td>
+</tr>
+<tr>
+<td>Tri-21B-Think</td>
+<td>생각 글이 길어 끊김</td>
+<td>불렀다</td>
+</tr>
+</tbody>
+</table></div>
+<p>생각을 끈 쪽의 EXAONE은 그림 처리 부분이 붙은 원래 태그이고, 생각을 켠 쪽은 뺀 태그입니다. Tri는 생각 끈 시험에서 답을 400토큰으로 묶어 두어, 생각을 글로 쓰다가 끊겼습니다. Claude Code와 같은 조건인 생각 켬에서는 넷 중 셋이 도구를 불렀습니다.</p>
+<h2 id="결과">결과</h2>
+<p><span class="nb">○는</span> 통과, <span class="nb">✕는</span> 실패입니다. 칸마다 1회차, 2회차 순서입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>찾기</th>
+<th>고치기</th>
+<th>더하기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span></td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span></td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+</tr>
+<tr>
+<td>Tri-21B-Think</td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+<td>✕ ✕</td>
+</tr>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td>○ ○</td>
+<td>○ △</td>
+<td>✕ ✕</td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td>○ ○</td>
+<td>○ ○</td>
+<td>○ ✕</td>
+</tr>
+<tr>
+<td>Gemma 4 26B</td>
+<td>○ ○</td>
+<td>○ ○</td>
+<td>○ ○</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="nb">△는</span> 결과물은 맞았지만 45분 한도에 걸려 스스로 끝내지 못한 것입니다. 국산 모델 가운데 과제를 푼 것은 EXAONE <span class="nb">4.5뿐이었습니다.</span> 나머지 셋은 여섯 번 모두 실패했는데, 실패한 모습이 모델마다 달랐습니다.</p>
+<h2 id="도구를-거의-쓰지-않았다-midm과-tri">도구를 거의 쓰지 않았다: <span class="nb">Mi:dm과</span> Tri</h2>
+<p><strong><span class="nb">Mi:dm</span> <span class="nb">2.0</span></strong>은 여섯 번 모두 <span class="nb">1~2번</span> 주고받고 1분 안팎에 끝냈습니다.</p>
+<ul>
+<li><strong>찾기는 파일을 열지 않고 답했다.</strong> 1회차는 <span class="nb">「블로그</span> 플랫폼마다 이 정보를 계산하는 방식이 조금씩 <span class="nb">다르지만」으로</span> 시작하는 일반론이었다. 2회차는 읽기 시간을 페이지가 뜨는 데 걸리는 시간으로 알아듣고 답했다.</li>
+<li><strong>고치기와 더하기는 주로 되물었다.</strong> <span class="nb">「혹시</span> Cybug의 어떤 버전을 사용 중인지 알 수 <span class="nb">있을까요?」처럼</span> 정보를 더 달라고 했다.</li>
+<li><strong>도구는 여섯 번 중 두 번, 한 번씩 불렀다.</strong> 그중 하나는 작업 폴더 밖을 찾으려다 권한에 막혔고, 그러자 권한을 달라고 하고 끝냈다.</li>
+</ul>
+<p><span class="nb">Mi:dm의</span> 대화 틀은 Claude Code가 보낸 지시보다 앞에, 고정된 한국어 지시문을 길게 넣습니다. 그 안에 이런 문장이 있습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span><span class="nb">Mi:dm</span> <span class="nb">2.0의</span> 대화 틀에 들어 있는 고정 지시문 가운데</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>모호하거나 복잡한 요청으로 인해 답변 작성이 어려운 경우, 다시 한 번 생각해보고 추가정보를 요청해야 한다.</span></span>
+<span class="line"><span>도구가 필요하지 않은 경우에는 일반적인 방식으로 응답한다.</span></span></code></pre></figure>
+<p>되묻거나 도구 없이 답한 것이 이 지시와 맞아떨어지지만, 지시문을 빼고 다시 돌려 보지는 않았습니다. 같은 대화 틀로도 시험 요청에서는 도구를 바로 불렀습니다.</p>
+<p><strong><span class="nb">Tri-21B-Think</span></strong>는 Ollama가 생각하는 모델로 알아보지 못합니다. 그래서 생각이 따로 나뉘지 않고 <code><span class="nb">&lt;think&gt;</span></code>로 시작하는 보이는 글로 나왔습니다.</p>
+<ul>
+<li><strong>네 번은 도구를 부르지 않고 한 번에 끝냈다.</strong> 찾기 두 번은 일반론으로 답했다. 1회차는 <span class="nb">6.8분이</span> 걸렸고, 한국어 질문에 영어로 답한 뒤 <span class="nb">「분석할</span> 파일이 있으면 경로를 알려 <span class="nb">달라」로</span> 마쳤다. 더하기 두 번은 먼저 파일을 확인하겠다고만 쓰고 멈췄다.</li>
+<li><strong>고치기에서는 도구를 잘못 불렀다.</strong> 1회차에 Grep을 여섯 번 불렀다. 찾을 <span class="nb">위치(</span><code>path</code><span class="nb">)에</span> <code><span class="nb">**/*.vue</span></code> 같은 파일 이름 패턴을 넣어 여섯 번 모두 <span class="nb">「Path</span> does not <span class="nb">exist」가</span> 났다.</li>
+</ul>
+<h2 id="도구-호출이-생각-속에-묻혔다-kanana-2">도구 호출이 생각 속에 묻혔다: <span class="nb">Kanana-2</span></h2>
+<p>이번에 쓴 <span class="nb">Kanana-2는</span> 생각하지 않는 Instruct <span class="nb">판입니다(2편).</span> 그런데 Hugging Face가 붙여 보낸 대화 틀은 답을 쓸 자리 앞에 <code><span class="nb">&lt;think&gt;</span></code>를 미리 열어 둡니다. 시험 요청에서 <span class="nb">Kanana-2는</span> 생각을 쓰고, 생각을 닫는 <code><span class="nb">&lt;/think&gt;</span></code> 없이 바로 도구 <span class="nb">호출(</span><code><span class="nb">&lt;tool_call&gt;</span></code><span class="nb">)을</span> 썼습니다. Ollama는 도구 호출까지 모두 생각으로 돌려주었고, 도구 호출은 비어 있었습니다.</p>
+<figure class="code code--wrap"><figcaption class="code__bar"><span>노트북, Ollama 자체 API에 같은 요청을 생각 <span class="nb">켜고(위)·끄고(아래)</span> 보냈을 때 받은 것을 줄여 옮김</span><button class="copy" type="button" data-copy>복사</button></figcaption><pre class="astro-code css-variables" style="background-color:var(--astro-code-background);color:var(--astro-code-foreground);overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>think=True   thinking: &#39;... Once the tool returns the contents, I can then present the information to the user in a clear manner.\n&lt;tool_call&gt;\n{&quot;name&quot;: &quot;Read&quot;, &quot;arguments&quot;: {&quot;file_path&quot;: &quot;/tmp/a.txt&quot;}}\n&lt;/tool_call&gt;&#39;</span></span>
+<span class="line"><span>             tool_calls: None</span></span>
+<span class="line"><span>think=False  content: &#39;Okay, the user wants me to read the contents of the file ... Let me structure the tool call properly in the specified XML format.\n&#39;</span></span>
+<span class="line"><span>             tool_calls: [{&#39;function&#39;: {&#39;name&#39;: &#39;Read&#39;, &#39;arguments&#39;: {&#39;file_path&#39;: &#39;/tmp/a.txt&#39;}}}]</span></span></code></pre></figure>
+<p>생각을 끄고 Ollama 자체 <span class="nb">API(</span><code><span class="nb">/api/chat</span></code><span class="nb">)로</span> 보냈을 때는 도구 호출이 잡혔습니다. 하지만 앞의 표처럼 Claude 형식 API에 생각을 끄고 보냈을 때는 부르겠다는 글만 쓰고 끝났습니다. 한 번씩이라, 생각을 끄면 풀린다고 단정할 수는 없습니다. 어느 쪽이든 Claude Code는 생각을 끄는 요청을 보내지 <span class="nb">않습니다(Ollama</span> <span class="nb">4편).</span></p>
+<p>실제 과제에서는 여섯 번 중 다섯 번이 <span class="nb">2~3번</span> 주고받고 끝났습니다. 그동안 도구 호출을 생각 속에 썼고, 그 형식도 <code><span class="nb">&lt;tools&gt;</span></code>, <code><span class="nb">tool_call</span></code> 코드 블록, <code><span class="nb">tool_code</span></code> 코드 블록처럼 그때마다 달랐습니다. 보이는 답이 없으면 Claude Code는 <span class="nb">「보이는</span> 답을 <span class="nb">하라」는</span> 말을 덧붙여 다시 묻는데, 그래도 달라지지 않았습니다.</p>
+<p>고치기 1회차 하나만 달랐습니다. 21번 주고받는 동안 도구가 19번 실행됐습니다. 세 번째 Grep 결과에 고칠 <span class="nb">줄(</span><code><span class="nb">b.status</span></code><span class="nb">)이</span> 이미 나왔는데도 지나쳤습니다. 그 뒤로 데이터베이스와 <code><span class="nb">.env</span></code> 파일을 찾아다녔고, 없는 파일을 고치려 했습니다. Claude Code의 기억 파일 자리에 메모를 쓰려다 권한에 막히기도 했습니다. 끝내 아무것도 고치지 못했습니다.</p>
+<p>대화 틀에서 생각 부분을 뺀 태그도 만들어 봤습니다. 그러자 Ollama가 그 태그에는 GGUF 안의 다른 대화 틀을 골랐고, 도구를 주자 <span class="nb">「tools</span> param requires <span class="nb">–jinja</span> <span class="nb">flag」</span> 오류로 멈췄습니다. 더 파지는 않았습니다.</p>
+<h2 id="exaone만-풀었고-느렸다">EXAONE만 풀었고, 느렸다</h2>
+<p>EXAONE <span class="nb">4.5는</span> 찾기를 두 번 모두 풀었습니다. <span class="nb">8~9번</span> 주고받는 동안 Grep과 Glob으로 파일을 찾고 Read로 읽은 뒤, 계산 방식을 맞게 <span class="nb">설명했습니다(10.3분,</span> <span class="nb">11.0분).</span> 고치기 1회차는 15번 주고받으며 원인을 찾아 고치고, 빌드한 뒤 결과 페이지까지 읽어 <span class="nb">확인했습니다(30.5분).</span></p>
+<p>나머지 셋은 45분 한도에 걸렸습니다. 이 셋은 시험 스크립트가 대화 기록을 옮겨 두지 않았지만, Claude Code가 남긴 세션 파일로 무엇을 하다 끊겼는지 봤습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>시도</th>
+<th>한 일</th>
+<th>끊길 때</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>고치기 2회차</td>
+<td>34분에 고치고 35분에 빌드, 결과 확인</td>
+<td>끝맺는 답을 쓰기 전</td>
+</tr>
+<tr>
+<td>더하기 1회차</td>
+<td>40분 가까이 파일을 찾아 헤맨 뒤 고치기 시작</td>
+<td>앞부분만 고친 채</td>
+</tr>
+<tr>
+<td>더하기 2회차</td>
+<td>35분에 고치기 시작, 41분에 다시 씀</td>
+<td>빌드는 한 번도 안 함</td>
+</tr>
+</tbody>
+</table></div>
+<p>더하기 2회차는 글과 버그 기록을 날짜순으로 섞는 데까지는 맞았습니다. 하지만 글인지 버그 기록인지 가리는 <span class="nb">조건(</span><code>post.id.startsWith(&#39;posts&#39;)</code><span class="nb">)이</span> 틀려, 글 11편의 주소까지 모두 <code><span class="nb">/bugs/…</span></code>로 붙었습니다. 더하기 1회차는 가져오기 줄만 바꾼 채 끊겨, 피드에는 글만 들어 있었습니다.</p>
+<p>같은 노트북에서 해외 모델은 과제 하나를 <span class="nb">1~7분에</span> 끝냈습니다. EXAONE <span class="nb">4.5는</span> 33B dense 모델이고, 3편에서 이 노트북의 답 쓰는 속도가 초당 <span class="nb">4.0토큰이었습니다.</span> 생각도 길게 써서, 고치기 1회차에는 생각만 1만 6천 자였습니다. 다만 걸린 시간이 계산 방식만으로 갈리지는 않습니다. 토큰마다 일부만 계산하는 MoE인 <span class="nb">Kanana-2도</span> 더하기에서는 생각을 <span class="nb">1만~2만</span> 5천 자 썼고, 한 바퀴에 <span class="nb">47~55분이</span> 걸렸습니다.</p>
+<h2 id="한-바퀴에-걸린-시간">한 바퀴에 걸린 시간</h2>
+<p>과제 세 개를 한 바퀴 도는 데 걸린 <span class="nb">시간(분)입니다.</span> 실패한 시도도 들어 있고, 45분 한도에 걸린 시도는 45분으로 셌습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>통과</th>
+<th>1회차</th>
+<th>2회차</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 26B</td>
+<td><span class="nb">6/6</span></td>
+<td><span class="nb">14.6</span></td>
+<td><span class="nb">12.1</span></td>
+</tr>
+<tr>
+<td><span class="nb">Qwen3.6</span> 35B</td>
+<td><span class="nb">5/6</span></td>
+<td><span class="nb">10.1</span></td>
+<td><span class="nb">8.7</span></td>
+</tr>
+<tr>
+<td>EXAONE <span class="nb">4.5</span></td>
+<td><span class="nb">3/6</span></td>
+<td><span class="nb">85.8</span></td>
+<td><span class="nb">101.0</span></td>
+</tr>
+<tr>
+<td><span class="nb">Kanana-2</span></td>
+<td><span class="nb">0/6</span></td>
+<td><span class="nb">54.6</span></td>
+<td><span class="nb">47.2</span></td>
+</tr>
+<tr>
+<td>Tri-21B-Think</td>
+<td><span class="nb">0/6</span></td>
+<td><span class="nb">26.4</span></td>
+<td><span class="nb">8.6</span></td>
+</tr>
+<tr>
+<td><span class="nb">Mi:dm</span> <span class="nb">2.0</span></td>
+<td><span class="nb">0/6</span></td>
+<td><span class="nb">3.0</span></td>
+<td><span class="nb">3.1</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>EXAONE의 통과 수에는 <span class="nb">△를</span> 넣지 않았습니다. <span class="nb">Mi:dm이</span> 가장 빨리 끝난 것은 일을 하지 않고 답했기 때문입니다.</p>
+<h2 id="알게-된-것">알게 된 것</h2>
+<ul>
+<li><strong>도구를 부를 수 있는 것과 에이전트로 일하는 것은 다르다.</strong> 시험 요청 하나에는 넷 중 셋이 도구를 불렀다. 하지만 실제 과제에서 스스로 파일을 찾아 읽고 고친 것은 EXAONE <span class="nb">4.5뿐이었다.</span></li>
+<li><strong>Ollama에 붙일 때는 대화 틀부터 봐야 한다.</strong> <span class="nb">Kanana-2는</span> 대화 틀이 열어 둔 생각 속에 도구 호출을 쓰거나 형식을 틀려, 대부분 실행되지 않았다. Tri는 생각하는 모델로 알려지지 않아 생각이 보이는 글로 나왔다. <span class="nb">Mi:dm은</span> 대화 틀의 고정 지시문이 Claude Code의 지시보다 앞에 온다. <span class="nb">Mi:dm과</span> Tri가 실패한 직접 원인이 대화 틀인지는 시험하지 않았다.</li>
+<li><strong>EXAONE <span class="nb">4.5는</span> 풀지만 노트북에서는 느리다.</strong> 끝낸 과제는 <span class="nb">10~31분이</span> 걸렸고, 나머지 셋은 45분 한도에 걸렸다. 같은 일을 해외 모델은 <span class="nb">1~7분에</span> 했다.</li>
+<li><strong>이 노트북에서 코딩을 맡긴다면 지금은 해외 모델이다.</strong> Gemma 4와 <span class="nb">Qwen3.6이</span> 더 많이, 훨씬 빨리 풀었다. 어떤 일에 어떤 모델을 쓸지는 6편에서 정리한다.</li>
+</ul>
+<h2 id="남긴-기록">남긴 기록</h2>
+<ol class="trail" aria-label="작업 기록, 2026-11-21"><li><time class="measured" datetime="2026-11-21T11:46+09:00"><span class="nb">11:46</span></time><span class="trail__what">노트북 웹 UI 서버를 멈추고 Ollama를 띄움</span><code class="trail__got"><span class="nb">49,152토큰,</span> 모델 하나</code></li><li><time class="measured" datetime="2026-11-21T11:50+09:00"><span class="nb">11:50</span></time><span class="trail__what">생각을 끄고 도구 호출을 시험</span><code class="trail__got"><span class="nb">Mi:dm만</span> 부름, EXAONE은 메모리 부족</code></li><li><time class="measured" datetime="2026-11-21T11:51+09:00"><span class="nb">11:51</span></time><span class="trail__what">EXAONE의 그림 처리 부분을 뺀 태그를 만듦</span><code class="trail__got"><span class="nb">49,152토큰에서</span> 올라감</code></li><li><time class="measured" datetime="2026-11-21T11:54+09:00"><span class="nb">11:54</span></time><span class="trail__what">생각을 켜고 도구 호출을 시험</span><code class="trail__got"><span class="nb">Kanana-2만</span> 부르지 못함</code></li><li><time class="measured" datetime="2026-11-21T11:54+09:00"><span class="nb">11:54</span></time><span class="trail__what"><span class="nb">Kanana-2에</span> Ollama 자체 API로 생각 <span class="nb">켜고·끄고</span></span><code class="trail__got">끄면 도구 호출이 잡힘</code></li><li><time class="measured" datetime="2026-11-21T11:55+09:00"><span class="nb">11:55</span></time><span class="trail__what">과제 시작</span><code class="trail__got">1회차부터</code></li><li><time class="measured" datetime="2026-11-21T13:22+09:00"><span class="nb">13:22</span></time><span class="trail__what"><span class="nb">Mi:dm,</span> <span class="nb">Kanana-2,</span> Tri 1회차</span><code class="trail__got">셋 다 <span class="nb">0/3</span></code></li><li><time class="measured" datetime="2026-11-21T13:33+09:00"><span class="nb">13:33</span></time><span class="trail__what">EXAONE 찾기 1회차</span><code class="trail__got">9번 주고받고 통과</code></li><li><time class="measured" datetime="2026-11-21T14:03+09:00"><span class="nb">14:03</span></time><span class="trail__what">EXAONE 고치기 1회차</span><code class="trail__got"><span class="nb">30.5분에</span> 통과</code></li><li><time class="measured" datetime="2026-11-21T14:48+09:00"><span class="nb">14:48</span></time><span class="trail__what">EXAONE 더하기 1회차</span><code class="trail__got">45분 한도, 가져오기 줄만 고침</code></li><li><time class="measured" datetime="2026-11-21T16:46+09:00"><span class="nb">16:46</span></time><span class="trail__what">EXAONE 고치기 2회차</span><code class="trail__got">고치고 확인했지만 45분 한도</code></li><li><time class="measured" datetime="2026-11-21T17:32+09:00"><span class="nb">17:32</span></time><span class="trail__what">EXAONE 더하기 2회차</span><code class="trail__got">45분 한도, 글 주소가 <span class="nb">/bugs/로</span> 붙음</code></li></ol></div><nav class="pager" aria-label="다른 글"><a href="/#series-korean-llm"><small>처음으로</small><strong>연재 목차</strong></a><a href="/posts/korean-llm-06-summary/" class="pager__next"><small>다음 글</small><strong>6편 국산 LLM, 어떤 일에 맡길까</strong></a></nav></article><aside class="toc" aria-labelledby="toc-title"><h2 id="toc-title">이 글에서</h2><ol><li><a href="#이번에-할-일">이번에 할 일</a></li><li><a href="#시험-방법">시험 방법</a></li><li><a href="#돌리기-전에-도구를-부르는지">돌리기 전에, 도구를 부르는지</a></li><li><a href="#결과">결과</a></li><li><a href="#도구를-거의-쓰지-않았다-midm과-tri">도구를 거의 쓰지 않았다: <span class="nb">Mi:dm과</span> Tri</a></li><li><a href="#도구-호출이-생각-속에-묻혔다-kanana-2">도구 호출이 생각 속에 묻혔다: <span class="nb">Kanana-2</span></a></li><li><a href="#exaone만-풀었고-느렸다">EXAONE만 풀었고, 느렸다</a></li><li><a href="#한-바퀴에-걸린-시간">한 바퀴에 걸린 시간</a></li><li><a href="#알게-된-것">알게 된 것</a></li><li><a href="#남긴-기록">남긴 기록</a></li></ol></aside></div></main><footer class="site-footer"><div class="container site-footer__inner"><div class="site-footer__mark"><a class="wordmark" href="/" aria-label="Cyborg 처음으로"><span class="wm" aria-hidden="true">Cy<span class="wm__tail" data-shadow="blog">borg</span></span></a><div class="visits"><dl aria-label="방문자"><div><dt>오늘</dt><dd class="measured">0</dd></div><div><dt>전체</dt><dd class="measured">35</dd></div></dl><p>구글 애널리틱스 기준, <time class="measured" datetime="2026-11-28T20:17:06.039Z"><span class="nb">11-29</span> <span class="nb">05:17</span></time>에 셈. 한 시간마다 고칩니다.</p></div></div><ul class="site-footer__links"><li><a href="/#series">연재 목차</a></li><li><a href="/bugs/">Cybug</a></li><li><a href="/rss.xml">RSS</a></li><li><a href="https://github.com/TeddyBEARs56">GitHub</a></li><li><a href="/privacy/">개인정보</a></li></ul><p class="site-footer__legal">© 2026 Cyborg. 글꼴은 Pretendard, Host Grotesk, Atkinson Hyperlegible Mono.</p></div></footer></body></html><script type="module">document.querySelectorAll(`[data-copy]`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.code`)?.querySelector(`pre`);if(!t)return;let n=(t.textContent??``).split(`
+`).filter(e=>!/^\s*#/.test(e)).map(e=>e.replace(/^\$\s/,``).replace(/\s{2,}#.*$/,``).replace(/\s+$/,``)).join(`
+`).trim();try{await navigator.clipboard.writeText(n),e.textContent=`복사함`}catch{e.textContent=`복사 안 됨`}setTimeout(()=>{e.textContent=`복사`},1600)})});var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))).filter(e=>e!==null),n=!1,r=()=>{n=!1;let r=window.innerHeight*.3,i=-1;t.forEach((e,t)=>{e.getBoundingClientRect().top<=r&&(i=t)}),e.forEach((e,t)=>{t===i?e.setAttribute(`aria-current`,`true`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script>
